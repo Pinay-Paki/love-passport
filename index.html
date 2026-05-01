@@ -2,1008 +2,2743 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Republic of Us · Passport of Vaniza</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Love Passport · Republic of Us</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700&family=Cormorant+Upright:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-  :root{
-    --green:#0c5e3c;
-    --green-deep:#063a25;
-    --maroon:#6b1320;
-    --maroon-deep:#430a13;
-    --gold:#d4af37;
-    --gold-soft:#e7c66b;
-    --cream:#f4ecd8;
-    --paper:#fbf6e9;
-    --ink:#2a1810;
+:root{
+  --green:#0b6b48;
+  --green-dark:#063823;
+  --maroon:#711425;
+  --maroon-dark:#3e0711;
+  --gold:#d8ad3c;
+  --gold-light:#ffe49b;
+  --cream:#fff4dc;
+  --paper:#fff7e8;
+  --ink:#2b190c;
+  --muted:#dbc99f;
+  --glass:rgba(255,255,255,.09);
+  --border:rgba(255,228,155,.32);
+  --shadow:0 28px 90px rgba(0,0,0,.55);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  font-family:"Cormorant Garamond", Georgia, serif;
+  color:var(--cream);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(216,173,60,.18), transparent 26%),
+    radial-gradient(circle at 84% 18%, rgba(113,20,37,.32), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba(11,107,72,.35), transparent 40%),
+    linear-gradient(135deg, #05060a 0%, #061811 47%, #210711 100%);
+}
+
+button,
+input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+img{
+  max-width:100%;
+  display:block;
+}
+
+button:focus-visible,
+input:focus-visible{
+  outline:3px solid rgba(255,228,155,.85);
+  outline-offset:4px;
+}
+
+/* BACKGROUND */
+
+.sky{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0;
+}
+
+.sky::before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:
+    radial-gradient(circle, rgba(255,228,155,.15) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(255,255,255,.08) 0 1px, transparent 2px);
+  background-size:72px 72px, 116px 116px;
+  animation:starDrift 45s linear infinite;
+}
+
+@keyframes starDrift{
+  to{ transform:translate(-100px,80px); }
+}
+
+.flying-bg{
+  position:absolute;
+  left:-20vw;
+  top:var(--top);
+  font-size:var(--size);
+  opacity:.75;
+  filter:drop-shadow(0 0 12px rgba(255,228,155,.7));
+  animation:flyingAcross var(--duration) linear infinite;
+  animation-delay:var(--delay);
+}
+
+@keyframes flyingAcross{
+  0%{ transform:translateX(-20vw) translateY(0) rotate(5deg); opacity:0; }
+  12%{ opacity:.8; }
+  50%{ transform:translateX(60vw) translateY(-36px) rotate(-8deg); opacity:1; }
+  90%{ opacity:.8; }
+  100%{ transform:translateX(130vw) translateY(20px) rotate(12deg); opacity:0; }
+}
+
+.float-heart{
+  position:absolute;
+  bottom:-70px;
+  left:var(--left);
+  font-size:var(--size);
+  color:rgba(255,228,155,.27);
+  animation:heartRise var(--duration) linear infinite;
+  animation-delay:var(--delay);
+}
+
+@keyframes heartRise{
+  0%{ transform:translateY(0) rotate(0); opacity:0; }
+  12%{ opacity:1; }
+  100%{ transform:translateY(-115vh) rotate(26deg); opacity:0; }
+}
+
+/* APP */
+
+.app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(14px, 3vw, 44px);
+}
+
+.screen{
+  width:min(1180px, 100%);
+  display:none;
+  animation:screenIn .6s cubic-bezier(.2,.9,.2,1) both;
+}
+
+.screen.active{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+@keyframes screenIn{
+  from{ opacity:0; transform:translateY(22px) scale(.985); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+.micro{
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+}
+
+.primary-btn,
+.ghost-btn,
+.nav-btn{
+  border:none;
+  border-radius:999px;
+  min-height:50px;
+  padding:14px 24px;
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  transition:.25s ease;
+}
+
+.primary-btn{
+  color:#241706;
+  background:linear-gradient(135deg, var(--gold-light), var(--gold) 55%, #aa741b);
+  box-shadow:0 18px 38px rgba(216,173,60,.35), inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+.primary-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 24px 55px rgba(216,173,60,.48);
+}
+
+.ghost-btn,
+.nav-btn{
+  color:var(--cream);
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,228,155,.28);
+  backdrop-filter:blur(16px);
+}
+
+.ghost-btn:hover,
+.nav-btn:hover{
+  background:rgba(255,255,255,.16);
+  border-color:rgba(255,228,155,.55);
+  transform:translateY(-2px);
+}
+
+.nav-btn:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.nav-btn:disabled:hover{
+  transform:none;
+}
+
+/* LANDING */
+
+.landing-card{
+  width:min(840px, 100%);
+  padding:clamp(42px, 7vw, 90px) clamp(22px, 6vw, 72px);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  border-radius:34px;
+  border:1px solid var(--border);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.035)),
+    rgba(5,24,18,.72);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(24px) saturate(140%);
+}
+
+.landing-card::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,228,155,.17), transparent 36%),
+    linear-gradient(120deg, transparent, rgba(255,255,255,.1), transparent);
+  pointer-events:none;
+}
+
+.landing-badge{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 18px;
+  margin-bottom:28px;
+  border-radius:999px;
+  color:var(--gold-light);
+  background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,228,155,.36);
+  font-size:clamp(10px, 1.5vw, 14px);
+  line-height:1.4;
+}
+
+.landing-card h1{
+  position:relative;
+  font-family:"Cinzel", serif;
+  font-size:clamp(46px, 10vw, 104px);
+  line-height:.9;
+  color:var(--gold-light);
+  text-shadow:0 0 36px rgba(216,173,60,.26);
+  letter-spacing:.025em;
+  margin-bottom:20px;
+}
+
+.for-name{
+  position:relative;
+  font-size:clamp(27px, 4vw, 44px);
+  color:#ffdce5;
+  font-style:italic;
+  margin-bottom:22px;
+}
+
+.landing-card p{
+  position:relative;
+  max-width:680px;
+  margin:0 auto;
+  color:rgba(255,244,220,.92);
+  font-size:clamp(20px, 2.45vw, 28px);
+  line-height:1.55;
+}
+
+.small-note{
+  position:relative;
+  margin:28px 0 36px;
+  color:rgba(255,228,155,.72);
+  font-size:clamp(10px, 1.35vw, 13px);
+}
+
+/* COVER */
+
+.cover-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  perspective:1600px;
+}
+
+.passport-cover{
+  width:min(465px, 90vw);
+  aspect-ratio:5 / 7;
+  border:0;
+  position:relative;
+  overflow:hidden;
+  border-radius:24px;
+  color:var(--gold-light);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.13), transparent 24%),
+    linear-gradient(135deg, var(--green) 0 49.5%, var(--maroon-dark) 50.5% 100%);
+  box-shadow:
+    0 44px 110px rgba(0,0,0,.72),
+    0 0 0 1px rgba(255,228,155,.45),
+    inset 0 0 0 8px rgba(255,228,155,.12);
+  transform-style:preserve-3d;
+  transition:.65s cubic-bezier(.2,.9,.2,1);
+}
+
+.passport-cover:hover{
+  transform:rotateY(-8deg) rotateX(4deg) translateY(-8px);
+}
+
+.passport-cover::before{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border:2px solid rgba(255,228,155,.45);
+  border-radius:18px;
+}
+
+.passport-cover::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.15;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,.25) 8px 9px),
+    radial-gradient(circle at 36% 15%, rgba(255,255,255,.22), transparent 30%);
+  mix-blend-mode:screen;
+}
+
+.cover-content{
+  position:relative;
+  z-index:2;
+  height:100%;
+  padding:clamp(28px, 6vw, 52px);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  text-align:center;
+}
+
+.country-line{
+  font-family:"Inter", system-ui, sans-serif;
+  font-size:clamp(13px, 2.2vw, 18px);
+  font-weight:900;
+  letter-spacing:.16em;
+  line-height:1.65;
+}
+
+.cover-emblem{
+  width:min(230px, 62%);
+  aspect-ratio:1;
+  margin:0 auto 20px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  border:2px solid rgba(255,228,155,.48);
+  box-shadow:
+    0 0 36px rgba(216,173,60,.25),
+    inset 0 0 0 10px rgba(216,173,60,.08);
+  background:radial-gradient(circle, rgba(216,173,60,.17), transparent 63%);
+}
+
+.emblem-heart{
+  font-size:clamp(75px, 16vw, 120px);
+  filter:drop-shadow(0 0 22px rgba(255,228,155,.45));
+}
+
+.cover-title{
+  font-family:"Cinzel", serif;
+  font-size:clamp(32px, 8vw, 58px);
+  line-height:.95;
+  color:var(--gold-light);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.cover-subtitle{
+  margin-top:14px;
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  letter-spacing:.2em;
+  color:rgba(255,228,155,.85);
+}
+
+.languages{
+  font-family:"Inter", system-ui, sans-serif;
+  font-size:clamp(12px, 2vw, 16px);
+  font-weight:900;
+  line-height:1.8;
+  letter-spacing:.14em;
+}
+
+.chip{
+  width:50px;
+  height:34px;
+  margin:18px auto 14px;
+  border:2px solid var(--gold-light);
+  border-radius:7px;
+  position:relative;
+}
+
+.chip::before{
+  content:"";
+  position:absolute;
+  inset:7px 11px;
+  border:1px solid var(--gold-light);
+  border-radius:4px;
+}
+
+.open-hint{
+  font-size:12px;
+  color:rgba(255,228,155,.76);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  50%{ opacity:.42; transform:scale(.98); }
+}
+
+/* BOOK */
+
+.passport-area{
+  width:min(1080px, 100%);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.top-bar,
+.nav-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.page-indicator{
+  color:var(--gold-light);
+  font-size:clamp(11px, 1.45vw, 14px);
+}
+
+.settings-panel{
+  display:grid;
+  grid-template-columns:repeat(5, 1fr);
+  gap:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:18px;
+  max-height:500px;
+  background:rgba(255,255,255,.075);
+  backdrop-filter:blur(16px);
+  transition:.34s ease;
+}
+
+.settings-panel.hidden{
+  max-height:0;
+  opacity:0;
+  padding-top:0;
+  padding-bottom:0;
+  border-width:0;
+}
+
+.field label{
+  display:block;
+  margin-bottom:8px;
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  font-size:10px;
+}
+
+.field input{
+  width:100%;
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid rgba(255,228,155,.24);
+  color:var(--cream);
+  background:rgba(0,0,0,.22);
+  padding:12px 14px;
+  font-size:18px;
+}
+
+.book{
+  position:relative;
+  min-height:620px;
+  overflow:hidden;
+  border-radius:34px;
+  padding:clamp(22px, 4vw, 46px);
+  border:1px solid rgba(255,228,155,.27);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.03)),
+    rgba(9,15,20,.76);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(24px) saturate(135%);
+}
+
+.book::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255,228,155,.1), transparent 28%),
+    radial-gradient(circle at 90% 80%, rgba(223,111,137,.12), transparent 30%),
+    linear-gradient(90deg, rgba(255,255,255,.035), transparent 18%, transparent 82%, rgba(255,255,255,.035));
+  pointer-events:none;
+}
+
+.passport-page{
+  position:relative;
+  z-index:1;
+  display:none;
+  animation:pageIn .42s ease both;
+}
+
+.passport-page.active{
+  display:block;
+}
+
+@keyframes pageIn{
+  from{ opacity:0; transform:translateX(20px); }
+  to{ opacity:1; transform:translateX(0); }
+}
+
+.page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding-bottom:16px;
+  margin-bottom:28px;
+  border-bottom:1px solid rgba(255,228,155,.25);
+}
+
+.page-num,
+.page-tag{
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:clamp(10px, 1.35vw, 13px);
+}
+
+.page-title{
+  font-family:"Cinzel", serif;
+  font-size:clamp(35px, 5.8vw, 66px);
+  line-height:1;
+  color:var(--gold-light);
+  margin-bottom:16px;
+  letter-spacing:.02em;
+}
+
+.page-subtitle{
+  max-width:780px;
+  margin-bottom:34px;
+  color:rgba(255,244,220,.88);
+  font-size:clamp(20px, 2.25vw, 28px);
+  line-height:1.55;
+  font-style:italic;
+}
+
+/* IDENTITY */
+
+.identity-card{
+  display:grid;
+  grid-template-columns:245px 1fr;
+  gap:34px;
+  align-items:start;
+}
+
+.photo-frame{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  min-height:330px;
+  border-radius:24px;
+  border:2px solid rgba(255,228,155,.48);
+  background:rgba(0,0,0,.2);
+  box-shadow:0 18px 46px rgba(0,0,0,.42);
+}
+
+.photo-frame img{
+  width:100%;
+  height:100%;
+  min-height:330px;
+  object-fit:cover;
+  object-position:center top;
+  filter:contrast(1.04) saturate(1.04);
+}
+
+.photo-frame::after{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border:1px dashed rgba(255,228,155,.45);
+  border-radius:18px;
+  pointer-events:none;
+}
+
+.photo-badge{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  z-index:2;
+  padding:10px 12px;
+  border-radius:14px;
+  text-align:center;
+  background:rgba(0,0,0,.56);
+  border:1px solid rgba(255,228,155,.35);
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  backdrop-filter:blur(10px);
+}
+
+.info-list{
+  display:grid;
+  gap:13px;
+}
+
+.info-row{
+  display:grid;
+  grid-template-columns:155px 1fr;
+  gap:18px;
+  padding:14px 0;
+  border-bottom:1px dashed rgba(255,228,155,.18);
+}
+
+.info-row .label{
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:11px;
+}
+
+.info-row .value{
+  color:var(--cream);
+  font-size:clamp(20px, 2.3vw, 28px);
+  line-height:1.28;
+}
+
+.info-row .value em{
+  color:#ffdce5;
+}
+
+/* DISTANCE */
+
+.map-card{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(22px, 4vw, 42px);
+  border-radius:28px;
+  border:1px solid rgba(255,228,155,.22);
+  background:rgba(0,0,0,.18);
+}
+
+.map-line{
+  position:relative;
+  min-height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.city{
+  width:200px;
+  text-align:center;
+  z-index:2;
+}
+
+.flag{
+  width:98px;
+  height:66px;
+  margin:0 auto 14px;
+  border-radius:10px;
+  object-fit:cover;
+  border:1px solid rgba(255,228,155,.45);
+  box-shadow:0 10px 25px rgba(0,0,0,.28);
+}
+
+.city-name{
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  color:var(--gold-light);
+  letter-spacing:.13em;
+  font-size:clamp(16px, 2vw, 21px);
+}
+
+.city-country{
+  margin-top:6px;
+  color:rgba(255,244,220,.7);
+  font-size:14px;
+}
+
+.connection{
+  position:absolute;
+  left:200px;
+  right:200px;
+  top:50%;
+  height:3px;
+  background:repeating-linear-gradient(90deg, rgba(255,228,155,.28) 0 12px, transparent 12px 22px);
+}
+
+.travel-heart{
+  position:absolute;
+  top:calc(50% - 20px);
+  left:200px;
+  font-size:34px;
+  z-index:3;
+  filter:drop-shadow(0 0 14px rgba(255,228,155,.75));
+  animation:mapFly 5.4s ease-in-out infinite;
+}
+
+@keyframes mapFly{
+  0%,100%{ left:200px; transform:translateY(6px) rotate(-10deg); }
+  50%{ left:calc(100% - 230px); transform:translateY(-24px) rotate(12deg); }
+}
+
+.distance-stats{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+  margin-top:28px;
+}
+
+.stat{
+  text-align:center;
+  border-radius:20px;
+  padding:20px 12px;
+  border:1px solid rgba(255,228,155,.2);
+  background:rgba(255,255,255,.055);
+}
+
+.stat-num{
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  color:var(--gold-light);
+  font-size:clamp(28px, 4vw, 42px);
+}
+
+.stat-label{
+  color:rgba(255,244,220,.72);
+  margin-top:7px;
+  font-size:12px;
+}
+
+/* STAMPS */
+
+.stamp-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:18px;
+}
+
+.stamp{
+  min-height:176px;
+  position:relative;
+  overflow:hidden;
+  border-radius:28px;
+  border:2px solid rgba(255,228,155,.45);
+  color:var(--cream);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,228,155,.18), transparent 48%),
+    rgba(255,255,255,.06);
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+  transition:.3s cubic-bezier(.2,.9,.2,1);
+}
+
+.stamp::before{
+  content:"";
+  position:absolute;
+  inset:9px;
+  border:1px dashed rgba(255,228,155,.42);
+  border-radius:22px;
+  pointer-events:none;
+}
+
+.stamp::after{
+  content:"";
+  position:absolute;
+  inset:-60%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform:rotate(25deg) translateX(-100%);
+  transition:.6s ease;
+}
+
+.stamp:hover{
+  transform:translateY(-8px) rotate(-1deg) scale(1.025);
+  background:rgba(255,255,255,.11);
+  box-shadow:0 24px 50px rgba(0,0,0,.35);
+}
+
+.stamp:hover::after{
+  transform:rotate(25deg) translateX(100%);
+}
+
+.stamp .emoji{
+  font-size:clamp(32px, 5vw, 48px);
+}
+
+.stamp strong{
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-size:clamp(15px, 1.8vw, 20px);
+  line-height:1.18;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+
+.stamp small{
+  color:rgba(255,244,220,.7);
+  font-family:"Inter", system-ui, sans-serif;
+  font-size:11px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+
+/* PHRASE */
+
+.phrase-card{
+  text-align:center;
+  overflow:hidden;
+  border-radius:28px;
+  padding:clamp(32px, 6vw, 64px) 24px;
+  border:1px solid rgba(255,228,155,.22);
+  background:rgba(0,0,0,.17);
+}
+
+.phrase-photo{
+  width:min(220px, 58vw);
+  aspect-ratio:1;
+  margin:0 auto 28px;
+  border-radius:50%;
+  overflow:hidden;
+  border:3px solid rgba(255,228,155,.48);
+  box-shadow:0 0 58px rgba(216,173,60,.28);
+}
+
+.phrase-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+
+.phrase-main{
+  color:var(--gold-light);
+  font-size:clamp(44px, 8vw, 84px);
+  line-height:1.05;
+  font-style:italic;
+  margin-bottom:12px;
+  transition:.35s ease;
+}
+
+.phrase-translation{
+  color:rgba(255,244,220,.77);
+  font-size:clamp(20px, 2.4vw, 28px);
+  margin-bottom:34px;
+  transition:.35s ease;
+}
+
+/* NEW LETTERS PAGE */
+
+.letters-page-wrap{
+  position:relative;
+  overflow:hidden;
+  border-radius:32px;
+  padding:clamp(20px, 4vw, 38px);
+  border:1px solid rgba(255,228,155,.25);
+  background:
+    radial-gradient(circle at 18% 5%, rgba(255,228,155,.16), transparent 28%),
+    radial-gradient(circle at 88% 100%, rgba(223,111,137,.15), transparent 30%),
+    rgba(0,0,0,.18);
+}
+
+.letters-page-wrap::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:
+    linear-gradient(120deg, transparent 0 40%, rgba(255,255,255,.08) 50%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,228,155,.055) 0 1px, transparent 1px 18px);
+  animation:letterGlowMove 13s linear infinite;
+  pointer-events:none;
+}
+
+@keyframes letterGlowMove{
+  to{ transform:translate(120px, 80px); }
+}
+
+.letters-intro{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:20px;
+  align-items:center;
+  margin-bottom:26px;
+}
+
+.letters-intro h3{
+  font-family:"Cinzel", serif;
+  color:var(--gold-light);
+  font-size:clamp(28px, 4.2vw, 48px);
+  line-height:1.05;
+}
+
+.letters-intro p{
+  max-width:650px;
+  margin-top:10px;
+  color:rgba(255,244,220,.86);
+  font-size:clamp(19px, 2.2vw, 25px);
+  line-height:1.5;
+  font-style:italic;
+}
+
+.letter-floating-seal{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:#251706;
+  background:radial-gradient(circle at 34% 25%, #fff3be, var(--gold-light) 32%, var(--gold) 70%, #9b6818);
+  box-shadow:0 0 44px rgba(216,173,60,.36);
+  font-family:"Inter", system-ui, sans-serif;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  transform:rotate(-8deg);
+  animation:sealFloat 3.4s ease-in-out infinite;
+}
+
+@keyframes sealFloat{
+  50%{ transform:translateY(-10px) rotate(6deg); }
+}
+
+.envelope-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:18px;
+}
+
+.envelope{
+  min-height:210px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(216,173,60,.48);
+  border-radius:26px;
+  color:var(--ink);
+  background:
+    linear-gradient(160deg, #fff8ec 0%, #ecd9ad 100%);
+  padding:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow:0 18px 42px rgba(0,0,0,.35);
+  transition:.35s cubic-bezier(.2,.9,.2,1);
+}
+
+.envelope::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:58%;
+  z-index:2;
+  background:linear-gradient(180deg, rgba(216,173,60,.26), rgba(216,173,60,.08));
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  transform-origin:top center;
+  transition:.55s cubic-bezier(.2,.9,.2,1);
+}
+
+.envelope::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(45deg, transparent 49.5%, rgba(113,20,37,.12) 50%, transparent 50.5%),
+    linear-gradient(-45deg, transparent 49.5%, rgba(113,20,37,.12) 50%, transparent 50.5%);
+  opacity:.9;
+  pointer-events:none;
+}
+
+.envelope:hover,
+.envelope.opened{
+  transform:translateY(-8px) rotate(-1deg);
+  box-shadow:0 26px 60px rgba(0,0,0,.45);
+}
+
+.envelope:hover::before,
+.envelope.opened::before{
+  transform:rotateX(180deg) translateY(-4px);
+}
+
+.envelope-paper{
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:28px;
+  height:118px;
+  z-index:1;
+  border-radius:16px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(113,20,37,.14) 22px 23px),
+    #fffaf0;
+  border:1px solid rgba(113,20,37,.12);
+  transform:translateY(46px);
+  transition:.55s cubic-bezier(.2,.9,.2,1);
+}
+
+.envelope:hover .envelope-paper,
+.envelope.opened .envelope-paper{
+  transform:translateY(-14px);
+}
+
+.wax-seal{
+  position:absolute;
+  top:42%;
+  left:50%;
+  width:62px;
+  height:62px;
+  transform:translate(-50%,-50%);
+  z-index:4;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:var(--gold-light);
+  background:radial-gradient(circle at 35% 28%, #b52c42, #68101f 62%, #3c0710);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  font-size:20px;
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
+  transition:.35s ease;
+}
+
+.envelope:hover .wax-seal{
+  transform:translate(-50%,-50%) rotate(-14deg) scale(1.08);
+}
+
+.envelope-stamp{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:42px;
+  height:48px;
+  z-index:5;
+  border:1px dashed rgba(104,16,31,.5);
+  border-radius:4px;
+  background:rgba(255,255,255,.55);
+  display:grid;
+  place-items:center;
+  color:var(--maroon);
+  font-size:18px;
+}
+
+.envelope-title{
+  position:relative;
+  z-index:6;
+  margin-top:72px;
+  font-size:clamp(22px, 2.2vw, 30px);
+  line-height:1.12;
+  font-weight:700;
+  font-style:italic;
+  text-wrap:balance;
+}
+
+.letter-hint{
+  position:relative;
+  z-index:2;
+  margin-top:22px;
+  text-align:center;
+  color:rgba(255,228,155,.78);
+  font-size:12px;
+}
+
+/* FUTURE STAMPS */
+
+.future-stage{
+  position:relative;
+  overflow:hidden;
+  border-radius:30px;
+  padding:clamp(18px, 3vw, 28px);
+  border:1px solid rgba(255,228,155,.24);
+  background:
+    radial-gradient(circle at 30% 0%, rgba(255,228,155,.16), transparent 34%),
+    radial-gradient(circle at 82% 84%, rgba(223,111,137,.16), transparent 34%),
+    rgba(0,0,0,.18);
+}
+
+.future-orbit{
+  position:absolute;
+  inset:14px;
+  border:1px dashed rgba(255,228,155,.2);
+  border-radius:50%;
+  animation:spin 22s linear infinite;
+  pointer-events:none;
+}
+
+.future-orbit.two{
+  inset:42px 110px;
+  animation-duration:32s;
+  animation-direction:reverse;
+  opacity:.75;
+}
+
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
+
+.future-plane{
+  position:absolute;
+  top:30px;
+  left:-60px;
+  z-index:1;
+  font-size:34px;
+  filter:drop-shadow(0 0 18px rgba(255,228,155,.8));
+  animation:futurePlane 8s ease-in-out infinite;
+}
+
+@keyframes futurePlane{
+  0%{ transform:translate(-80px, 30px) rotate(12deg); opacity:0; }
+  12%{ opacity:1; }
+  50%{ transform:translate(calc(50vw + 80px), 0) rotate(-8deg); opacity:1; }
+  88%{ opacity:1; }
+  100%{ transform:translate(calc(100vw + 80px), 38px) rotate(12deg); opacity:0; }
+}
+
+.future-stage .stamp-grid{
+  position:relative;
+  z-index:2;
+}
+
+.stamp.locked{
+  animation:stampFloat 4.5s ease-in-out infinite;
+  animation-delay:var(--delay, 0s);
+  border-style:dashed;
+}
+
+.stamp.locked .emoji{
+  animation:lockGlow 2.2s ease-in-out infinite;
+}
+
+@keyframes stampFloat{
+  0%,100%{ transform:translateY(0) rotate(-1deg); }
+  50%{ transform:translateY(-10px) rotate(1.5deg); }
+}
+
+@keyframes lockGlow{
+  50%{ transform:scale(1.12); filter:drop-shadow(0 0 14px rgba(255,228,155,.8)); }
+}
+
+/* PROMISES */
+
+.promise-list{
+  display:grid;
+  gap:14px;
+  counter-reset:promise;
+}
+
+.promise-item{
+  counter-increment:promise;
+  opacity:0;
+  transform:translateY(16px);
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:18px 20px;
+  border-radius:20px;
+  border:1px solid rgba(255,228,155,.18);
+  background:rgba(255,255,255,.06);
+  color:var(--cream);
+  font-size:clamp(20px, 2.2vw, 27px);
+  line-height:1.42;
+}
+
+.promise-item.show{
+  animation:promiseShow .5s ease forwards;
+}
+
+@keyframes promiseShow{
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.promise-item::before{
+  content:counter(promise, decimal-leading-zero);
+  flex:0 0 48px;
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:#241707;
+  background:linear-gradient(135deg, var(--gold-light), var(--gold));
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  font-size:16px;
+}
+
+.promise-item strong{
+  color:var(--gold-light);
+}
+
+/* VOW */
+
+.rule-box{
+  text-align:center;
+}
+
+.rule-intro{
+  max-width:680px;
+  margin:0 auto 32px;
+  color:rgba(255,244,220,.84);
+  font-size:clamp(21px, 2.5vw, 30px);
+  line-height:1.5;
+  font-style:italic;
+}
+
+.vow-list{
+  max-width:660px;
+  margin:0 auto;
+  display:grid;
+  gap:16px;
+}
+
+.vow{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  text-align:left;
+  width:100%;
+  border-radius:22px;
+  border:1px solid rgba(255,228,155,.22);
+  background:rgba(255,255,255,.06);
+  padding:22px;
+  color:var(--cream);
+  transition:.28s ease;
+}
+
+.vow:hover,
+.vow.checked{
+  transform:translateY(-3px);
+  border-color:rgba(255,228,155,.58);
+  background:rgba(255,228,155,.1);
+}
+
+.vow-check{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:2px solid rgba(255,228,155,.52);
+  color:#261706;
+}
+
+.vow.checked .vow-check{
+  background:linear-gradient(135deg, var(--gold-light), var(--gold));
+}
+
+.vow-check svg{
+  width:24px;
+  height:24px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:28;
+  stroke-dashoffset:28;
+  transition:.35s ease;
+}
+
+.vow.checked svg{
+  stroke-dashoffset:0;
+}
+
+.vow-word{
+  color:var(--gold-light);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  font-size:clamp(20px, 2.4vw, 29px);
+}
+
+.vow-desc{
+  margin-top:5px;
+  color:rgba(255,244,220,.76);
+  font-size:clamp(17px, 2vw, 23px);
+}
+
+.rule-status{
+  margin-top:24px;
+  color:var(--gold-light);
+  font-size:12px;
+}
+
+/* FINAL */
+
+.final-box{
+  text-align:center;
+  padding:20px 0 0;
+}
+
+.final-photo{
+  width:min(230px, 62vw);
+  aspect-ratio:1;
+  margin:0 auto 30px;
+  border-radius:50%;
+  overflow:hidden;
+  border:3px solid rgba(255,228,155,.48);
+  box-shadow:0 0 58px rgba(216,173,60,.3);
+}
+
+.final-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+
+.final-message{
+  max-width:780px;
+  margin:0 auto 34px;
+  color:var(--cream);
+  font-size:clamp(26px, 4vw, 44px);
+  line-height:1.35;
+  font-style:italic;
+}
+
+.final-message strong{
+  color:var(--gold-light);
+}
+
+.golden-seal{
+  width:min(245px, 68vw);
+  aspect-ratio:1;
+  margin:34px auto 0;
+  border-radius:50%;
+  display:none;
+  place-items:center;
+  text-align:center;
+  color:#241707;
+  background:
+    radial-gradient(circle at 35% 28%, #fff5c8, var(--gold-light) 30%, var(--gold) 62%, #9b6818);
+  box-shadow:
+    0 0 70px rgba(216,173,60,.65),
+    inset 0 0 0 8px rgba(255,255,255,.22);
+  font-family:"Inter", system-ui, sans-serif;
+  font-weight:900;
+  font-size:clamp(14px, 3.6vw, 20px);
+  letter-spacing:.1em;
+  line-height:1.45;
+  text-transform:uppercase;
+  transform:rotate(-8deg);
+  padding:28px;
+}
+
+.golden-seal.show{
+  display:grid;
+  animation:sealStamp .72s cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes sealStamp{
+  from{ opacity:0; transform:scale(2.2) rotate(-24deg); }
+  to{ opacity:1; transform:scale(1) rotate(-8deg); }
+}
+
+/* MODAL */
+
+.modal-backdrop,
+.completion-overlay{
+  position:fixed;
+  inset:0;
+  z-index:50;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(16px);
+}
+
+.modal-backdrop.show,
+.completion-overlay.show{
+  display:flex;
+  animation:screenIn .3s ease both;
+}
+
+.modal{
+  width:min(680px, 100%);
+  max-height:86vh;
+  overflow:auto;
+  position:relative;
+  border-radius:30px;
+  border:1px solid rgba(255,228,155,.35);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    rgba(15,10,15,.93);
+  padding:34px;
+  box-shadow:0 28px 90px rgba(0,0,0,.6);
+}
+
+.letter-modal-paper{
+  display:none;
+  position:relative;
+  margin-bottom:22px;
+  padding:26px 24px;
+  border-radius:22px;
+  color:var(--ink);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(113,20,37,.1) 28px 29px),
+    linear-gradient(135deg, #fffaf0, #ead5a8);
+  border:1px solid rgba(113,20,37,.12);
+  box-shadow:0 18px 42px rgba(0,0,0,.25);
+}
+
+.letter-modal-paper.show{
+  display:block;
+  animation:letterPaperIn .4s ease both;
+}
+
+@keyframes letterPaperIn{
+  from{ opacity:0; transform:translateY(16px) rotate(-1deg); }
+  to{ opacity:1; transform:translateY(0) rotate(0); }
+}
+
+.letter-modal-paper::before{
+  content:"♡";
+  position:absolute;
+  top:14px;
+  right:18px;
+  color:rgba(113,20,37,.35);
+  font-size:32px;
+}
+
+.letter-modal-paper .paper-title{
+  font-family:"Cinzel", serif;
+  font-size:26px;
+  color:var(--maroon);
+  margin-bottom:12px;
+}
+
+.modal h3{
+  padding-right:44px;
+  margin-bottom:18px;
+  color:var(--gold-light);
+  font-family:"Cinzel", serif;
+  font-size:clamp(28px, 4vw, 42px);
+}
+
+.modal p{
+  white-space:pre-line;
+  color:rgba(255,244,220,.92);
+  font-size:clamp(19px, 2vw, 24px);
+  line-height:1.65;
+}
+
+.letter-modal-paper p{
+  color:var(--ink);
+  font-size:clamp(19px, 2vw, 23px);
+  line-height:1.62;
+  text-align:left;
+}
+
+.close-modal{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:1px solid rgba(255,228,155,.35);
+  color:var(--gold-light);
+  background:rgba(255,255,255,.08);
+  font-size:28px;
+}
+
+.completion-content{
+  text-align:center;
+  max-width:560px;
+  padding:26px;
+}
+
+.completion-circle{
+  width:150px;
+  height:150px;
+  margin:0 auto 28px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg, var(--gold-light), var(--gold));
+  color:#271707;
+  box-shadow:0 0 70px rgba(216,173,60,.6);
+  animation:sealStamp .7s ease both;
+}
+
+.completion-circle svg{
+  width:70px;
+  height:70px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.completion-title{
+  color:var(--gold-light);
+  font-family:"Cinzel", serif;
+  font-size:clamp(34px, 5vw, 56px);
+  margin-bottom:12px;
+}
+
+.completion-msg{
+  font-size:clamp(22px, 3vw, 32px);
+  line-height:1.45;
+  color:var(--cream);
+  font-style:italic;
+}
+
+.sparkle{
+  position:fixed;
+  z-index:55;
+  pointer-events:none;
+  color:var(--gold-light);
+  font-size:24px;
+  animation:sparkleFall 1.4s ease forwards;
+}
+
+@keyframes sparkleFall{
+  to{ transform:translateY(160px) rotate(220deg); opacity:0; }
+}
+
+/* DOTS */
+
+.dots{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
+.dot{
+  width:12px;
+  height:12px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,228,155,.28);
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.dot.active{
+  background:var(--gold-light);
+  transform:scale(1.45);
+  box-shadow:0 0 13px rgba(255,228,155,.8);
+}
+
+.nav-actions{
+  display:flex;
+  gap:10px;
+}
+
+/* MOBILE */
+
+@media (max-width:960px){
+  .settings-panel{
+    grid-template-columns:repeat(2, 1fr);
   }
 
-  *{margin:0;padding:0;box-sizing:border-box}
-  html,body{
-    min-height:100vh;
-    font-family:'Cormorant Garamond', serif;
-    color:var(--ink);
-    overflow-x:hidden;
+  .identity-card{
+    grid-template-columns:1fr;
   }
 
-  body{
-    background:
-      radial-gradient(circle at 20% 10%, rgba(107,19,32,.55), transparent 50%),
-      radial-gradient(circle at 80% 90%, rgba(12,94,60,.55), transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(212,175,55,.15), transparent 70%),
-      linear-gradient(135deg, #1a0a10 0%, #0a1f15 100%);
-    background-attachment: fixed;
-    padding: 60px 20px;
-    position: relative;
+  .photo-frame{
+    width:min(330px, 100%);
+    margin:0 auto;
   }
 
-  /* Floating particles */
-  body::before{
-    content:'';
-    position:fixed; inset:0;
-    background-image:
-      radial-gradient(circle at 10% 20%, rgba(212,175,55,.4) 0, transparent 1px),
-      radial-gradient(circle at 80% 30%, rgba(212,175,55,.3) 0, transparent 1px),
-      radial-gradient(circle at 30% 70%, rgba(212,175,55,.4) 0, transparent 1px),
-      radial-gradient(circle at 70% 80%, rgba(212,175,55,.3) 0, transparent 1px),
-      radial-gradient(circle at 50% 40%, rgba(212,175,55,.3) 0, transparent 1px);
-    background-size: 200px 200px, 250px 250px, 180px 180px, 220px 220px, 300px 300px;
-    pointer-events:none;
-    z-index:0;
-    animation: drift 60s linear infinite;
+  .stamp-grid{
+    grid-template-columns:repeat(2, 1fr);
   }
 
-  @keyframes drift{
-    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-    to   { background-position: 200px 200px, -250px 250px, 180px -180px, -220px -220px, 300px -300px; }
+  .envelope-grid{
+    grid-template-columns:repeat(2, 1fr);
   }
 
-  .container{
-    max-width: 720px;
-    margin: 0 auto;
-    position: relative;
-    z-index:1;
+  .letters-intro{
+    grid-template-columns:1fr;
   }
 
-  /* ========= HERO HEADING ========= */
-  .hero{
-    text-align:center;
-    margin-bottom: 40px;
-    color: var(--gold);
+  .letter-floating-seal{
+    width:96px;
+    height:96px;
+    justify-self:center;
   }
-  .hero .small{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: .35em;
-    color: rgba(231,198,107,.7);
-    margin-bottom: 10px;
-  }
-  .hero h1{
-    font-family:'Cinzel', serif;
-    font-size: 28px;
-    font-weight: 500;
-    letter-spacing: .15em;
-    color: var(--gold-soft);
+}
+
+@media (max-width:720px){
+  .app{
+    align-items:flex-start;
+    padding:14px 12px 28px;
   }
 
-  /* ========= GENERIC GLASS CARD ========= */
-  .glass{
-    background: rgba(255,255,255,.06);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 18px;
-    box-shadow:
-      0 20px 60px rgba(0,0,0,.4),
-      inset 0 1px 0 rgba(255,255,255,.15);
+  .screen.active{
+    justify-content:flex-start;
   }
 
-  /* ========= PASSPORT COVER ========= */
-  .passport{
-    width: 100%;
-    aspect-ratio: 5/7;
-    max-height: 720px;
-    border-radius: 14px;
-    position: relative;
-    overflow: hidden;
-    box-shadow:
-      0 30px 80px rgba(0,0,0,.6),
-      0 0 0 1px rgba(212,175,55,.2);
-    cursor: pointer;
-    transition: transform .6s cubic-bezier(.2,.9,.2,1);
-    margin-bottom: 50px;
-  }
-  .passport:hover{ transform: translateY(-4px) rotateX(2deg); }
-
-  /* the diagonal split */
-  .passport::before{
-    content:'';
-    position:absolute; inset:0;
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 49.5%, var(--maroon-deep) 50.5%, var(--maroon) 100%);
-  }
-  .passport::after{
-    content:'';
-    position:absolute; inset:0;
-    background:
-      radial-gradient(ellipse at top left, rgba(255,255,255,.08), transparent 50%),
-      radial-gradient(ellipse at bottom right, rgba(255,255,255,.05), transparent 50%);
-    pointer-events:none;
+  .landing-card{
+    margin-top:34px;
+    border-radius:26px;
   }
 
-  .passport-content{
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 40px 30px;
-    color: var(--gold);
-    text-align: center;
-  }
-
-  .passport-top, .passport-bottom{
-    width:100%;
-  }
-
-  .passport-top .country-line{
-    font-family: 'Cinzel', serif;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: .15em;
-    color: var(--gold-soft);
-    line-height: 1.6;
-  }
-
-  .passport-emblem{
-    width: 60%;
-    max-width: 200px;
-    aspect-ratio: 1;
-    margin: 20px auto;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .heart-emblem{
-    width:100%; height:100%;
-    color: var(--gold);
-    filter: drop-shadow(0 0 20px rgba(212,175,55,.4));
-  }
-
-  .passport-bottom .languages{
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: .15em;
-    color: var(--gold-soft);
-    line-height: 2;
-  }
-  .passport-bottom .urdu{
-    font-size: 18px;
-    font-family: 'Cormorant Garamond', serif;
-    direction: rtl;
-    margin: 6px 0;
-  }
-  .chip{
-    display:inline-block;
-    margin-top: 16px;
-    width: 36px; height: 24px;
-    border: 1.5px solid var(--gold);
-    border-radius: 4px;
-    position: relative;
-  }
-  .chip::before{
-    content:'';
-    position:absolute;
-    inset: 4px 8px;
-    border: 1px solid var(--gold);
-    border-radius: 2px;
-  }
-
-  .open-hint{
-    margin-top: 12px;
-    font-family:'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: .3em;
-    color: rgba(231,198,107,.7);
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-  @keyframes pulse{ 0%,100%{opacity:.6} 50%{opacity:1} }
-
-  /* ========= PAGE SECTIONS ========= */
-  .page{
-    padding: 38px 32px;
-    margin-bottom: 28px;
-    color: var(--cream);
-    position: relative;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: rise .9s ease forwards;
-  }
-  .page:nth-child(1){animation-delay:.1s}
-  .page:nth-child(2){animation-delay:.2s}
-  .page:nth-child(3){animation-delay:.3s}
-  .page:nth-child(4){animation-delay:.4s}
-  .page:nth-child(5){animation-delay:.5s}
-  .page:nth-child(6){animation-delay:.6s}
-  .page:nth-child(7){animation-delay:.7s}
-  .page:nth-child(8){animation-delay:.8s}
-
-  @keyframes rise{
-    to{opacity:1; transform: translateY(0);}
+  .book{
+    min-height:auto;
+    border-radius:24px;
   }
 
   .page-header{
-    display:flex;
-    justify-content: space-between;
-    align-items:center;
-    border-bottom: 1px solid rgba(212,175,55,.25);
-    padding-bottom: 14px;
-    margin-bottom: 24px;
-  }
-  .page-num{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: .3em;
-    color: var(--gold-soft);
-  }
-  .page-title{
-    font-family:'Cinzel', serif;
-    font-size: 14px;
-    letter-spacing: .25em;
-    color: var(--gold-soft);
-    text-transform: uppercase;
-  }
-
-  /* ========= BIO PAGE ========= */
-  .bio{
-    display:grid;
-    grid-template-columns: 130px 1fr;
-    gap: 24px;
-    align-items:start;
-  }
-  .bio-photo{
-    width: 130px;
-    aspect-ratio: 4/5;
-    border-radius: 8px;
-    overflow:hidden;
-    border: 2px solid rgba(212,175,55,.4);
-    box-shadow: 0 10px 30px rgba(0,0,0,.4);
-    background: rgba(0,0,0,.2);
-  }
-  .bio-photo img{
-    width:100%; height:100%; object-fit: cover;
-    filter: sepia(15%) contrast(105%);
-  }
-  .bio-fields{
-    display:flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .field{
-    display:grid;
-    grid-template-columns: 110px 1fr;
-    gap: 10px;
-    font-size: 15px;
-    line-height: 1.4;
-  }
-  .field-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: .2em;
-    color: var(--gold-soft);
-    text-transform: uppercase;
-    padding-top: 5px;
-  }
-  .field-value{
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--cream);
-  }
-  .field-value em{
-    color: var(--gold-soft);
-    font-style: italic;
-  }
-
-  /* ========= SIGNATURE ========= */
-  .signature{
-    margin-top: 24px;
-    padding-top: 18px;
-    border-top: 1px dashed rgba(212,175,55,.2);
-    text-align:right;
-  }
-  .signature-name{
-    font-family: 'Cormorant Upright', serif;
-    font-style: italic;
-    font-size: 24px;
-    color: var(--gold-soft);
-  }
-  .signature-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: .25em;
-    color: rgba(231,198,107,.6);
-    margin-top: 2px;
-  }
-
-  /* ========= STAMPS PAGE ========= */
-  .stamps-grid{
-    display:grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
-  }
-  .stamp{
-    aspect-ratio: 1.1/1;
-    border: 2px solid var(--gold-soft);
-    border-radius: 50%;
-    display:flex;
     flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    padding: 14px;
-    text-align:center;
-    color: var(--gold-soft);
-    transform: rotate(-6deg);
-    position: relative;
-    background: rgba(212,175,55,.04);
-    transition: transform .3s ease;
-  }
-  .stamp:nth-child(2n){ transform: rotate(5deg); border-color: rgba(231,198,107,.7); color: rgba(231,198,107,.95); }
-  .stamp:nth-child(3n){ transform: rotate(-3deg); }
-  .stamp:hover{ transform: rotate(0) scale(1.04); }
-
-  .stamp-icon{
-    font-family:'Cinzel', serif;
-    font-size: 9px;
-    letter-spacing: .3em;
-    margin-bottom: 4px;
-  }
-  .stamp-title{
-    font-family:'Cinzel', serif;
-    font-size: 12px;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    line-height:1.2;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  .stamp-date{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 9px;
-    opacity: .8;
-  }
-  .stamp::before{
-    content:'';
-    position:absolute;
-    inset: 6px;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    opacity: .35;
+    align-items:flex-start;
+    margin-bottom:22px;
   }
 
-  /* ========= MAP PAGE ========= */
-  .map-wrap{
-    position:relative;
-    padding: 30px 10px;
+  .settings-panel{
+    grid-template-columns:1fr;
   }
+
+  .info-row{
+    grid-template-columns:1fr;
+    gap:7px;
+  }
+
   .map-line{
-    height: 100px;
-    position: relative;
-    margin: 30px 0;
-  }
-  .city{
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
-  }
-  .city.left{ left: 0; }
-  .city.right{ right: 0; }
-  .flag{
-    width: 64px;
-    height: 42px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(212,175,55,.3);
-    box-shadow: 0 4px 12px rgba(0,0,0,.3);
-  }
-  .city-name{
-    font-family:'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: .15em;
-    color: var(--gold-soft);
-  }
-  .city-country{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: .2em;
-    color: rgba(244,236,216,.5);
-    margin-top: 2px;
+    flex-direction:column;
+    min-height:0;
   }
 
-  .connection{
-    position:absolute;
-    top: 50%;
-    left: 90px;
-    right: 90px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
-    transform: translateY(-50%);
+  .city{
+    width:100%;
   }
-  .connection::before, .connection::after{
-    content:'';
-    position:absolute;
-    top: 50%;
-    width: 8px; height: 8px;
-    background: var(--gold);
-    border-radius: 50%;
-    transform: translateY(-50%);
-    box-shadow: 0 0 12px var(--gold);
-  }
-  .connection::before{ left: 0; }
-  .connection::after{ right: 0; }
-  .heart-fly{
-    position:absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--gold);
-    font-size: 20px;
-    animation: float 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 8px var(--gold));
-  }
-  @keyframes float{
-    0%,100% { transform: translate(-50%, -50%); }
-    50% { transform: translate(-50%, -65%); }
+
+  .connection,
+  .travel-heart{
+    display:none;
   }
 
   .distance-stats{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 20px;
+    grid-template-columns:1fr;
+  }
+
+  .stamp-grid,
+  .envelope-grid{
+    grid-template-columns:1fr;
+  }
+
+  .stamp{
+    min-height:150px;
+  }
+
+  .envelope{
+    min-height:190px;
+  }
+
+  .letters-page-wrap{
+    padding:20px 14px;
+  }
+
+  .letters-intro{
     text-align:center;
   }
-  .stat{
-    padding: 14px 8px;
-    border: 1px solid rgba(212,175,55,.2);
-    border-radius: 8px;
-    background: rgba(255,255,255,.03);
-  }
-  .stat-num{
-    font-family:'Cinzel', serif;
-    font-size: 22px;
-    color: var(--gold-soft);
-    font-weight: 600;
-  }
-  .stat-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 8px;
-    letter-spacing: .2em;
-    color: rgba(244,236,216,.5);
-    text-transform: uppercase;
-    margin-top: 3px;
+
+  .nav-row{
+    flex-direction:column;
+    align-items:stretch;
   }
 
-  /* ========= DECLARATIONS PAGE ========= */
-  .declaration-list{
-    list-style:none;
-    counter-reset: dec;
-  }
-  .declaration-list li{
-    counter-increment: dec;
-    padding: 14px 0 14px 50px;
-    border-bottom: 1px dashed rgba(212,175,55,.15);
-    position: relative;
-    font-size: 17px;
-    line-height: 1.5;
-  }
-  .declaration-list li::before{
-    content: counter(dec, decimal-leading-zero);
-    position: absolute;
-    left: 0;
-    top: 14px;
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--gold-soft);
-    letter-spacing: .1em;
-  }
-  .declaration-list li:last-child{ border-bottom: none; }
-  .declaration-list em{
-    color: var(--gold-soft);
-    font-style: italic;
+  .dots,
+  .nav-actions{
+    justify-content:center;
   }
 
-  /* ========= MENU PAGE (FOODS) ========= */
-  .menu{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+  .nav-actions .nav-btn{
+    flex:1;
   }
-  .menu-col{
+}
+
+@media (max-width:460px){
+  body{
+    background-attachment:scroll;
+  }
+
+  .primary-btn,
+  .ghost-btn,
+  .nav-btn{
+    width:100%;
+    padding-inline:16px;
+    font-size:12px;
+  }
+
+  .top-bar{
+    align-items:stretch;
+  }
+
+  .top-bar > *{
+    width:100%;
     text-align:center;
   }
-  .menu-flag{
-    font-size: 24px;
-    margin-bottom: 8px;
-  }
-  .menu-title{
-    font-family:'Cinzel', serif;
-    font-size: 12px;
-    letter-spacing: .2em;
-    color: var(--gold-soft);
-    margin-bottom: 14px;
-    text-transform: uppercase;
-  }
-  .menu-item{
-    font-family: 'Cormorant Upright', serif;
-    font-size: 16px;
-    line-height: 2;
-    color: var(--cream);
-    font-style: italic;
+
+  .passport-cover{
+    width:92vw;
   }
 
-  /* ========= LETTER PAGE WITH PHOTO ========= */
-  .letter-page{
-    text-align:center;
-  }
-  .letter-photo{
-    width: 180px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    overflow: hidden;
-    margin: 0 auto 24px;
-    border: 3px solid rgba(212,175,55,.3);
-    box-shadow: 0 0 40px rgba(212,175,55,.15);
-  }
-  .letter-photo img{
-    width:100%; height:100%; object-fit:cover;
-    filter: sepia(10%);
-  }
-  .letter-text{
-    font-family:'Cormorant Garamond', serif;
-    font-size: 18px;
-    line-height: 1.8;
-    color: var(--cream);
-    text-align:left;
-    font-style: italic;
-  }
-  .letter-text p{ margin-bottom: 14px; }
-  .letter-text .signoff{
-    text-align:right;
-    margin-top: 24px;
-    color: var(--gold-soft);
-    font-family: 'Cormorant Upright', serif;
-    font-size: 22px;
+  .cover-content{
+    padding:26px 20px;
   }
 
-  /* ========= FINAL VISA PAGE ========= */
-  .visa-frame{
-    border: 2px solid var(--gold-soft);
-    padding: 30px 20px;
-    text-align:center;
-    border-radius: 12px;
-    background: rgba(212,175,55,.04);
-    position: relative;
-  }
-  .visa-frame::before, .visa-frame::after{
-    content:'';
-    position:absolute;
-    width: 12px; height: 12px;
-    border: 2px solid var(--gold);
-  }
-  .visa-frame::before{ top: -2px; left: -2px; border-right:none; border-bottom:none;}
-  .visa-frame::after{ bottom: -2px; right: -2px; border-left:none; border-top:none;}
-
-  .visa-stamp{
-    width: 110px; height: 110px;
-    border: 2px solid var(--gold-soft);
-    border-radius: 50%;
-    display:flex; align-items:center; justify-content:center;
-    margin: 0 auto 20px;
-    color: var(--gold-soft);
-    font-family:'Cinzel', serif;
-    font-size: 11px;
-    letter-spacing: .15em;
-    text-align:center;
-    line-height:1.3;
-    transform: rotate(-8deg);
-    position: relative;
-  }
-  .visa-stamp::before{
-    content:'';
-    position:absolute; inset:5px;
-    border:1px dashed currentColor;
-    border-radius:50%;
-    opacity:.5;
-  }
-  .visa-promise{
-    font-family:'Cormorant Garamond', serif;
-    font-size: 22px;
-    line-height: 1.5;
-    font-style: italic;
-    color: var(--cream);
-  }
-  .visa-promise strong{
-    color: var(--gold-soft);
-    font-weight: 600;
-  }
-  .visa-meta{
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px dashed rgba(212,175,55,.2);
-    font-family:'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: .2em;
-    color: rgba(244,236,216,.5);
-    text-transform: uppercase;
+  .book{
+    padding:20px 14px;
   }
 
-  /* ========= FOOTER ========= */
-  .footer{
-    text-align:center;
-    margin-top: 40px;
-    color: rgba(231,198,107,.5);
-    font-family:'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: .3em;
-    line-height: 2;
+  .photo-frame,
+  .photo-frame img{
+    min-height:300px;
   }
 
-  /* RESPONSIVE */
-  @media (max-width: 540px){
-    body{ padding: 30px 14px; }
-    .page{ padding: 28px 22px; }
-    .bio{ grid-template-columns: 100px 1fr; gap: 16px; }
-    .bio-photo{ width: 100px; }
-    .field{ grid-template-columns: 90px 1fr; font-size: 13px; }
-    .field-value{ font-size: 15px; }
-    .stamps-grid{ gap: 14px; }
-    .stamp-title{ font-size: 10px; }
-    .menu{ grid-template-columns: 1fr; gap: 24px; }
-    .hero h1{ font-size: 22px; }
-    .declaration-list li{ font-size: 15px; padding-left: 42px; }
-    .visa-promise{ font-size: 18px; }
-    .letter-text{ font-size: 16px; }
-    .city{ position: relative; left:auto !important; right:auto !important; transform:none; }
-    .connection{ display:none; }
-    .map-line{
-      height: auto;
-      display:flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-    .heart-fly{ position: relative; transform:none; left:auto; top:auto; margin: 0 auto; }
+  .promise-item{
+    align-items:flex-start;
   }
+
+  .modal{
+    padding:28px 20px;
+    border-radius:24px;
+  }
+
+  .close-modal{
+    top:12px;
+    right:12px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
 </style>
 </head>
+
 <body>
+<div class="sky" id="sky" aria-hidden="true"></div>
 
-<div class="container">
+<main class="app">
 
-  <div class="hero">
-    <div class="small">⊹ ISSUED WITH LOVE · LAHORE TO MANILA ⊹</div>
-    <h1>The Republic of Us</h1>
-  </div>
-
-  <!-- ============ PASSPORT COVER ============ -->
-  <div class="passport">
-    <div class="passport-content">
-      <div class="passport-top">
-        <div class="country-line">
-          PILIPINAS · ISLAMIC REPUBLIC<br>
-          OF PAKISTAN
-        </div>
-      </div>
-
-      <div class="passport-emblem">
-        <svg class="heart-emblem" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- decorative wreath -->
-          <g stroke="currentColor" stroke-width="1.2" fill="none" opacity=".7">
-            <path d="M40 110 Q 25 80 35 50 Q 50 30 70 35"/>
-            <path d="M160 110 Q 175 80 165 50 Q 150 30 130 35"/>
-            <path d="M45 60 Q 50 55 55 60" />
-            <path d="M55 75 Q 60 70 65 75" />
-            <path d="M50 90 Q 55 85 60 90" />
-            <path d="M155 60 Q 150 55 145 60" />
-            <path d="M145 75 Q 140 70 135 75" />
-            <path d="M150 90 Q 145 85 140 90" />
-          </g>
-          <!-- crescent and star at top -->
-          <g fill="currentColor">
-            <path d="M100 22 a 8 8 0 1 0 4 14 a 6 6 0 1 1 -4 -14 z"/>
-            <path d="M112 28 l 1.2 3.6 l 3.8 0 l -3 2.2 l 1.2 3.6 l -3 -2.2 l -3 2.2 l 1.2 -3.6 l -3 -2.2 l 3.8 0 z"/>
-          </g>
-          <!-- shield -->
-          <path d="M70 50 L 130 50 L 130 110 Q 130 140 100 158 Q 70 140 70 110 Z"
-                stroke="currentColor" stroke-width="2" fill="rgba(212,175,55,0.1)"/>
-          <!-- inner heart -->
-          <path d="M100 130 C 75 110 70 92 80 82 C 90 75 100 85 100 92 C 100 85 110 75 120 82 C 130 92 125 110 100 130 Z"
-                fill="currentColor" opacity=".95"/>
-          <!-- three stars -->
-          <g fill="currentColor">
-            <path d="M82 70 l .6 1.8 l 1.9 0 l -1.5 1.1 l .6 1.8 l -1.6 -1.1 l -1.5 1.1 l .6 -1.8 l -1.5 -1.1 l 1.9 0 z"/>
-            <path d="M100 60 l .8 2.2 l 2.4 0 l -2 1.4 l .8 2.2 l -2 -1.4 l -2 1.4 l .8 -2.2 l -2 -1.4 l 2.4 0 z"/>
-            <path d="M118 70 l .6 1.8 l 1.9 0 l -1.5 1.1 l .6 1.8 l -1.6 -1.1 l -1.5 1.1 l .6 -1.8 l -1.5 -1.1 l 1.9 0 z"/>
-          </g>
-          <!-- ribbon -->
-          <path d="M55 165 L 145 165 L 138 175 L 62 175 Z" fill="rgba(212,175,55,0.15)" stroke="currentColor" stroke-width="1"/>
-          <text x="100" y="172" text-anchor="middle" font-family="Cinzel" font-size="7" fill="currentColor" letter-spacing="1">REPUBLIC OF US</text>
-        </svg>
-      </div>
-
-      <div class="passport-bottom">
-        <div class="languages">PASAPORTE · PASSPORT</div>
-        <div class="urdu">پاسپورٹ · اسلامی جمہوریہ پاکستان</div>
-        <div class="languages">REPUBLIKA NG PILIPINAS</div>
-        <div class="chip"></div>
-        <div class="open-hint">⊹ TURN THE PAGE ⊹</div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ============ PAGE 01 — BIO DATA ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">01 / IDENTIFICATION</span>
-      <span class="page-title">Holder</span>
-    </div>
-
-    <div class="bio">
-      <div class="bio-photo">
-        <img src="https://i.ibb.co/rGhX9x7p/16-April-2026.jpg" alt="Vaniza" />
-      </div>
-      <div class="bio-fields">
-        <div class="field">
-          <span class="field-label">Surname</span>
-          <span class="field-value">The Reason</span>
-        </div>
-        <div class="field">
-          <span class="field-label">Given Name</span>
-          <span class="field-value">VANIZA</span>
-        </div>
-        <div class="field">
-          <span class="field-label">Nationality</span>
-          <span class="field-value"><em>Mine.</em></span>
-        </div>
-        <div class="field">
-          <span class="field-label">Profession</span>
-          <span class="field-value">Teacher · <em>and the one who taught me everything that mattered</em></span>
-        </div>
-        <div class="field">
-          <span class="field-label">Date of Issue</span>
-          <span class="field-value">The day she said yes</span>
-        </div>
-        <div class="field">
-          <span class="field-label">Date of Expiry</span>
-          <span class="field-value"><em>Never.</em></span>
-        </div>
-        <div class="field">
-          <span class="field-label">Distinguishing</span>
-          <span class="field-value">The way she laughs · the kindness she carries · the patience of someone who teaches for a living and still has love left over for me</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="signature">
-      <div class="signature-name">— your guy ✦</div>
-      <div class="signature-label">SIGNATURE OF ISSUING AUTHORITY</div>
+  <section class="screen active" id="landingScreen">
+    <div class="landing-card">
+      <div class="landing-badge micro">⊹ Issued with love · Pakistan → Philippines ⊹</div>
+      <h1>The Republic<br>of Us</h1>
+      <div class="for-name">— for <span data-person="herName">Vaniza</span> —</div>
+      <p>A love passport made for every mile, memory, promise, prayer, and future stamp waiting for us.</p>
+      <div class="small-note micro">Made with love · distance · patience · duas</div>
+      <button class="primary-btn" id="openLandingBtn">Open Passport</button>
     </div>
   </section>
 
+  <section class="screen" id="coverScreen">
+    <div class="cover-wrap">
+      <button class="passport-cover" id="passportCover" aria-label="Open the passport cover">
+        <div class="cover-content">
+          <div class="country-line">
+            PILIPINAS · ISLAMIC REPUBLIC<br>
+            OF PAKISTAN
+          </div>
 
-  <!-- ============ PAGE 02 — STAMPS ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">02 / VISAS · ENTRIES</span>
-      <span class="page-title">Stamps</span>
-    </div>
+          <div>
+            <div class="cover-emblem">
+              <div class="emblem-heart">♡</div>
+            </div>
+            <h1 class="cover-title">Republic<br>of Us</h1>
+            <div class="cover-subtitle">LOVE PASSPORT</div>
+          </div>
 
-    <div class="stamps-grid">
-      <div class="stamp">
-        <div class="stamp-icon">⊹ ENTRY ⊹</div>
-        <div class="stamp-title">First Hello</div>
-        <div class="stamp-date">DAY ZERO</div>
-      </div>
-      <div class="stamp">
-        <div class="stamp-icon">⊹ APPROVED ⊹</div>
-        <div class="stamp-title">First Call</div>
-        <div class="stamp-date">CLEARED</div>
-      </div>
-      <div class="stamp">
-        <div class="stamp-icon">⊹ CERTIFIED ⊹</div>
-        <div class="stamp-title">First<br>I Love You</div>
-        <div class="stamp-date">SEALED</div>
-      </div>
-      <div class="stamp">
-        <div class="stamp-icon">⊹ GRANTED ⊹</div>
-        <div class="stamp-title">Late-Night Talks</div>
-        <div class="stamp-date">UNLIMITED</div>
-      </div>
-      <div class="stamp">
-        <div class="stamp-icon">⊹ REGISTERED ⊹</div>
-        <div class="stamp-title">First Fight<br>· Made Up ·</div>
-        <div class="stamp-date">PASSED</div>
-      </div>
-      <div class="stamp">
-        <div class="stamp-icon">⊹ ETERNAL ⊹</div>
-        <div class="stamp-title">Every Good<br>Morning</div>
-        <div class="stamp-date">DAILY</div>
-      </div>
+          <div>
+            <div class="languages">PASAPORTE · PASSPORT</div>
+            <div class="languages">REPUBLIKA NG PILIPINAS</div>
+            <div class="languages">پاکستان · PHILIPPINES</div>
+            <div class="chip"></div>
+            <div class="open-hint micro">⊹ Tap to open ⊹</div>
+          </div>
+        </div>
+      </button>
     </div>
   </section>
 
+  <section class="screen" id="bookScreen">
+    <div class="passport-area">
 
-  <!-- ============ PAGE 03 — MAP ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">03 / TRAVEL</span>
-      <span class="page-title">The Distance</span>
-    </div>
-
-    <div class="map-wrap">
-      <div class="map-line">
-        <div class="city left">
-          <img class="flag" src="https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png" alt="Pakistan" />
-          <div class="city-name">LAHORE</div>
-          <div class="city-country">PAKISTAN</div>
-        </div>
-
-        <div class="connection"></div>
-        <svg class="heart-fly" width="20" height="18" viewBox="0 0 24 22" fill="currentColor">
-          <path d="M12 21s-7.5-4.5-9.5-9.5C1 7.5 4 4 7.5 4c2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4c3.5 0 6.5 3.5 5 7.5C19.5 16.5 12 21 12 21z"/>
-        </svg>
-
-        <div class="city right">
-          <img class="flag" src="https://i.ibb.co/rRXfNvg4/images.png" alt="Philippines" />
-          <div class="city-name">MANILA</div>
-          <div class="city-country">PHILIPPINES</div>
-        </div>
+      <div class="top-bar">
+        <button class="ghost-btn" id="settingsToggle">✦ Customize</button>
+        <div class="page-indicator micro" id="pageIndicator">Page 1 of 9</div>
       </div>
 
-      <div class="distance-stats">
-        <div class="stat">
-          <div class="stat-num">5,927</div>
-          <div class="stat-label">Kilometers</div>
+      <form class="settings-panel hidden" id="settingsPanel" onsubmit="return false;">
+        <div class="field">
+          <label for="herName">Her name</label>
+          <input id="herName" value="Vaniza" />
         </div>
-        <div class="stat">
-          <div class="stat-num">3h</div>
-          <div class="stat-label">Time Gap</div>
+        <div class="field">
+          <label for="myName">My name</label>
+          <input id="myName" value="your guy" />
         </div>
-        <div class="stat">
-          <div class="stat-num">∞</div>
-          <div class="stat-label">Worth It</div>
+        <div class="field">
+          <label for="nickname">Nickname</label>
+          <input id="nickname" value="Meri jaan" />
+        </div>
+        <div class="field">
+          <label for="myCountry">My country</label>
+          <input id="myCountry" value="Pakistan" />
+        </div>
+        <div class="field">
+          <label for="herCountry">Her country</label>
+          <input id="herCountry" value="Philippines" />
+        </div>
+      </form>
+
+      <div class="book" id="book">
+
+        <article class="passport-page active">
+          <div class="page-header">
+            <span class="page-num">01 / Identification</span>
+            <span class="page-tag">Holder</span>
+          </div>
+
+          <h2 class="page-title">Identity Page</h2>
+          <p class="page-subtitle">
+            Every passport begins with a name. This one belongs to the woman who makes distance feel temporary and love feel steady.
+          </p>
+
+          <div class="identity-card">
+            <div class="photo-frame">
+              <img src="https://i.ibb.co/fGvwhrtD/Vaniza-01.jpg" alt="Vaniza passport image">
+              <div class="photo-badge">Passport Holder Image</div>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row">
+                <span class="label">Holder</span>
+                <span class="value" data-person="herName">Vaniza</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Issued by</span>
+                <span class="value">His Heart · <span data-person="myCountry">Pakistan</span></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Nationality</span>
+                <span class="value"><em>Queen of My World</em></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Profession</span>
+                <span class="value">Teacher · <em>and the one who taught me what softness means</em></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Destination</span>
+                <span class="value">Forever</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Passport No.</span>
+                <span class="value" id="passportNumber">Love-2026</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">02 / Travel</span>
+            <span class="page-tag">The Distance</span>
+          </div>
+
+          <h2 class="page-title">Distance Page</h2>
+          <p class="page-subtitle">
+            The map shows two countries, two clocks, and many miles. But my heart still travels the same road every day — from me to you.
+          </p>
+
+          <div class="map-card">
+            <div class="map-line">
+              <div class="city">
+                <img class="flag" src="https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png" alt="Pakistan flag">
+                <div class="city-name">PAKISTAN</div>
+                <div class="city-country">from his side</div>
+              </div>
+
+              <div class="connection"></div>
+              <div class="travel-heart">✈️</div>
+
+              <div class="city">
+                <img class="flag" src="https://i.ibb.co/rRXfNvg4/images.png" alt="Philippines flag">
+                <div class="city-name">PHILIPPINES</div>
+                <div class="city-country">from her side</div>
+              </div>
+            </div>
+
+            <div class="distance-stats">
+              <div class="stat">
+                <div class="stat-num">5,927</div>
+                <div class="stat-label micro">Kilometers</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num">3h</div>
+                <div class="stat-label micro">Time Gap</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num">∞</div>
+                <div class="stat-label micro">Worth It</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">03 / Culture</span>
+            <span class="page-tag">Stamps</span>
+          </div>
+
+          <h2 class="page-title">Cultural Stamps</h2>
+          <p class="page-subtitle">
+            Two cultures, two homes, and one soft place where our hearts meet — with respect, warmth, and curiosity.
+          </p>
+
+          <div class="stamp-grid">
+            <button class="stamp" data-title="Pakistan Chai" data-message="One day, I want to make chai for you slowly — not because chai is special, but because you are.">
+              <span class="emoji">☕</span>
+              <strong>Pakistan Chai</strong>
+              <small>Tap to stamp</small>
+            </button>
+            <button class="stamp" data-title="Filipino Adobo" data-message="I want to learn the food you love, the words you use, and the little details that make home feel like home to you.">
+              <span class="emoji">🍲</span>
+              <strong>Filipino Adobo</strong>
+              <small>Tap to stamp</small>
+            </button>
+            <button class="stamp" data-title="Urdu + Tagalog" data-message="Your language, your stories, and your world matter to me. Loving you also means learning you.">
+              <span class="emoji">🗣️</span>
+              <strong>Urdu + Tagalog</strong>
+              <small>Tap to stamp</small>
+            </button>
+            <button class="stamp" data-title="Moonlit Duas" data-message="Moonlit duas, quiet hope, and the kind of love that asks Allah for patience and protection.">
+              <span class="emoji">🌙</span>
+              <strong>Moonlit Duas</strong>
+              <small>Tap to stamp</small>
+            </button>
+            <button class="stamp" data-title="Island Sunset" data-message="A warm sunset, your hand in mine, and a silence that finally feels safe.">
+              <span class="emoji">🌅</span>
+              <strong>Island Sunset</strong>
+              <small>Tap to stamp</small>
+            </button>
+            <button class="stamp" data-title="North Pakistan" data-message="One day I will show you the north — cold air, quiet mountains, and roads that feel like they belong to us.">
+              <span class="emoji">🏔️</span>
+              <strong>North Pakistan</strong>
+              <small>Tap to stamp</small>
+            </button>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">04 / Language</span>
+            <span class="page-tag">Love Phrases</span>
+          </div>
+
+          <h2 class="page-title">Urdu + Tagalog</h2>
+          <p class="page-subtitle">
+            Some words are small. But when they are said with sincerity, they can carry an entire heart.
+          </p>
+
+          <div class="phrase-card">
+            <div class="phrase-photo">
+              <img src="https://i.ibb.co/rGhX9x7p/16-April-2026.jpg" alt="Vaniza cute image">
+            </div>
+            <div class="phrase-main" id="phraseMain">Meri jaan</div>
+            <div class="phrase-translation" id="phraseTranslation">My life · my beloved</div>
+            <button class="primary-btn" id="randomPhraseBtn">Show Another</button>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">05 / Correspondence</span>
+            <span class="page-tag">Open When</span>
+          </div>
+
+          <h2 class="page-title">Open When Letters</h2>
+          <p class="page-subtitle">
+            Tap a letter. Each one opens like a small message from my heart for the moments when distance feels louder than usual.
+          </p>
+
+          <div class="letters-page-wrap">
+            <div class="letters-intro">
+              <div>
+                <h3>Letters for the days we need softness</h3>
+                <p>
+                  Every envelope carries a promise: even when I am far, I am still choosing you with patience, care, and love.
+                </p>
+              </div>
+              <div class="letter-floating-seal">Open<br>With<br>Love</div>
+            </div>
+
+            <div class="envelope-grid">
+              <button class="envelope" data-letter="miss">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when you<br>miss me</div>
+              </button>
+
+              <button class="envelope" data-letter="alone">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when you<br>feel alone</div>
+              </button>
+
+              <button class="envelope" data-letter="morning">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when you<br>wake up</div>
+              </button>
+
+              <button class="envelope" data-letter="argue">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when<br>we argue</div>
+              </button>
+
+              <button class="envelope" data-letter="reassure">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when you need<br>reassurance</div>
+              </button>
+
+              <button class="envelope" data-letter="future">
+                <div class="envelope-paper"></div>
+                <div class="envelope-stamp">♡</div>
+                <div class="wax-seal">V</div>
+                <div class="envelope-title">Open when you<br>imagine our future</div>
+              </button>
+            </div>
+
+            <div class="letter-hint micro">Tap any envelope to unfold the letter</div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">06 / Pending</span>
+            <span class="page-tag">Future Stamps</span>
+          </div>
+
+          <h2 class="page-title">Future Stamps</h2>
+          <p class="page-subtitle">
+            These stamps are not missing. They are waiting for the day we finally live these memories for real.
+          </p>
+
+          <div class="future-stage">
+            <div class="future-orbit"></div>
+            <div class="future-orbit two"></div>
+            <div class="future-plane">✈️</div>
+
+            <div class="stamp-grid">
+              <button class="stamp locked" style="--delay:.1s" data-title="First Airport Hug" data-message="This stamp is waiting for the day we have our first airport hug. I know that moment will make every difficult day feel worth it.">
+                <span class="emoji">🔒</span>
+                <strong>First<br>Airport Hug</strong>
+                <small>Locked dream</small>
+              </button>
+              <button class="stamp locked" style="--delay:.4s" data-title="First Meal Together" data-message="This stamp is waiting for our first meal together. No screen, no distance, just us sharing the same table.">
+                <span class="emoji">🔒</span>
+                <strong>First Meal<br>Together</strong>
+                <small>Locked dream</small>
+              </button>
+              <button class="stamp locked" style="--delay:.7s" data-title="First Walk Together" data-message="This stamp is waiting for our first walk together, even somewhere simple. I think simple things will feel special with you.">
+                <span class="emoji">🔒</span>
+                <strong>First Walk<br>Together</strong>
+                <small>Locked dream</small>
+              </button>
+              <button class="stamp locked" style="--delay:1s" data-title="First Eid Together" data-message="This stamp is waiting for our first Eid together, with peace, family, gratitude, and a quiet smile between us.">
+                <span class="emoji">🔒</span>
+                <strong>First Eid<br>Together</strong>
+                <small>Locked dream</small>
+              </button>
+              <button class="stamp locked" style="--delay:1.3s" data-title="First PH Sunset" data-message="This stamp is waiting for our first Philippines sunset together — the sky, the sea, and your hand close to mine.">
+                <span class="emoji">🔒</span>
+                <strong>First<br>PH Sunset</strong>
+                <small>Locked dream</small>
+              </button>
+              <button class="stamp locked" style="--delay:1.6s" data-title="First PK Chai" data-message="This stamp is waiting for the day I share Pakistan chai with you in person and watch you smile after the first sip.">
+                <span class="emoji">🔒</span>
+                <strong>First<br>PK Chai</strong>
+                <small>Locked dream</small>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">07 / Oath</span>
+            <span class="page-tag">Promises</span>
+          </div>
+
+          <h2 class="page-title">Promise Page</h2>
+          <p class="page-subtitle">
+            Love is not only what we feel. It is also what we practice, especially when distance asks us to be patient.
+          </p>
+
+          <div class="promise-list" id="promiseList">
+            <div class="promise-item"><div><strong>Patience</strong> — I will not rush what deserves care.</div></div>
+            <div class="promise-item"><div><strong>Loyalty</strong> — I will protect the trust between us.</div></div>
+            <div class="promise-item"><div><strong>Communication</strong> — I will speak honestly and listen gently.</div></div>
+            <div class="promise-item"><div><strong>Respect</strong> — I will honor your feelings, culture, and boundaries.</div></div>
+            <div class="promise-item"><div><strong>Effort</strong> — I will keep showing up, even on ordinary days.</div></div>
+            <div class="promise-item"><div><strong>Faith</strong> — I will make dua for us with a clean heart.</div></div>
+            <div class="promise-item"><div><strong>Choosing you</strong> — I will choose you with intention, not habit.</div></div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">08 / The Rule</span>
+            <span class="page-tag">Our Vow</span>
+          </div>
+
+          <h2 class="page-title">We Talk · We Fix · We Stay</h2>
+          <p class="rule-intro">
+            This is our rule — the one thing we promised each other no matter what. Tap each one to renew it.
+          </p>
+
+          <div class="rule-box">
+            <div class="vow-list">
+              <button type="button" class="vow">
+                <div class="vow-check"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div>
+                <div>
+                  <div class="vow-word">We Talk</div>
+                  <div class="vow-desc">Even when it is hard. Especially when it is hard.</div>
+                </div>
+              </button>
+
+              <button type="button" class="vow">
+                <div class="vow-check"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div>
+                <div>
+                  <div class="vow-word">We Fix</div>
+                  <div class="vow-desc">No silence, no walls. We solve it together.</div>
+                </div>
+              </button>
+
+              <button type="button" class="vow">
+                <div class="vow-check"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div>
+                <div>
+                  <div class="vow-word">We Stay</div>
+                  <div class="vow-desc">Always. That is the only ending I want.</div>
+                </div>
+              </button>
+            </div>
+
+            <div class="rule-status micro" id="ruleStatus">⊹ Tap all three to renew the oath ⊹</div>
+          </div>
+        </article>
+
+        <article class="passport-page">
+          <div class="page-header">
+            <span class="page-num">09 / Final</span>
+            <span class="page-tag">The Visa</span>
+          </div>
+
+          <div class="final-box">
+            <div class="final-photo">
+              <img src="https://i.ibb.co/fGvwhrtD/Vaniza-01.jpg" alt="Vaniza final image">
+            </div>
+
+            <p class="final-message">
+              No matter how many borders, time zones, or miles stand between us — my heart still knows exactly <strong>where home is.</strong>
+            </p>
+
+            <button class="primary-btn" id="sealBtn">Stamp Passport</button>
+
+            <div class="golden-seal" id="goldenSeal">
+              VISA GRANTED<br>
+              TO HIS HEART<br>
+              VALID FOREVER
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="nav-row">
+        <div class="dots" id="dots" aria-label="Page navigation"></div>
+        <div class="nav-actions">
+          <button class="nav-btn" id="prevBtn">← Previous</button>
+          <button class="nav-btn" id="nextBtn">Next →</button>
         </div>
       </div>
     </div>
   </section>
+</main>
 
-
-  <!-- ============ PAGE 04 — DECLARATION ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">04 / CUSTOMS</span>
-      <span class="page-title">Declaration</span>
+<div class="completion-overlay" id="completionOverlay" aria-hidden="true">
+  <div class="completion-content">
+    <div class="completion-circle">
+      <svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg>
     </div>
-
-    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold-soft); margin-bottom:18px; font-size:16px;">
-      Items the holder is bringing into this Republic:
+    <h2 class="completion-title">Oath Renewed</h2>
+    <p class="completion-msg">
+      We talk. We fix. We stay.<br>
+      That is our rule — and it is still ours.
     </p>
-
-    <ol class="declaration-list">
-      <li>One <em>extraordinarily kind heart</em></li>
-      <li>The patience of a teacher</li>
-      <li>A laugh I'd cross 5,927 km to hear in person</li>
-      <li>Stories about her students that I never get tired of</li>
-      <li>The phrase "<em>kumain ka na ba?</em>" — used as both a question and a love language</li>
-      <li>An understanding of timezone math no one should have to learn</li>
-      <li>One whole, complicated, beautiful future</li>
-    </ol>
-
-    <p style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:.2em; text-align:center; margin-top:24px; color:rgba(231,198,107,.6);">
-      ⊹ NOTHING TO DECLARE EXCEPT EVERYTHING ⊹
-    </p>
-  </section>
-
-
-  <!-- ============ PAGE 05 — NATIONAL DISHES ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">05 / CULTURE</span>
-      <span class="page-title">National Cuisine</span>
-    </div>
-
-    <div class="menu">
-      <div class="menu-col">
-        <div class="menu-flag">
-          <img class="flag" style="margin:0 auto;" src="https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png" alt="Pakistan" />
-        </div>
-        <div class="menu-title">From My Side</div>
-        <div class="menu-item">Biryani</div>
-        <div class="menu-item">Nihari</div>
-        <div class="menu-item">Karak chai</div>
-        <div class="menu-item">Halwa puri Sundays</div>
-      </div>
-
-      <div class="menu-col">
-        <div class="menu-flag">
-          <img class="flag" style="margin:0 auto;" src="https://i.ibb.co/rRXfNvg4/images.png" alt="Philippines" />
-        </div>
-        <div class="menu-title">From Her Side</div>
-        <div class="menu-item">Adobo</div>
-        <div class="menu-item">Sinigang</div>
-        <div class="menu-item">Halo-halo</div>
-        <div class="menu-item">Kapeng barako mornings</div>
-      </div>
-    </div>
-
-    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; text-align:center; margin-top:26px; color:var(--gold-soft); font-size:16px;">
-      One day, the same table.
-    </p>
-  </section>
-
-
-  <!-- ============ PAGE 06 — LETTER ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">06 / OFFICIAL NOTICE</span>
-      <span class="page-title">From the Bearer</span>
-    </div>
-
-    <div class="letter-page">
-      <div class="letter-photo">
-        <img src="https://i.ibb.co/GfZJ3JP4/27-april-2026-1.jpg" alt="Vaniza" />
-      </div>
-
-      <div class="letter-text">
-        <p>Vaniza,</p>
-        <p>You spend your days giving pieces of yourself to other people's children — explaining things gently, repeating yourself with patience I don't always deserve, going home tired with more love still left over for me.</p>
-        <p>I notice. I notice all of it.</p>
-        <p>This passport is small. The distance between Lahore and Manila is not. But everything in here is real, and one day soon, so will the visa on the next page be.</p>
-        <p class="signoff">— your guy.</p>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============ PAGE 07 — THE FINAL VISA ============ -->
-  <section class="page glass">
-    <div class="page-header">
-      <span class="page-num">07 / PENDING</span>
-      <span class="page-title">The Visa</span>
-    </div>
-
-    <div class="visa-frame">
-      <div class="visa-stamp">
-        TO BE<br>STAMPED<br>SOON ✦
-      </div>
-
-      <p class="visa-promise">
-        This page is intentionally blank.<br>
-        It will be stamped <strong>the day I land in Manila</strong><br>
-        — and again the day you land in Lahore.
-      </p>
-
-      <div class="visa-meta">⊹ AUTHORIZED FOR LIFE · NON-TRANSFERABLE ⊹</div>
-    </div>
-  </section>
-
-
-  <div class="footer">
-    REPUBLIC OF US ✦ EST. THE DAY WE MET<br>
-    ISSUED IN LAHORE · BEARER IN MANILA<br>
-    <span style="color:var(--gold-soft);">— your guy</span>
   </div>
-
 </div>
 
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <button class="close-modal" id="closeModal" aria-label="Close message">×</button>
+
+    <div class="letter-modal-paper" id="letterPaper">
+      <div class="paper-title" id="paperTitle">Open When Letter</div>
+      <p id="paperText"></p>
+    </div>
+
+    <h3 id="modalTitle">A little message</h3>
+    <p id="modalText"></p>
+  </div>
+</div>
+
+<script>
+const landingScreen = document.getElementById("landingScreen");
+const coverScreen = document.getElementById("coverScreen");
+const bookScreen = document.getElementById("bookScreen");
+
+document.getElementById("openLandingBtn").addEventListener("click", () => {
+  landingScreen.classList.remove("active");
+  coverScreen.classList.add("active");
+});
+
+document.getElementById("passportCover").addEventListener("click", () => {
+  coverScreen.classList.remove("active");
+  bookScreen.classList.add("active");
+  updatePage();
+});
+
+/* BACKGROUND */
+const sky = document.getElementById("sky");
+
+function createBackgroundEffects(){
+  const flyingItems = ["✈️", "🕊️", "♡", "✦"];
+
+  for(let i = 0; i < 9; i++){
+    const item = document.createElement("span");
+    item.className = "flying-bg";
+    item.textContent = flyingItems[i % flyingItems.length];
+    item.style.setProperty("--top", `${8 + Math.random() * 75}%`);
+    item.style.setProperty("--size", `${18 + Math.random() * 14}px`);
+    item.style.setProperty("--duration", `${16 + Math.random() * 16}s`);
+    item.style.setProperty("--delay", `${Math.random() * -25}s`);
+    sky.appendChild(item);
+  }
+
+  for(let i = 0; i < 18; i++){
+    const heart = document.createElement("span");
+    heart.className = "float-heart";
+    heart.textContent = i % 3 === 0 ? "♡" : "✦";
+    heart.style.setProperty("--left", `${Math.random() * 100}%`);
+    heart.style.setProperty("--size", `${16 + Math.random() * 15}px`);
+    heart.style.setProperty("--duration", `${12 + Math.random() * 17}s`);
+    heart.style.setProperty("--delay", `${Math.random() * -20}s`);
+    sky.appendChild(heart);
+  }
+}
+
+/* PAGE NAVIGATION */
+const pages = document.querySelectorAll(".passport-page");
+const pageIndicator = document.getElementById("pageIndicator");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const dotsContainer = document.getElementById("dots");
+const book = document.getElementById("book");
+
+let currentPage = 0;
+
+pages.forEach((_, index) => {
+  const dot = document.createElement("button");
+  dot.className = "dot";
+  dot.type = "button";
+  dot.setAttribute("aria-label", `Go to page ${index + 1}`);
+  dot.addEventListener("click", () => {
+    currentPage = index;
+    updatePage();
+  });
+  dotsContainer.appendChild(dot);
+});
+
+function updatePage(){
+  pages.forEach((page, index) => {
+    page.classList.toggle("active", index === currentPage);
+  });
+
+  document.querySelectorAll(".dot").forEach((dot, index) => {
+    dot.classList.toggle("active", index === currentPage);
+  });
+
+  pageIndicator.textContent = `Page ${currentPage + 1} of ${pages.length}`;
+  prevBtn.disabled = currentPage === 0;
+  nextBtn.disabled = currentPage === pages.length - 1;
+
+  if(currentPage === 6){
+    animatePromises();
+  }
+
+  book.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function nextPage(){
+  if(currentPage < pages.length - 1){
+    currentPage++;
+    updatePage();
+  }
+}
+
+function prevPage(){
+  if(currentPage > 0){
+    currentPage--;
+    updatePage();
+  }
+}
+
+nextBtn.addEventListener("click", nextPage);
+prevBtn.addEventListener("click", prevPage);
+
+document.addEventListener("keydown", event => {
+  if(!bookScreen.classList.contains("active")) return;
+
+  if(event.key === "ArrowRight") nextPage();
+  if(event.key === "ArrowLeft") prevPage();
+  if(event.key === "Escape") closeModal();
+});
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+book.addEventListener("touchstart", event => {
+  touchStartX = event.touches[0].clientX;
+  touchStartY = event.touches[0].clientY;
+}, { passive:true });
+
+book.addEventListener("touchend", event => {
+  const diffX = touchStartX - event.changedTouches[0].clientX;
+  const diffY = touchStartY - event.changedTouches[0].clientY;
+
+  if(Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY)){
+    diffX > 0 ? nextPage() : prevPage();
+  }
+});
+
+/* CUSTOMIZATION */
+const settingsPanel = document.getElementById("settingsPanel");
+
+document.getElementById("settingsToggle").addEventListener("click", () => {
+  settingsPanel.classList.toggle("hidden");
+});
+
+const fields = {
+  herName: document.getElementById("herName"),
+  myName: document.getElementById("myName"),
+  nickname: document.getElementById("nickname"),
+  myCountry: document.getElementById("myCountry"),
+  herCountry: document.getElementById("herCountry")
+};
+
+function getInitial(name){
+  return (name || "V").trim().charAt(0).toUpperCase() || "V";
+}
+
+function applySettings(data){
+  Object.keys(data).forEach(key => {
+    document.querySelectorAll(`[data-person="${key}"]`).forEach(element => {
+      element.textContent = data[key];
+    });
+  });
+
+  const initial = getInitial(data.herName);
+
+  document.querySelectorAll(".wax-seal").forEach(seal => {
+    seal.textContent = initial;
+  });
+}
+
+function saveSettings(){
+  const data = {};
+
+  Object.keys(fields).forEach(key => {
+    data[key] = fields[key].value;
+  });
+
+  try{
+    localStorage.setItem("lovePassport_2026", JSON.stringify(data));
+  }catch(error){}
+
+  applySettings(data);
+}
+
+function loadSettings(){
+  try{
+    const saved = localStorage.getItem("lovePassport_2026");
+    if(saved){
+      const data = JSON.parse(saved);
+      Object.keys(fields).forEach(key => {
+        if(data[key]) fields[key].value = data[key];
+      });
+    }
+  }catch(error){}
+
+  saveSettings();
+}
+
+Object.values(fields).forEach(input => {
+  input.addEventListener("input", saveSettings);
+});
+
+document.getElementById("passportNumber").textContent = "Love-2026";
+
+/* MODAL */
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
+const letterPaper = document.getElementById("letterPaper");
+const paperTitle = document.getElementById("paperTitle");
+const paperText = document.getElementById("paperText");
+
+function openModal(title, text){
+  letterPaper.classList.remove("show");
+  modalTitle.style.display = "block";
+  modalText.style.display = "block";
+  modalTitle.textContent = title;
+  modalText.textContent = text;
+  modalBackdrop.classList.add("show");
+}
+
+function openLetter(title, text){
+  modalTitle.style.display = "none";
+  modalText.style.display = "none";
+  paperTitle.textContent = title;
+  paperText.textContent = text;
+  letterPaper.classList.add("show");
+  modalBackdrop.classList.add("show");
+}
+
+function closeModal(){
+  modalBackdrop.classList.remove("show");
+}
+
+document.getElementById("closeModal").addEventListener("click", closeModal);
+
+modalBackdrop.addEventListener("click", event => {
+  if(event.target === modalBackdrop) closeModal();
+});
+
+/* STAMPS */
+document.querySelectorAll(".stamp").forEach(stamp => {
+  stamp.addEventListener("click", () => {
+    const title = stamp.getAttribute("data-title") || "Stamped with Love";
+    const message = stamp.getAttribute("data-message") || "";
+    openModal(`⊹ ${title} ⊹`, message);
+    createMiniSparkles(stamp);
+  });
+});
+
+/* PHRASES */
+const phrases = [
+  { text:"Meri jaan", translation:"My life · my beloved" },
+  { text:"Tum meri dua ho", translation:"You are my prayer" },
+  { text:"Mahal kita", translation:"I love you" },
+  { text:"Ikaw ang pahinga ko", translation:"You are my rest" },
+  { text:"Mera sukoon", translation:"My peace · my calm" },
+  { text:"Ikaw ang aking tahanan", translation:"You are my home" },
+  { text:"Tum meri kahani ho", translation:"You are my story" },
+  { text:"Hindi kita iiwan", translation:"I will not leave you" }
+];
+
+let lastPhraseIndex = 0;
+const phraseMain = document.getElementById("phraseMain");
+const phraseTranslation = document.getElementById("phraseTranslation");
+
+document.getElementById("randomPhraseBtn").addEventListener("click", () => {
+  let index;
+
+  do{
+    index = Math.floor(Math.random() * phrases.length);
+  }while(index === lastPhraseIndex && phrases.length > 1);
+
+  lastPhraseIndex = index;
+
+  phraseMain.style.opacity = 0;
+  phraseTranslation.style.opacity = 0;
+
+  setTimeout(() => {
+    phraseMain.textContent = phrases[index].text;
+    phraseTranslation.textContent = phrases[index].translation;
+    phraseMain.style.opacity = 1;
+    phraseTranslation.style.opacity = 1;
+  }, 220);
+});
+
+/* LETTERS */
+const letters = {
+  miss: {
+    title:"Open when you miss me",
+    text:
+`My love,
+
+If you are missing me right now, I hope you remember that I miss you too — in quiet ways.
+
+I miss your presence in ordinary moments. I miss telling you small things without waiting for the right time zone. I miss the comfort of knowing you are close.
+
+But even from far away, you are still part of my day. You are in my thoughts, in my plans, and in the patience I keep choosing.
+
+This distance is not empty. It is full of hope, effort, and the future we are slowly walking toward.`
+  },
+
+  alone: {
+    title:"Open when you feel alone",
+    text:
+`My love,
+
+If today feels lonely, please breathe slowly and remember that being apart does not mean being unloved.
+
+I may not be beside you physically, but I am still with you in the way I care, the way I listen, and the way I keep choosing us.
+
+You do not have to be strong every minute. Some days can be heavy. On those days, let this letter hold a small piece of my heart for you.
+
+You are not a burden. You are loved.`
+  },
+
+  morning: {
+    title:"Open when you wake up",
+    text:
+`Good morning, my love.
+
+I hope your day begins gently. I hope something small makes you smile before the world asks too much from you.
+
+Even when we wake up in different countries, I like knowing the same sky eventually passes over both of us.
+
+Take care of yourself today. Eat well. Breathe. Be kind to your heart.
+
+I am proud of you, and I am always rooting for you.`
+  },
+
+  argue: {
+    title:"Open when we argue",
+    text:
+`My love,
+
+If we argued, I want you to know this first: I do not want pride to become louder than love.
+
+We are two people learning each other across distance, stress, emotions, and time zones. Misunderstandings may happen, but they do not have to become endings.
+
+I want us to talk, fix, and stay. I want to understand you better, not win against you.
+
+I still choose us.`
+  },
+
+  reassure: {
+    title:"Open when you need reassurance",
+    text:
+`My love,
+
+You are not easy to replace. You are not someone I keep around only when things are simple.
+
+I care about you with intention. I respect your heart, your fears, your dreams, and the life you are building.
+
+When distance makes your thoughts heavy, remember this: I am not here by accident. I am here because I want to be.
+
+You matter to me deeply.`
+  },
+
+  future: {
+    title:"Open when you imagine our future",
+    text:
+`My love,
+
+When I imagine our future, I do not only imagine big moments.
+
+I imagine normal days. Groceries. Tea. Soft conversations. Quiet evenings. Laughing at something small. Sitting next to you without needing a screen between us.
+
+I imagine choosing each other in real life, not only through messages.
+
+One day, this will not be a dream page. It will be a memory page.`
+  }
+};
+
+document.querySelectorAll(".envelope").forEach(envelope => {
+  envelope.addEventListener("click", () => {
+    document.querySelectorAll(".envelope").forEach(item => item.classList.remove("opened"));
+    envelope.classList.add("opened");
+
+    const key = envelope.getAttribute("data-letter");
+    openLetter(letters[key].title, letters[key].text);
+    createMiniSparkles(envelope);
+  });
+});
+
+/* PROMISE ANIMATION */
+let promisesAnimated = false;
+
+function animatePromises(){
+  if(promisesAnimated) return;
+  promisesAnimated = true;
+
+  document.querySelectorAll(".promise-item").forEach((item, index) => {
+    setTimeout(() => {
+      item.classList.add("show");
+    }, index * 160);
+  });
+}
+
+/* VOW */
+const vows = document.querySelectorAll(".vow");
+const ruleStatus = document.getElementById("ruleStatus");
+const completionOverlay = document.getElementById("completionOverlay");
+
+vows.forEach(vow => {
+  vow.addEventListener("click", () => {
+    vow.classList.toggle("checked");
+
+    const checkedCount = document.querySelectorAll(".vow.checked").length;
+
+    ruleStatus.textContent = checkedCount === 3
+      ? "⊹ Oath renewed: we talk, we fix, we stay ⊹"
+      : `⊹ ${checkedCount}/3 renewed ⊹`;
+
+    if(checkedCount === 3){
+      completionOverlay.classList.add("show");
+      setTimeout(() => {
+        completionOverlay.classList.remove("show");
+      }, 2500);
+    }
+  });
+});
+
+/* FINAL SEAL */
+const sealBtn = document.getElementById("sealBtn");
+const goldenSeal = document.getElementById("goldenSeal");
+
+function createSparkles(){
+  const symbols = ["✦", "♡", "✧", "★", "💛"];
+
+  for(let i = 0; i < 42; i++){
+    const sparkle = document.createElement("span");
+    sparkle.className = "sparkle";
+    sparkle.textContent = symbols[i % symbols.length];
+    sparkle.style.left = `${Math.random() * 100}vw`;
+    sparkle.style.top = `${Math.random() * 42 + 5}vh`;
+    sparkle.style.animationDelay = `${Math.random() * .55}s`;
+    document.body.appendChild(sparkle);
+
+    setTimeout(() => sparkle.remove(), 1750);
+  }
+}
+
+function createMiniSparkles(target){
+  const rect = target.getBoundingClientRect();
+  const symbols = ["✦", "♡", "✧"];
+
+  for(let i = 0; i < 10; i++){
+    const sparkle = document.createElement("span");
+    sparkle.className = "sparkle";
+    sparkle.textContent = symbols[i % symbols.length];
+    sparkle.style.left = `${rect.left + rect.width / 2 + (Math.random() * 90 - 45)}px`;
+    sparkle.style.top = `${rect.top + rect.height / 2 + (Math.random() * 60 - 30)}px`;
+    sparkle.style.animationDelay = `${Math.random() * .2}s`;
+    document.body.appendChild(sparkle);
+
+    setTimeout(() => sparkle.remove(), 1500);
+  }
+}
+
+sealBtn.addEventListener("click", () => {
+  goldenSeal.classList.remove("show");
+  void goldenSeal.offsetWidth;
+  goldenSeal.classList.add("show");
+  createSparkles();
+});
+
+/* INIT */
+createBackgroundEffects();
+loadSettings();
+updatePage();
+</script>
 </body>
 </html>
