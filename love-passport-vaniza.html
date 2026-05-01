@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Republic of Us · Passport of Vaniza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700&family=Cormorant+Upright:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#0c5e3c;
+    --green-deep:#063a25;
+    --maroon:#6b1320;
+    --maroon-deep:#430a13;
+    --gold:#d4af37;
+    --gold-soft:#e7c66b;
+    --cream:#f4ecd8;
+    --paper:#fbf6e9;
+    --ink:#2a1810;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    min-height:100vh;
+    font-family:'Cormorant Garamond', serif;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  body{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(107,19,32,.55), transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(12,94,60,.55), transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(212,175,55,.15), transparent 70%),
+      linear-gradient(135deg, #1a0a10 0%, #0a1f15 100%);
+    background-attachment: fixed;
+    padding: 60px 20px;
+    position: relative;
+  }
+
+  /* Floating particles */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(212,175,55,.4) 0, transparent 1px),
+      radial-gradient(circle at 80% 30%, rgba(212,175,55,.3) 0, transparent 1px),
+      radial-gradient(circle at 30% 70%, rgba(212,175,55,.4) 0, transparent 1px),
+      radial-gradient(circle at 70% 80%, rgba(212,175,55,.3) 0, transparent 1px),
+      radial-gradient(circle at 50% 40%, rgba(212,175,55,.3) 0, transparent 1px);
+    background-size: 200px 200px, 250px 250px, 180px 180px, 220px 220px, 300px 300px;
+    pointer-events:none;
+    z-index:0;
+    animation: drift 60s linear infinite;
+  }
+
+  @keyframes drift{
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: 200px 200px, -250px 250px, 180px -180px, -220px -220px, 300px -300px; }
+  }
+
+  .container{
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index:1;
+  }
+
+  /* ========= HERO HEADING ========= */
+  .hero{
+    text-align:center;
+    margin-bottom: 40px;
+    color: var(--gold);
+  }
+  .hero .small{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .35em;
+    color: rgba(231,198,107,.7);
+    margin-bottom: 10px;
+  }
+  .hero h1{
+    font-family:'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: .15em;
+    color: var(--gold-soft);
+  }
+
+  /* ========= GENERIC GLASS CARD ========= */
+  .glass{
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,.4),
+      inset 0 1px 0 rgba(255,255,255,.15);
+  }
+
+  /* ========= PASSPORT COVER ========= */
+  .passport{
+    width: 100%;
+    aspect-ratio: 5/7;
+    max-height: 720px;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.6),
+      0 0 0 1px rgba(212,175,55,.2);
+    cursor: pointer;
+    transition: transform .6s cubic-bezier(.2,.9,.2,1);
+    margin-bottom: 50px;
+  }
+  .passport:hover{ transform: translateY(-4px) rotateX(2deg); }
+
+  /* the diagonal split */
+  .passport::before{
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 49.5%, var(--maroon-deep) 50.5%, var(--maroon) 100%);
+  }
+  .passport::after{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,.08), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,.05), transparent 50%);
+    pointer-events:none;
+  }
+
+  .passport-content{
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 30px;
+    color: var(--gold);
+    text-align: center;
+  }
+
+  .passport-top, .passport-bottom{
+    width:100%;
+  }
+
+  .passport-top .country-line{
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    color: var(--gold-soft);
+    line-height: 1.6;
+  }
+
+  .passport-emblem{
+    width: 60%;
+    max-width: 200px;
+    aspect-ratio: 1;
+    margin: 20px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .heart-emblem{
+    width:100%; height:100%;
+    color: var(--gold);
+    filter: drop-shadow(0 0 20px rgba(212,175,55,.4));
+  }
+
+  .passport-bottom .languages{
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: .15em;
+    color: var(--gold-soft);
+    line-height: 2;
+  }
+  .passport-bottom .urdu{
+    font-size: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    direction: rtl;
+    margin: 6px 0;
+  }
+  .chip{
+    display:inline-block;
+    margin-top: 16px;
+    width: 36px; height: 24px;
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    position: relative;
+  }
+  .chip::before{
+    content:'';
+    position:absolute;
+    inset: 4px 8px;
+    border: 1px solid var(--gold);
+    border-radius: 2px;
+  }
+
+  .open-hint{
+    margin-top: 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .3em;
+    color: rgba(231,198,107,.7);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:.6} 50%{opacity:1} }
+
+  /* ========= PAGE SECTIONS ========= */
+  .page{
+    padding: 38px 32px;
+    margin-bottom: 28px;
+    color: var(--cream);
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: rise .9s ease forwards;
+  }
+  .page:nth-child(1){animation-delay:.1s}
+  .page:nth-child(2){animation-delay:.2s}
+  .page:nth-child(3){animation-delay:.3s}
+  .page:nth-child(4){animation-delay:.4s}
+  .page:nth-child(5){animation-delay:.5s}
+  .page:nth-child(6){animation-delay:.6s}
+  .page:nth-child(7){animation-delay:.7s}
+  .page:nth-child(8){animation-delay:.8s}
+
+  @keyframes rise{
+    to{opacity:1; transform: translateY(0);}
+  }
+
+  .page-header{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    border-bottom: 1px solid rgba(212,175,55,.25);
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+  }
+  .page-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .3em;
+    color: var(--gold-soft);
+  }
+  .page-title{
+    font-family:'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: .25em;
+    color: var(--gold-soft);
+    text-transform: uppercase;
+  }
+
+  /* ========= BIO PAGE ========= */
+  .bio{
+    display:grid;
+    grid-template-columns: 130px 1fr;
+    gap: 24px;
+    align-items:start;
+  }
+  .bio-photo{
+    width: 130px;
+    aspect-ratio: 4/5;
+    border-radius: 8px;
+    overflow:hidden;
+    border: 2px solid rgba(212,175,55,.4);
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    background: rgba(0,0,0,.2);
+  }
+  .bio-photo img{
+    width:100%; height:100%; object-fit: cover;
+    filter: sepia(15%) contrast(105%);
+  }
+  .bio-fields{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .field{
+    display:grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .field-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .2em;
+    color: var(--gold-soft);
+    text-transform: uppercase;
+    padding-top: 5px;
+  }
+  .field-value{
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--cream);
+  }
+  .field-value em{
+    color: var(--gold-soft);
+    font-style: italic;
+  }
+
+  /* ========= SIGNATURE ========= */
+  .signature{
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(212,175,55,.2);
+    text-align:right;
+  }
+  .signature-name{
+    font-family: 'Cormorant Upright', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--gold-soft);
+  }
+  .signature-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .25em;
+    color: rgba(231,198,107,.6);
+    margin-top: 2px;
+  }
+
+  /* ========= STAMPS PAGE ========= */
+  .stamps-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+  .stamp{
+    aspect-ratio: 1.1/1;
+    border: 2px solid var(--gold-soft);
+    border-radius: 50%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 14px;
+    text-align:center;
+    color: var(--gold-soft);
+    transform: rotate(-6deg);
+    position: relative;
+    background: rgba(212,175,55,.04);
+    transition: transform .3s ease;
+  }
+  .stamp:nth-child(2n){ transform: rotate(5deg); border-color: rgba(231,198,107,.7); color: rgba(231,198,107,.95); }
+  .stamp:nth-child(3n){ transform: rotate(-3deg); }
+  .stamp:hover{ transform: rotate(0) scale(1.04); }
+
+  .stamp-icon{
+    font-family:'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: .3em;
+    margin-bottom: 4px;
+  }
+  .stamp-title{
+    font-family:'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    line-height:1.2;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .stamp-date{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    opacity: .8;
+  }
+  .stamp::before{
+    content:'';
+    position:absolute;
+    inset: 6px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    opacity: .35;
+  }
+
+  /* ========= MAP PAGE ========= */
+  .map-wrap{
+    position:relative;
+    padding: 30px 10px;
+  }
+  .map-line{
+    height: 100px;
+    position: relative;
+    margin: 30px 0;
+  }
+  .city{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+  }
+  .city.left{ left: 0; }
+  .city.right{ right: 0; }
+  .flag{
+    width: 64px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(212,175,55,.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  }
+  .city-name{
+    font-family:'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: .15em;
+    color: var(--gold-soft);
+  }
+  .city-country{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .2em;
+    color: rgba(244,236,216,.5);
+    margin-top: 2px;
+  }
+
+  .connection{
+    position:absolute;
+    top: 50%;
+    left: 90px;
+    right: 90px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+    transform: translateY(-50%);
+  }
+  .connection::before, .connection::after{
+    content:'';
+    position:absolute;
+    top: 50%;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 12px var(--gold);
+  }
+  .connection::before{ left: 0; }
+  .connection::after{ right: 0; }
+  .heart-fly{
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--gold);
+    font-size: 20px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px var(--gold));
+  }
+  @keyframes float{
+    0%,100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, -65%); }
+  }
+
+  .distance-stats{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+    text-align:center;
+  }
+  .stat{
+    padding: 14px 8px;
+    border: 1px solid rgba(212,175,55,.2);
+    border-radius: 8px;
+    background: rgba(255,255,255,.03);
+  }
+  .stat-num{
+    font-family:'Cinzel', serif;
+    font-size: 22px;
+    color: var(--gold-soft);
+    font-weight: 600;
+  }
+  .stat-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: .2em;
+    color: rgba(244,236,216,.5);
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* ========= DECLARATIONS PAGE ========= */
+  .declaration-list{
+    list-style:none;
+    counter-reset: dec;
+  }
+  .declaration-list li{
+    counter-increment: dec;
+    padding: 14px 0 14px 50px;
+    border-bottom: 1px dashed rgba(212,175,55,.15);
+    position: relative;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .declaration-list li::before{
+    content: counter(dec, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold-soft);
+    letter-spacing: .1em;
+  }
+  .declaration-list li:last-child{ border-bottom: none; }
+  .declaration-list em{
+    color: var(--gold-soft);
+    font-style: italic;
+  }
+
+  /* ========= MENU PAGE (FOODS) ========= */
+  .menu{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .menu-col{
+    text-align:center;
+  }
+  .menu-flag{
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .menu-title{
+    font-family:'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: .2em;
+    color: var(--gold-soft);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .menu-item{
+    font-family: 'Cormorant Upright', serif;
+    font-size: 16px;
+    line-height: 2;
+    color: var(--cream);
+    font-style: italic;
+  }
+
+  /* ========= LETTER PAGE WITH PHOTO ========= */
+  .letter-page{
+    text-align:center;
+  }
+  .letter-photo{
+    width: 180px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 24px;
+    border: 3px solid rgba(212,175,55,.3);
+    box-shadow: 0 0 40px rgba(212,175,55,.15);
+  }
+  .letter-photo img{
+    width:100%; height:100%; object-fit:cover;
+    filter: sepia(10%);
+  }
+  .letter-text{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--cream);
+    text-align:left;
+    font-style: italic;
+  }
+  .letter-text p{ margin-bottom: 14px; }
+  .letter-text .signoff{
+    text-align:right;
+    margin-top: 24px;
+    color: var(--gold-soft);
+    font-family: 'Cormorant Upright', serif;
+    font-size: 22px;
+  }
+
+  /* ========= FINAL VISA PAGE ========= */
+  .visa-frame{
+    border: 2px solid var(--gold-soft);
+    padding: 30px 20px;
+    text-align:center;
+    border-radius: 12px;
+    background: rgba(212,175,55,.04);
+    position: relative;
+  }
+  .visa-frame::before, .visa-frame::after{
+    content:'';
+    position:absolute;
+    width: 12px; height: 12px;
+    border: 2px solid var(--gold);
+  }
+  .visa-frame::before{ top: -2px; left: -2px; border-right:none; border-bottom:none;}
+  .visa-frame::after{ bottom: -2px; right: -2px; border-left:none; border-top:none;}
+
+  .visa-stamp{
+    width: 110px; height: 110px;
+    border: 2px solid var(--gold-soft);
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto 20px;
+    color: var(--gold-soft);
+    font-family:'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: .15em;
+    text-align:center;
+    line-height:1.3;
+    transform: rotate(-8deg);
+    position: relative;
+  }
+  .visa-stamp::before{
+    content:'';
+    position:absolute; inset:5px;
+    border:1px dashed currentColor;
+    border-radius:50%;
+    opacity:.5;
+  }
+  .visa-promise{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 22px;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--cream);
+  }
+  .visa-promise strong{
+    color: var(--gold-soft);
+    font-weight: 600;
+  }
+  .visa-meta{
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(212,175,55,.2);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    color: rgba(244,236,216,.5);
+    text-transform: uppercase;
+  }
+
+  /* ========= FOOTER ========= */
+  .footer{
+    text-align:center;
+    margin-top: 40px;
+    color: rgba(231,198,107,.5);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .3em;
+    line-height: 2;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 540px){
+    body{ padding: 30px 14px; }
+    .page{ padding: 28px 22px; }
+    .bio{ grid-template-columns: 100px 1fr; gap: 16px; }
+    .bio-photo{ width: 100px; }
+    .field{ grid-template-columns: 90px 1fr; font-size: 13px; }
+    .field-value{ font-size: 15px; }
+    .stamps-grid{ gap: 14px; }
+    .stamp-title{ font-size: 10px; }
+    .menu{ grid-template-columns: 1fr; gap: 24px; }
+    .hero h1{ font-size: 22px; }
+    .declaration-list li{ font-size: 15px; padding-left: 42px; }
+    .visa-promise{ font-size: 18px; }
+    .letter-text{ font-size: 16px; }
+    .city{ position: relative; left:auto !important; right:auto !important; transform:none; }
+    .connection{ display:none; }
+    .map-line{
+      height: auto;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .heart-fly{ position: relative; transform:none; left:auto; top:auto; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="small">⊹ ISSUED WITH LOVE · LAHORE TO MANILA ⊹</div>
+    <h1>The Republic of Us</h1>
+  </div>
+
+  <!-- ============ PASSPORT COVER ============ -->
+  <div class="passport">
+    <div class="passport-content">
+      <div class="passport-top">
+        <div class="country-line">
+          PILIPINAS · ISLAMIC REPUBLIC<br>
+          OF PAKISTAN
+        </div>
+      </div>
+
+      <div class="passport-emblem">
+        <svg class="heart-emblem" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- decorative wreath -->
+          <g stroke="currentColor" stroke-width="1.2" fill="none" opacity=".7">
+            <path d="M40 110 Q 25 80 35 50 Q 50 30 70 35"/>
+            <path d="M160 110 Q 175 80 165 50 Q 150 30 130 35"/>
+            <path d="M45 60 Q 50 55 55 60" />
+            <path d="M55 75 Q 60 70 65 75" />
+            <path d="M50 90 Q 55 85 60 90" />
+            <path d="M155 60 Q 150 55 145 60" />
+            <path d="M145 75 Q 140 70 135 75" />
+            <path d="M150 90 Q 145 85 140 90" />
+          </g>
+          <!-- crescent and star at top -->
+          <g fill="currentColor">
+            <path d="M100 22 a 8 8 0 1 0 4 14 a 6 6 0 1 1 -4 -14 z"/>
+            <path d="M112 28 l 1.2 3.6 l 3.8 0 l -3 2.2 l 1.2 3.6 l -3 -2.2 l -3 2.2 l 1.2 -3.6 l -3 -2.2 l 3.8 0 z"/>
+          </g>
+          <!-- shield -->
+          <path d="M70 50 L 130 50 L 130 110 Q 130 140 100 158 Q 70 140 70 110 Z"
+                stroke="currentColor" stroke-width="2" fill="rgba(212,175,55,0.1)"/>
+          <!-- inner heart -->
+          <path d="M100 130 C 75 110 70 92 80 82 C 90 75 100 85 100 92 C 100 85 110 75 120 82 C 130 92 125 110 100 130 Z"
+                fill="currentColor" opacity=".95"/>
+          <!-- three stars -->
+          <g fill="currentColor">
+            <path d="M82 70 l .6 1.8 l 1.9 0 l -1.5 1.1 l .6 1.8 l -1.6 -1.1 l -1.5 1.1 l .6 -1.8 l -1.5 -1.1 l 1.9 0 z"/>
+            <path d="M100 60 l .8 2.2 l 2.4 0 l -2 1.4 l .8 2.2 l -2 -1.4 l -2 1.4 l .8 -2.2 l -2 -1.4 l 2.4 0 z"/>
+            <path d="M118 70 l .6 1.8 l 1.9 0 l -1.5 1.1 l .6 1.8 l -1.6 -1.1 l -1.5 1.1 l .6 -1.8 l -1.5 -1.1 l 1.9 0 z"/>
+          </g>
+          <!-- ribbon -->
+          <path d="M55 165 L 145 165 L 138 175 L 62 175 Z" fill="rgba(212,175,55,0.15)" stroke="currentColor" stroke-width="1"/>
+          <text x="100" y="172" text-anchor="middle" font-family="Cinzel" font-size="7" fill="currentColor" letter-spacing="1">REPUBLIC OF US</text>
+        </svg>
+      </div>
+
+      <div class="passport-bottom">
+        <div class="languages">PASAPORTE · PASSPORT</div>
+        <div class="urdu">پاسپورٹ · اسلامی جمہوریہ پاکستان</div>
+        <div class="languages">REPUBLIKA NG PILIPINAS</div>
+        <div class="chip"></div>
+        <div class="open-hint">⊹ TURN THE PAGE ⊹</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============ PAGE 01 — BIO DATA ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">01 / IDENTIFICATION</span>
+      <span class="page-title">Holder</span>
+    </div>
+
+    <div class="bio">
+      <div class="bio-photo">
+        <img src="https://i.ibb.co/rGhX9x7p/16-April-2026.jpg" alt="Vaniza" />
+      </div>
+      <div class="bio-fields">
+        <div class="field">
+          <span class="field-label">Surname</span>
+          <span class="field-value">The Reason</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Given Name</span>
+          <span class="field-value">VANIZA</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Nationality</span>
+          <span class="field-value"><em>Mine.</em></span>
+        </div>
+        <div class="field">
+          <span class="field-label">Profession</span>
+          <span class="field-value">Teacher · <em>and the one who taught me everything that mattered</em></span>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of Issue</span>
+          <span class="field-value">The day she said yes</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of Expiry</span>
+          <span class="field-value"><em>Never.</em></span>
+        </div>
+        <div class="field">
+          <span class="field-label">Distinguishing</span>
+          <span class="field-value">The way she laughs · the kindness she carries · the patience of someone who teaches for a living and still has love left over for me</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="signature">
+      <div class="signature-name">— your guy ✦</div>
+      <div class="signature-label">SIGNATURE OF ISSUING AUTHORITY</div>
+    </div>
+  </section>
+
+
+  <!-- ============ PAGE 02 — STAMPS ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">02 / VISAS · ENTRIES</span>
+      <span class="page-title">Stamps</span>
+    </div>
+
+    <div class="stamps-grid">
+      <div class="stamp">
+        <div class="stamp-icon">⊹ ENTRY ⊹</div>
+        <div class="stamp-title">First Hello</div>
+        <div class="stamp-date">DAY ZERO</div>
+      </div>
+      <div class="stamp">
+        <div class="stamp-icon">⊹ APPROVED ⊹</div>
+        <div class="stamp-title">First Call</div>
+        <div class="stamp-date">CLEARED</div>
+      </div>
+      <div class="stamp">
+        <div class="stamp-icon">⊹ CERTIFIED ⊹</div>
+        <div class="stamp-title">First<br>I Love You</div>
+        <div class="stamp-date">SEALED</div>
+      </div>
+      <div class="stamp">
+        <div class="stamp-icon">⊹ GRANTED ⊹</div>
+        <div class="stamp-title">Late-Night Talks</div>
+        <div class="stamp-date">UNLIMITED</div>
+      </div>
+      <div class="stamp">
+        <div class="stamp-icon">⊹ REGISTERED ⊹</div>
+        <div class="stamp-title">First Fight<br>· Made Up ·</div>
+        <div class="stamp-date">PASSED</div>
+      </div>
+      <div class="stamp">
+        <div class="stamp-icon">⊹ ETERNAL ⊹</div>
+        <div class="stamp-title">Every Good<br>Morning</div>
+        <div class="stamp-date">DAILY</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ PAGE 03 — MAP ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">03 / TRAVEL</span>
+      <span class="page-title">The Distance</span>
+    </div>
+
+    <div class="map-wrap">
+      <div class="map-line">
+        <div class="city left">
+          <img class="flag" src="https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png" alt="Pakistan" />
+          <div class="city-name">LAHORE</div>
+          <div class="city-country">PAKISTAN</div>
+        </div>
+
+        <div class="connection"></div>
+        <svg class="heart-fly" width="20" height="18" viewBox="0 0 24 22" fill="currentColor">
+          <path d="M12 21s-7.5-4.5-9.5-9.5C1 7.5 4 4 7.5 4c2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4c3.5 0 6.5 3.5 5 7.5C19.5 16.5 12 21 12 21z"/>
+        </svg>
+
+        <div class="city right">
+          <img class="flag" src="https://i.ibb.co/rRXfNvg4/images.png" alt="Philippines" />
+          <div class="city-name">MANILA</div>
+          <div class="city-country">PHILIPPINES</div>
+        </div>
+      </div>
+
+      <div class="distance-stats">
+        <div class="stat">
+          <div class="stat-num">5,927</div>
+          <div class="stat-label">Kilometers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3h</div>
+          <div class="stat-label">Time Gap</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Worth It</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ PAGE 04 — DECLARATION ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">04 / CUSTOMS</span>
+      <span class="page-title">Declaration</span>
+    </div>
+
+    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold-soft); margin-bottom:18px; font-size:16px;">
+      Items the holder is bringing into this Republic:
+    </p>
+
+    <ol class="declaration-list">
+      <li>One <em>extraordinarily kind heart</em></li>
+      <li>The patience of a teacher</li>
+      <li>A laugh I'd cross 5,927 km to hear in person</li>
+      <li>Stories about her students that I never get tired of</li>
+      <li>The phrase "<em>kumain ka na ba?</em>" — used as both a question and a love language</li>
+      <li>An understanding of timezone math no one should have to learn</li>
+      <li>One whole, complicated, beautiful future</li>
+    </ol>
+
+    <p style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:.2em; text-align:center; margin-top:24px; color:rgba(231,198,107,.6);">
+      ⊹ NOTHING TO DECLARE EXCEPT EVERYTHING ⊹
+    </p>
+  </section>
+
+
+  <!-- ============ PAGE 05 — NATIONAL DISHES ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">05 / CULTURE</span>
+      <span class="page-title">National Cuisine</span>
+    </div>
+
+    <div class="menu">
+      <div class="menu-col">
+        <div class="menu-flag">
+          <img class="flag" style="margin:0 auto;" src="https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png" alt="Pakistan" />
+        </div>
+        <div class="menu-title">From My Side</div>
+        <div class="menu-item">Biryani</div>
+        <div class="menu-item">Nihari</div>
+        <div class="menu-item">Karak chai</div>
+        <div class="menu-item">Halwa puri Sundays</div>
+      </div>
+
+      <div class="menu-col">
+        <div class="menu-flag">
+          <img class="flag" style="margin:0 auto;" src="https://i.ibb.co/rRXfNvg4/images.png" alt="Philippines" />
+        </div>
+        <div class="menu-title">From Her Side</div>
+        <div class="menu-item">Adobo</div>
+        <div class="menu-item">Sinigang</div>
+        <div class="menu-item">Halo-halo</div>
+        <div class="menu-item">Kapeng barako mornings</div>
+      </div>
+    </div>
+
+    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; text-align:center; margin-top:26px; color:var(--gold-soft); font-size:16px;">
+      One day, the same table.
+    </p>
+  </section>
+
+
+  <!-- ============ PAGE 06 — LETTER ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">06 / OFFICIAL NOTICE</span>
+      <span class="page-title">From the Bearer</span>
+    </div>
+
+    <div class="letter-page">
+      <div class="letter-photo">
+        <img src="https://i.ibb.co/GfZJ3JP4/27-april-2026-1.jpg" alt="Vaniza" />
+      </div>
+
+      <div class="letter-text">
+        <p>Vaniza,</p>
+        <p>You spend your days giving pieces of yourself to other people's children — explaining things gently, repeating yourself with patience I don't always deserve, going home tired with more love still left over for me.</p>
+        <p>I notice. I notice all of it.</p>
+        <p>This passport is small. The distance between Lahore and Manila is not. But everything in here is real, and one day soon, so will the visa on the next page be.</p>
+        <p class="signoff">— your guy.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ PAGE 07 — THE FINAL VISA ============ -->
+  <section class="page glass">
+    <div class="page-header">
+      <span class="page-num">07 / PENDING</span>
+      <span class="page-title">The Visa</span>
+    </div>
+
+    <div class="visa-frame">
+      <div class="visa-stamp">
+        TO BE<br>STAMPED<br>SOON ✦
+      </div>
+
+      <p class="visa-promise">
+        This page is intentionally blank.<br>
+        It will be stamped <strong>the day I land in Manila</strong><br>
+        — and again the day you land in Lahore.
+      </p>
+
+      <div class="visa-meta">⊹ AUTHORIZED FOR LIFE · NON-TRANSFERABLE ⊹</div>
+    </div>
+  </section>
+
+
+  <div class="footer">
+    REPUBLIC OF US ✦ EST. THE DAY WE MET<br>
+    ISSUED IN LAHORE · BEARER IN MANILA<br>
+    <span style="color:var(--gold-soft);">— your guy</span>
+  </div>
+
+</div>
+
+</body>
+</html>
