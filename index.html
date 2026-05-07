@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Vaniza’s Food Game 💖</title>
+  <title>For Vaniza 💖</title>
 
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Great+Vibes&family=Playfair+Display:wght@600;700;800&display=swap");
@@ -14,12 +14,14 @@
       --soft-pink: #ffd6e8;
       --deep-pink: #d93d83;
       --purple: #b77cff;
+      --lavender: #efe0ff;
       --cream: #fff8f0;
       --white: #ffffff;
-      --glass: rgba(255, 255, 255, 0.72);
+      --glass: rgba(255, 255, 255, 0.62);
       --text: #4a2540;
       --muted: #7b5a72;
       --shadow: 0 28px 70px rgba(151, 76, 132, 0.22);
+      --radius: 30px;
       --body-font: "Comfortaa", system-ui, sans-serif;
       --title-font: "Playfair Display", Georgia, serif;
       --script-font: "Great Vibes", cursive;
@@ -29,6 +31,10 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -45,6 +51,15 @@
 
     button {
       font-family: inherit;
+    }
+
+    body.anniversary-mode {
+      animation: anniversaryGlow 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes anniversaryGlow {
+      from { filter: saturate(1); }
+      to { filter: saturate(1.18) brightness(1.04); }
     }
 
     .page-bg {
@@ -90,76 +105,160 @@
     }
 
     @keyframes floatOrb {
-      from {
-        transform: translate3d(0, 0, 0) scale(1);
-      }
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(28px, -34px, 0) scale(1.08); }
+    }
 
-      to {
-        transform: translate3d(28px, -34px, 0) scale(1.08);
-      }
+    .sparkle-layer,
+    .heart-layer,
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+  .heart-layer {
+  pointer-events: none !important;
+  z-index: 5;
+}
+
+.floating-heart {
+  pointer-events: auto !important;
+}
+
+.floating-heart {
+  pointer-events: auto;
+}
+
+    .sparkle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+      animation: sparkleDrift linear forwards;
+    }
+
+    @keyframes sparkleDrift {
+      from { opacity: 0; transform: translateY(12px) scale(0.6); }
+      25% { opacity: 1; }
+      to { opacity: 0; transform: translateY(-110vh) scale(1.2); }
+    }
+
+    .floating-heart {
+      position: absolute;
+      border: 0;
+      background: transparent;
+      color: rgba(255, 80, 150, 0.75);
+      cursor: pointer;
+      pointer-events: auto;
+      animation: heartFloat linear forwards;
+      text-shadow: 0 8px 24px rgba(217, 61, 131, 0.25);
+    }
+
+    @keyframes heartFloat {
+      from { opacity: 0; transform: translateY(20px) scale(0.8) rotate(0deg); }
+      12% { opacity: 1; }
+      to { opacity: 0; transform: translateY(-115vh) scale(1.4) rotate(28deg); }
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--pink);
+      animation: confettiFall 2.8s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
     }
 
     .shell {
-      width: min(980px, calc(100% - 32px));
+      width: min(1180px, calc(100% - 34px));
       margin: 0 auto;
     }
 
     .hero {
       min-height: 100vh;
+      padding: 24px 0 70px;
       display: grid;
-      place-items: center;
-      padding: 42px 0;
+      align-items: center;
     }
 
+    .top-pill {
+      width: fit-content;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 14px 36px rgba(151, 76, 132, 0.14);
+      backdrop-filter: blur(16px);
+      animation: fadeDown 0.9s ease both;
+    }
+
+    .flag {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 20px rgba(96, 54, 91, 0.18);
+    }
+
+    .top-pill span {
+      font-weight: 900;
+      color: var(--deep-pink);
+      letter-spacing: 0.2px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 38px;
+      align-items: center;
+    }
+
+    .hero-copy,
     .card {
-      width: 100%;
-      border-radius: 34px;
-      background: linear-gradient(145deg, rgba(255,255,255,0.78), rgba(255,255,255,0.48));
-      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42));
+      border: 1px solid rgba(255,255,255,0.75);
       box-shadow: var(--shadow);
       backdrop-filter: blur(18px);
-      padding: clamp(24px, 5vw, 44px);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
     }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      right: -90px;
-      top: -110px;
-      background: radial-gradient(circle, rgba(255,111,174,0.23), transparent 64%);
-      pointer-events: none;
+    .hero-copy {
+      padding: 26px;
+      animation: fadeUp 0.9s ease both;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 9px 14px;
+      padding: 9px 13px;
       border-radius: 999px;
-      background: rgba(255, 111, 174, 0.14);
+      background: rgba(255, 111, 174, 0.12);
       color: var(--deep-pink);
       font-weight: 900;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       margin-bottom: 18px;
-      position: relative;
-      z-index: 1;
     }
 
     h1 {
       font-family: var(--title-font);
-      font-size: clamp(2.3rem, 8vw, 5.5rem);
-      line-height: 0.96;
+      font-size: clamp(2.55rem, 8vw, 6.5rem);
+      line-height: 0.92;
+      letter-spacing: -3px;
       color: #3d1734;
-      letter-spacing: -2px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
+      margin-bottom: 18px;
     }
 
     .script-word {
@@ -169,31 +268,245 @@
       text-shadow: 0 14px 34px rgba(217, 61, 131, 0.18);
     }
 
-    .subtitle {
-      max-width: 720px;
-      margin: 0 auto 28px;
+    .typing-line {
+      min-height: 66px;
+      font-size: clamp(1.05rem, 2.7vw, 1.45rem);
       color: var(--muted);
-      line-height: 1.85;
-      font-weight: 800;
-      font-size: clamp(0.98rem, 2.4vw, 1.12rem);
+      line-height: 1.65;
+      margin-bottom: 22px;
+      font-weight: 700;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1.1em;
+      background: var(--deep-pink);
+      margin-left: 5px;
+      transform: translateY(4px);
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .timer-card {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow: 0 12px 34px rgba(151, 76, 132, 0.13);
+    }
+
+    .timer-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--deep-pink);
+      font-weight: 900;
+    }
+
+    .timer-text {
+      font-size: clamp(0.96rem, 2.4vw, 1.16rem);
+      line-height: 1.65;
+      font-weight: 750;
+    }
+
+    .promise-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .promise-grid div {
+      text-align: center;
+      padding: 13px 10px;
+      border-radius: 18px;
+      background: rgba(255, 111, 174, 0.11);
+      color: var(--deep-pink);
+      font-weight: 900;
+    }
+
+    .calendar-zone {
       position: relative;
-      z-index: 1;
+      display: grid;
+      justify-items: center;
+      animation: fadeUp 1.1s ease 0.16s both;
+    }
+
+    .calendar-glow {
+      position: absolute;
+      width: min(430px, 90vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 111, 174, 0.2), transparent 62%);
+      filter: blur(12px);
+      z-index: -1;
+    }
+
+    .paper-stack {
+      position: relative;
+      width: min(390px, 88vw);
+      height: min(500px, 115vw);
+      perspective: 1300px;
+      margin: 12px auto 18px;
+    }
+
+    .memory-page {
+      position: absolute;
+      inset: 0;
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,248,252,0.92));
+      box-shadow: 0 26px 65px rgba(126, 59, 113, 0.24), 0 1px 0 rgba(255,255,255,0.9) inset;
+      padding: 16px 16px 22px;
+      transform-origin: 12% 5%;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      overflow: hidden;
+      backface-visibility: hidden;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .memory-page::before {
+      content: "";
+      position: absolute;
+      top: 13px;
+      left: 26px;
+      right: 26px;
+      height: 14px;
+      border-radius: 999px;
+      background: repeating-linear-gradient(90deg, rgba(217, 61, 131, 0.25) 0 9px, transparent 9px 18px);
+      opacity: 0.6;
+    }
+
+    .page-photo-wrap {
+      position: relative;
+      margin-top: 28px;
+      width: 100%;
+      height: calc(100% - 95px);
+      border-radius: 25px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffe9f3, #f1e6ff);
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    .page-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.01);
+      transition: opacity 0.35s ease, transform 0.45s ease, filter 0.45s ease;
+    }
+
+    .memory-page.shuffle-pop .page-photo-wrap img {
+      transform: scale(1.08) rotate(1deg);
+      filter: saturate(1.14) brightness(1.05);
+    }
+
+    .tap-hint {
+      position: absolute;
+      left: 50%;
+      top: 54px;
+      transform: translateX(-50%);
+      z-index: 3;
+      width: max-content;
+      max-width: calc(100% - 28px);
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.75);
+      color: var(--deep-pink);
+      font-size: 0.74rem;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(151, 76, 132, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .fallback-photo {
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 22px;
+      color: var(--deep-pink);
+      font-weight: 850;
+      line-height: 1.55;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.82), transparent 45%),
+        linear-gradient(135deg, #ffe1ef, #efe0ff);
+    }
+
+    .page-caption {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.74);
+      color: #5b2c4f;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      line-height: 1.45;
+    }
+
+    .page-tag {
+      position: absolute;
+      top: 17px;
+      right: 18px;
+      background: rgba(255, 111, 174, 0.13);
+      color: var(--deep-pink);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 0.78rem;
+    }
+
+    .memory-page.torn {
+      pointer-events: none;
+      animation: tearAway 0.95s cubic-bezier(.5,.05,.2,1) forwards;
+    }
+
+    @keyframes tearAway {
+      0% { opacity: 1; transform: rotate(0deg) translate3d(0, 0, 0) scale(1); filter: blur(0); }
+      40% { opacity: 0.96; transform: rotate(-10deg) translate3d(-18px, -32px, 120px) scale(1.01); }
+      100% { opacity: 0; transform: rotate(-32deg) translate3d(-110vw, -46vh, 220px) scale(0.82); filter: blur(3px); }
+    }
+
+    .animation-status {
+      min-height: 28px;
+      text-align: center;
+      color: var(--deep-pink);
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
     }
 
     .btn {
       border: 0;
       cursor: pointer;
       border-radius: 999px;
-      padding: 14px 22px;
+      padding: 13px 18px;
       font-weight: 900;
       color: white;
       background: linear-gradient(135deg, var(--pink), var(--purple));
       box-shadow: 0 14px 28px rgba(217, 61, 131, 0.22);
-      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
       touch-action: manipulation;
-      font-size: 1rem;
-      position: relative;
-      z-index: 1;
     }
 
     .btn:hover {
@@ -205,16 +518,677 @@
       transform: translateY(0) scale(0.98);
     }
 
-    .logger-status {
-      margin-top: 18px;
+    .btn.secondary {
       color: var(--deep-pink);
-      font-size: 0.86rem;
-      font-weight: 900;
-      line-height: 1.6;
-      position: relative;
-      z-index: 1;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.88);
     }
 
+    .btn.hidden {
+      display: none;
+    }
+
+    .section {
+      padding: 48px 0;
+    }
+
+    .card {
+      position: relative;
+      padding: clamp(22px, 4vw, 34px);
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      right: -60px;
+      top: -70px;
+      background: radial-gradient(circle, rgba(255, 111, 174, 0.18), transparent 65%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .section-title {
+      font-family: var(--title-font);
+      font-size: clamp(1.7rem, 5vw, 3.1rem);
+      letter-spacing: -1.4px;
+      margin-bottom: 10px;
+      color: #45173a;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1rem;
+      max-width: 760px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .quote-card {
+      padding: 20px;
+      min-height: 190px;
+      display: grid;
+      align-content: center;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow: 0 16px 38px rgba(151, 76, 132, 0.11);
+      line-height: 1.8;
+      color: #583050;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .soft-heart-game {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .soft-heart-visual {
+      min-height: 260px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255, 111, 174, 0.22), transparent 44%),
+        rgba(255,255,255,0.52);
+      border: 1px solid rgba(255,255,255,0.78);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .soft-heart-big {
+      font-size: clamp(5rem, 16vw, 9rem);
+      filter: drop-shadow(0 18px 30px rgba(217, 61, 131, 0.25));
+      animation: softHeartBeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes softHeartBeat {
+      0%, 100% { transform: scale(1); }
+      35% { transform: scale(1.08); }
+      55% { transform: scale(0.98); }
+    }
+
+    .soft-heart-options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .choice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .choice-btn {
+      min-height: 110px;
+      border: 0;
+      border-radius: 25px;
+      padding: 18px;
+      cursor: pointer;
+      color: #5b2c4f;
+      background: rgba(255,255,255,0.62);
+      border: 1px solid rgba(255,255,255,0.82);
+      box-shadow: 0 16px 38px rgba(151, 76, 132, 0.11);
+      font-weight: 900;
+      font-size: 1.08rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      touch-action: manipulation;
+    }
+
+    .choice-btn span {
+      display: block;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 48px rgba(151, 76, 132, 0.17);
+    }
+
+    .soft-result,
+    .compliment-result,
+    .capsule-lock {
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(255,255,255,0.78);
+      color: var(--muted);
+      line-height: 1.75;
+      font-weight: 800;
+    }
+
+    .score-line {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--deep-pink);
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .score-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.58);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    .score-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      transition: width 0.55s ease;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(var(--pink), var(--purple));
+      opacity: 0.45;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 54px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      box-shadow: 0 0 0 8px rgba(255, 111, 174, 0.12);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 0.88rem;
+    }
+
+    .timeline-box {
+      padding: 17px 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.56);
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    .timeline-box h3,
+    .letter-card h3,
+    .badge h3,
+    .city-card h3 {
+      color: var(--deep-pink);
+      margin-bottom: 5px;
+      font-family: var(--title-font);
+      font-size: 1.35rem;
+    }
+
+    .timeline-box p,
+    .letter-card p,
+    .badge p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .distance-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .city-card {
+      min-height: 160px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(255,255,255,0.8);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 18px;
+      box-shadow: 0 18px 38px rgba(151, 76, 132, 0.11);
+    }
+
+    .city-card img {
+      width: 66px;
+      height: 66px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 10px 24px rgba(96, 54, 91, 0.14);
+      margin-bottom: 12px;
+    }
+
+    .city-card p {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .love-map {
+      min-height: 210px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 20% 45%, rgba(255,111,174,0.16), transparent 18%),
+        radial-gradient(circle at 80% 45%, rgba(183,124,255,0.16), transparent 18%),
+        rgba(255,255,255,0.48);
+      border: 1px solid rgba(255,255,255,0.75);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .love-map svg {
+      width: 100%;
+      height: 210px;
+    }
+
+    .map-line {
+      stroke-dasharray: 8 10;
+      animation: dashLove 2.8s linear infinite;
+      filter: drop-shadow(0 0 7px rgba(217, 61, 131, 0.55));
+    }
+
+    @keyframes dashLove {
+      to { stroke-dashoffset: -120; }
+    }
+
+    .map-heart {
+      animation: mapPulse 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes mapPulse {
+      from { transform: scale(1); opacity: 0.75; }
+      to { transform: scale(1.12); opacity: 1; }
+    }
+
+    .compliment-box {
+      display: grid;
+      gap: 15px;
+      justify-items: start;
+    }
+
+    .letters-grid,
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .letter-card,
+    .badge {
+      border: 0;
+      text-align: left;
+      padding: 20px;
+      min-height: 150px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid rgba(255,255,255,0.78);
+      box-shadow: 0 18px 38px rgba(151, 76, 132, 0.11);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .letter-card:hover,
+    .badge:hover {
+      transform: translateY(-5px) rotate(-0.4deg);
+      box-shadow: 0 24px 48px rgba(151, 76, 132, 0.16);
+    }
+
+    .letter-icon,
+    .badge-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .capsule-only {
+      display: grid;
+      gap: 16px;
+    }
+
+    .big-number {
+      font-size: clamp(2.1rem, 6vw, 4rem);
+      line-height: 1;
+      color: var(--deep-pink);
+      font-weight: 950;
+      margin-bottom: 10px;
+      font-family: var(--title-font);
+    }
+
+    .garden {
+      min-height: 300px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-end;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 24px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,0.75), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.25)),
+        linear-gradient(0deg, rgba(155, 215, 154, 0.24), transparent 42%);
+      border: 1px solid rgba(255,255,255,0.72);
+      overflow: hidden;
+    }
+
+    .flower {
+      position: relative;
+      width: 42px;
+      height: 72px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      touch-action: manipulation;
+      animation: growFlower 0.9s ease both;
+      transform-origin: bottom;
+      flex: 0 0 auto;
+    }
+
+    .flower .stem {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 4px;
+      height: 38px;
+      border-radius: 999px;
+      background: #66b879;
+      transform: translateX(-50%);
+    }
+
+    .flower .leaf {
+      position: absolute;
+      bottom: 18px;
+      width: 18px;
+      height: 10px;
+      border-radius: 100% 0 100% 0;
+      background: #80c88b;
+      opacity: 0.9;
+    }
+
+    .flower .leaf.left {
+      left: 8px;
+      transform: rotate(-25deg);
+    }
+
+    .flower .leaf.right {
+      right: 8px;
+      transform: scaleX(-1) rotate(-25deg);
+    }
+
+    .flower .bloom {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      width: 34px;
+      height: 34px;
+      transform: translateX(-50%) scale(0.65);
+      transition: transform 0.34s cubic-bezier(.17,.84,.44,1);
+    }
+
+    .flower .petal {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 17px;
+      height: 22px;
+      border-radius: 999px 999px 12px 12px;
+      background: linear-gradient(180deg, #ff9bc7, #ff6fae);
+      transform-origin: center bottom;
+      opacity: 0.88;
+      transition: transform 0.34s cubic-bezier(.17,.84,.44,1), opacity 0.34s ease;
+    }
+
+    .flower .petal:nth-child(1) { transform: translate(-50%, -65%) rotate(0deg) scale(0.45); }
+    .flower .petal:nth-child(2) { transform: translate(-50%, -65%) rotate(60deg) scale(0.45); }
+    .flower .petal:nth-child(3) { transform: translate(-50%, -65%) rotate(120deg) scale(0.45); }
+    .flower .petal:nth-child(4) { transform: translate(-50%, -65%) rotate(180deg) scale(0.45); }
+    .flower .petal:nth-child(5) { transform: translate(-50%, -65%) rotate(240deg) scale(0.45); }
+    .flower .petal:nth-child(6) { transform: translate(-50%, -65%) rotate(300deg) scale(0.45); }
+
+    .flower .center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #ffd166;
+      transform: translate(-50%, -50%) scale(0.8);
+      box-shadow: 0 0 12px rgba(255, 209, 102, 0.7);
+      transition: transform 0.34s ease;
+    }
+
+    .flower.bloomed .bloom {
+      transform: translateX(-50%) scale(1);
+    }
+
+    .flower.bloomed .petal:nth-child(1) { transform: translate(-50%, -83%) rotate(0deg) scale(1); }
+    .flower.bloomed .petal:nth-child(2) { transform: translate(-50%, -83%) rotate(60deg) scale(1); }
+    .flower.bloomed .petal:nth-child(3) { transform: translate(-50%, -83%) rotate(120deg) scale(1); }
+    .flower.bloomed .petal:nth-child(4) { transform: translate(-50%, -83%) rotate(180deg) scale(1); }
+    .flower.bloomed .petal:nth-child(5) { transform: translate(-50%, -83%) rotate(240deg) scale(1); }
+    .flower.bloomed .petal:nth-child(6) { transform: translate(-50%, -83%) rotate(300deg) scale(1); }
+    .flower.bloomed .center { transform: translate(-50%, -50%) scale(1.15); }
+
+    .flower.special .petal {
+      background: linear-gradient(180deg, #c9a7ff, #b77cff);
+    }
+
+    .flower.super .petal {
+      background: linear-gradient(180deg, #ffd6e8, #ff4f9d);
+    }
+
+    @keyframes growFlower {
+      from { opacity: 0; transform: scaleY(0.05) translateY(22px); }
+      to { opacity: 1; transform: scaleY(1) translateY(0); }
+    }
+
+    .flower-burst {
+      position: fixed;
+      pointer-events: none;
+      z-index: 90;
+      font-size: 18px;
+      animation: flowerBurst 0.9s ease-out forwards;
+    }
+
+    @keyframes flowerBurst {
+      to {
+        transform: translate(var(--x), var(--y)) scale(0.4) rotate(80deg);
+        opacity: 0;
+      }
+    }
+
+    .garden-note {
+      margin-top: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .badge {
+      cursor: default;
+      opacity: 0.52;
+      filter: grayscale(0.5);
+    }
+
+    .badge.unlocked {
+      opacity: 1;
+      filter: none;
+      animation: badgePop 0.7s ease both;
+    }
+
+    @keyframes badgePop {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .final-message {
+      text-align: center;
+      padding: clamp(34px, 7vw, 70px);
+      border-radius: 38px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.85), transparent 42%),
+        linear-gradient(135deg, rgba(255,111,174,0.22), rgba(183,124,255,0.18));
+      border: 1px solid rgba(255,255,255,0.78);
+      box-shadow: var(--shadow);
+    }
+
+    .final-message h2 {
+      font-family: var(--title-font);
+      font-size: clamp(2rem, 6vw, 4.2rem);
+      line-height: 1.12;
+      letter-spacing: -2px;
+      color: #45173a;
+      margin-bottom: 16px;
+    }
+
+    .final-message p {
+      font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 750;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 34px 0 50px;
+      font-weight: 750;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(57, 24, 49, 0.34);
+      backdrop-filter: blur(12px);
+    }
+
+    .modal.show {
+      display: grid;
+      animation: fadeIn 0.25s ease both;
+    }
+
+    .modal-box {
+      width: min(650px, 100%);
+      max-height: min(82vh, 760px);
+      overflow: auto;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.94), rgba(255,248,252,0.9)),
+        linear-gradient(135deg, #fff8fb, #f4eaff);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: 0 34px 90px rgba(53, 24, 47, 0.28);
+      padding: clamp(24px, 5vw, 38px);
+      animation: letterOpen 0.45s cubic-bezier(.17,.84,.44,1) both;
+      position: relative;
+    }
+
+    @keyframes letterOpen {
+      from { opacity: 0; transform: translateY(20px) scale(0.94) rotateX(10deg); }
+      to { opacity: 1; transform: translateY(0) scale(1) rotateX(0); }
+    }
+
+    .modal-title {
+      font-family: var(--title-font);
+      font-size: clamp(1.6rem, 5vw, 2.7rem);
+      color: var(--deep-pink);
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+
+    .modal-body {
+      color: #583050;
+      line-height: 1.9;
+      font-size: 1rem;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      cursor: pointer;
+      color: var(--deep-pink);
+      background: rgba(255,255,255,0.7);
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(24px);
+      z-index: 200;
+      width: min(480px, calc(100% - 34px));
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 22px 60px rgba(53, 24, 47, 0.2);
+      color: var(--deep-pink);
+      font-weight: 900;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.35s ease;
+      backdrop-filter: blur(16px);
+      line-height: 1.5;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* FOOD GAME */
     .food-game-overlay {
       position: fixed;
       inset: 0;
@@ -281,23 +1255,10 @@
     }
 
     @keyframes foodHeartFloat {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0;
-      }
-
-      12% {
-        opacity: 0.62;
-      }
-
-      90% {
-        opacity: 0.42;
-      }
-
-      100% {
-        transform: translateY(-760px) rotate(32deg);
-        opacity: 0;
-      }
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      12% { opacity: 0.62; }
+      90% { opacity: 0.42; }
+      100% { transform: translateY(-760px) rotate(32deg); opacity: 0; }
     }
 
     .food-game-header {
@@ -305,8 +1266,6 @@
       z-index: 1;
       text-align: center;
       margin-bottom: 24px;
-      padding-right: 44px;
-      padding-left: 44px;
     }
 
     .food-game-eyebrow {
@@ -386,7 +1345,6 @@
       box-shadow: 0 8px 28px rgba(242,99,122,0.12);
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       -webkit-tap-highlight-color: transparent;
-      color: var(--text);
     }
 
     .food-card-btn::before {
@@ -475,27 +1433,13 @@
     }
 
     @keyframes foodCardInLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-30px) scale(0.95);
-      }
-
-      to {
-        opacity: 1;
-        transform: none;
-      }
+      from { opacity: 0; transform: translateX(-30px) scale(0.95); }
+      to { opacity: 1; transform: none; }
     }
 
     @keyframes foodCardInRight {
-      from {
-        opacity: 0;
-        transform: translateX(30px) scale(0.95);
-      }
-
-      to {
-        opacity: 1;
-        transform: none;
-      }
+      from { opacity: 0; transform: translateX(30px) scale(0.95); }
+      to { opacity: 1; transform: none; }
     }
 
     .food-winner-glow {
@@ -503,18 +1447,9 @@
     }
 
     @keyframes foodWinnerPulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(242,99,122,0.5);
-      }
-
-      50% {
-        box-shadow: 0 0 0 18px rgba(242,99,122,0);
-        background: #fff0f4;
-      }
-
-      100% {
-        box-shadow: 0 8px 28px rgba(242,99,122,0.12);
-      }
+      0% { box-shadow: 0 0 0 0 rgba(242,99,122,0.5); }
+      50% { box-shadow: 0 0 0 18px rgba(242,99,122,0); background: #fff0f4; }
+      100% { box-shadow: 0 8px 28px rgba(242,99,122,0.12); }
     }
 
     .food-game-result {
@@ -593,67 +1528,105 @@
       z-index: 121;
     }
 
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%) translateY(24px);
-      z-index: 200;
-      width: min(480px, calc(100% - 34px));
-      padding: 16px 18px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(255,255,255,0.9);
-      box-shadow: 0 22px 60px rgba(53, 24, 47, 0.2);
-      color: var(--deep-pink);
-      font-weight: 900;
-      text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: 0.35s ease;
-      backdrop-filter: blur(16px);
-      line-height: 1.5;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
     @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(22px);
-      }
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .distance-layout,
+      .soft-heart-game {
+        grid-template-columns: 1fr;
       }
 
-      to {
-        opacity: 1;
+      .hero-copy {
+        order: 2;
+      }
+
+      .calendar-zone {
+        order: 1;
+      }
+
+      .quote-grid,
+      .letters-grid,
+      .badges-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      h1 {
+        letter-spacing: -2px;
       }
     }
 
     @media (max-width: 560px) {
       .shell {
-        width: min(100% - 22px, 980px);
+        width: min(100% - 22px, 1180px);
       }
 
+      .top-pill {
+        gap: 8px;
+        padding: 10px 12px;
+        font-size: 0.78rem;
+      }
+
+      .flag {
+        width: 35px;
+        height: 35px;
+      }
+
+      .hero {
+        padding-top: 14px;
+      }
+
+      .hero-copy,
       .card {
         border-radius: 24px;
-        padding: 22px 18px;
+        padding: 20px;
       }
 
-      .food-game-panel {
-        padding: 26px 14px 28px;
+      .promise-grid,
+      .quote-grid,
+      .letters-grid,
+      .badges-grid,
+      .choice-row {
+        grid-template-columns: 1fr;
+      }
+
+      .paper-stack {
+        height: 430px;
+      }
+
+      .page-caption {
+        font-size: 0.8rem;
+      }
+
+      .tap-hint {
+        font-size: 0.68rem;
+      }
+
+      .section {
+        padding: 32px 0;
+      }
+
+      .garden {
+        gap: 9px;
+        padding: 17px;
+      }
+
+      .flower {
+        width: 36px;
+        height: 66px;
       }
     }
   </style>
@@ -666,33 +1639,339 @@
     <div class="orb three"></div>
   </div>
 
+  <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+  <div class="heart-layer" id="heartLayer" aria-hidden="true"></div>
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+
   <main>
     <section class="hero">
       <div class="shell">
+        <div class="top-pill">
+          <img class="flag" id="pakistanFlagTop" alt="Pakistan flag" />
+          <span>Lahore to Caraga, heart to heart</span>
+          <img class="flag" id="philippinesFlagTop" alt="Philippines flag" />
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow">For Vaniza, from Your Guy 💌</div>
+
+            <h1>
+              My favorite
+              <span class="script-word">memory</span>
+              is us.
+            </h1>
+
+            <p class="typing-line">
+              <span id="typingText"></span><span class="typing-cursor"></span>
+            </p>
+
+            <div class="timer-card">
+              <div class="timer-label">Our little forever clock</div>
+              <div class="timer-text" id="relationshipTimer">
+                Calculating our beautiful days...
+              </div>
+            </div>
+
+            <div class="promise-grid" aria-label="Our promise">
+              <div>We Talk</div>
+              <div>We Fix</div>
+              <div>We Stay</div>
+            </div>
+          </div>
+
+          <div class="calendar-zone">
+            <div class="calendar-glow"></div>
+
+            <div class="paper-stack" id="paperStack" aria-label="Romantic memory calendar"></div>
+
+            <div class="animation-status" id="animationStatus">
+              Opening our memories...
+            </div>
+
+            <div class="hero-actions">
+              <button class="btn hidden" id="loveLetterButton">💌 Open my letter</button>
+              <button class="btn secondary" id="musicButton">🎵 Music</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
         <div class="card">
-          <div class="eyebrow">For Vaniza, from Your Guy 💌</div>
+          <h2 class="section-title">The side we are always on 💞</h2>
+          <p class="section-subtitle">
+            No distance, no bad day, no misunderstanding gets to be bigger than us.
+          </p>
 
-          <h1>
-            Vaniza’s
-            <span class="script-word">Filipino</span>
-            Food Game
-          </h1>
+          <div class="quote-grid">
+            <div class="quote-card">
+              it is never me versus you.<br />
+              it is always us versus the world.
+            </div>
 
-          <p class="subtitle">
-            Tap the food your heart wants more. Every answer will be saved softly into the Google Sheet.
+            <div class="quote-card">
+              they said it wouldn't work.<br />
+              we accepted that as a challenge.<br />
+              not a verdict.
+            </div>
+
+            <div class="quote-card">
+              every fight is just two people on the same side,<br />
+              forgetting briefly that they're on the same side.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Who’s heart softs first after every fight? 🥺</h2>
+          <p class="section-subtitle">
+            A tiny love game for the truth we both already know: no fight is stronger than us.
+          </p>
+
+          <div class="soft-heart-game">
+            <div class="soft-heart-visual">
+              <div>
+                <div class="soft-heart-big" id="softHeartBig">💗</div>
+                <p class="section-subtitle" style="margin: 0;">
+                  Tap one and let the heart confess.
+                </p>
+              </div>
+            </div>
+
+            <div class="soft-heart-options">
+              <div class="choice-row">
+                <button class="choice-btn" data-choice="Vaniza">
+                  <span>🌸</span>
+                  Vaniza
+                </button>
+
+                <button class="choice-btn" data-choice="My Guy">
+                  <span>🫶</span>
+                  My Guy
+                </button>
+              </div>
+
+              <div class="soft-result" id="softResult">
+                Pick who melts first after a fight. But honestly, love always wins before pride does.
+              </div>
+
+              <div class="soft-score">
+                <div class="score-line">
+                  <div class="score-top">
+                    <span>Vaniza</span>
+                    <span id="vanizaScoreText">0</span>
+                  </div>
+                  <div class="score-track">
+                    <div class="score-fill" id="vanizaScoreFill"></div>
+                  </div>
+                </div>
+
+                <div class="score-line">
+                  <div class="score-top">
+                    <span>My Guy</span>
+                    <span id="myGuyScoreText">0</span>
+                  </div>
+                  <div class="score-track">
+                    <div class="score-fill" id="myGuyScoreFill"></div>
+                  </div>
+                </div>
+
+                <button class="btn secondary" id="resetSoftGame">Reset this cute fight game</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Our memory timeline ✨</h2>
+          <p class="section-subtitle">
+            A soft little place for every milestone we keep adding together.
+          </p>
+
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Long distance, same heartbeat 🌙</h2>
+          <p class="section-subtitle">
+            Even across miles, you’re still my favorite place.
+          </p>
+
+          <div class="distance-layout">
+            <div class="city-card">
+              <img id="pakistanFlag" alt="Pakistan flag" />
+              <h3>Your Guy</h3>
+              <p>Lahore, Pakistan</p>
+            </div>
+
+            <div class="love-map" aria-label="Animated connection between two places">
+              <svg viewBox="0 0 600 230" role="img" aria-label="A glowing love line connecting two hearts">
+                <defs>
+                  <linearGradient id="loveGradient" x1="0%" x2="100%">
+                    <stop offset="0%" stop-color="#ff6fae" />
+                    <stop offset="100%" stop-color="#b77cff" />
+                  </linearGradient>
+                </defs>
+
+                <path
+                  class="map-line"
+                  d="M80 140 C 190 30, 405 30, 520 140"
+                  fill="none"
+                  stroke="url(#loveGradient)"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                />
+
+                <circle cx="80" cy="140" r="14" fill="#ff6fae" opacity="0.72" />
+                <circle cx="520" cy="140" r="14" fill="#b77cff" opacity="0.72" />
+
+                <text class="map-heart" x="280" y="78" text-anchor="middle" font-size="42">💖</text>
+                <text x="80" y="184" text-anchor="middle" fill="#d93d83" font-weight="800">Lahore</text>
+                <text x="520" y="184" text-anchor="middle" fill="#8b58dd" font-weight="800">Caraga</text>
+              </svg>
+            </div>
+
+            <div class="city-card">
+              <img id="philippinesFlag" alt="Philippines flag" />
+              <h3>Vaniza</h3>
+              <p>Caraga, Philippines</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card compliment-box">
+          <h2 class="section-title">Why I love you today 💗</h2>
+          <p class="section-subtitle">
+            For the days when you need a tiny reminder of how loved you are.
+          </p>
+
+          <button class="btn" id="complimentButton">Why I Love You Today</button>
+          <div class="compliment-result" id="complimentResult">
+            Click the button and let my heart answer.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Vaniza’s Filipino Food Game 🍽️💕</h2>
+          <p class="section-subtitle">
+            A cute little game where she taps the food her heart wants more, until one favorite wins.
           </p>
 
           <button class="btn" id="foodGameStartButton">
             🍽️ Play Vaniza’s Food Game
           </button>
+        </div>
+      </div>
+    </section>
 
-          <p class="logger-status" id="loggerStatus">
-            Google Sheets recording is ready 💗
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Open-when letters 💌</h2>
+          <p class="section-subtitle">
+            Little envelopes for little moments when I wish I could hold your hand immediately.
+          </p>
+
+          <div class="letters-grid" id="openWhenLetters"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card capsule-only">
+          <h2 class="section-title">Love Capsule 🔒</h2>
+          <p class="section-subtitle">
+            A future message that waits quietly until the right moment.
+          </p>
+
+          <div class="capsule-lock">
+            <div class="big-number" id="capsuleDays">🔒</div>
+            <p id="capsuleText">A love capsule is waiting for the perfect moment.</p>
+            <br />
+            <button class="btn secondary" id="capsuleButton">Open Love Capsule</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Digital flower garden 🌸</h2>
+          <p class="section-subtitle">
+            Every day together grows one more flower. Touch any flower and it will bloom for her.
+          </p>
+
+          <div class="garden" id="flowerGarden" aria-label="Digital flower garden"></div>
+          <p class="garden-note" id="gardenNote"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="card">
+          <h2 class="section-title">Relationship achievements 🏆</h2>
+          <p class="section-subtitle">
+            Tiny badges for the big magic we keep building.
+          </p>
+
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="final-message">
+          <h2>
+            No matter how many days pass,<br />
+            I will keep choosing you every single day 💖
+          </h2>
+          <p>
+            We will always choose eachother. Through quiet days, hard days, silly days,
+            soft days, and every day still waiting for us.
           </p>
         </div>
       </div>
     </section>
   </main>
+
+  <footer class="footer">
+    Made with love for Vaniza — from Your Guy 💕
+  </footer>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Close modal">×</button>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
 
   <div class="food-game-overlay" id="foodGameOverlay" aria-hidden="true">
     <canvas id="foodGameConfettiCanvas"></canvas>
@@ -755,80 +2034,995 @@
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const FOOD_GAME_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMMrBd6NspZXETosKBHThC1DKDddauunOMaQaSjydfL3DARPJQcz6NfTJykxeGjr15/exec";
-    const FOOD_GAME_LOG_SECRET = "vaniza-food-game-secret";
+  <audio id="bgMusic" loop preload="auto"></audio>
 
-    const FOOD_GAME_FOODS = [
+  <script>
+    const START_YEAR = 2026;
+    const START_MONTH_INDEX = 1;
+    const START_DAY = 28;
+    const START_HOUR = 0;
+    const START_MINUTE = 0;
+
+    const MUSIC_FILE = "";
+
+    const FLAGS = {
+      philippines: "https://i.ibb.co/rRXfNvg4/images.png",
+      pakistan: "https://i.ibb.co/GQb3j7Fb/Flag-of-Pakistan-svg.png"
+    };
+
+    const REMOTE_PHOTOS = [
+      "https://i.ibb.co/CsBpxbYK/Whats-App-Image-2026-05-02-at-2-35-46-PM.jpg",
+      "https://i.ibb.co/qY35PnC2/28-April-2026-1.jpg",
+      "https://i.ibb.co/GfZJ3JP4/27-april-2026-1.jpg",
+      "https://i.ibb.co/rGhX9x7p/16-April-2026.jpg",
+      "https://i.ibb.co/gcPbrCd/Love-1.png",
+      "https://i.ibb.co/939wRSPz/Love-2.png",
+      "https://i.ibb.co/GfX6wHft/Love-3.png",
+      "https://i.ibb.co/21q4ds8N/Love-4.png",
+      "https://i.ibb.co/Y423SM6D/vanizaaaaa-1594526881-2351384369016131165-38348874052.jpg",
+      "https://i.ibb.co/zVxnN8Q3/vanizaaaaa-1612440540-2501655032152496463-38348874052.jpg",
+      "https://i.ibb.co/wNbMmTDN/vanizaaaaa-1617106095-2540792540979038231-38348874052.jpg",
+      "https://i.ibb.co/BHRvvKwQ/vanizaaaaa-1617106095-2540792540996026923-38348874052.jpg",
+      "https://i.ibb.co/rKcNM5Dm/vanizaaaaa-1642852270-2756767108393020033-38348874052.webp",
+      "https://i.ibb.co/DDLYLvtz/vanizaaaaa-1642852270-2756767108409690860-38348874052.webp",
+      "https://i.ibb.co/NnYhjydg/vanizaaaaa-1642852270-2756767108418111485-38348874052.webp",
+      "https://i.ibb.co/KcrjdN7y/vanizaaaaa-1642852270-2756767108560669377-38348874052.webp",
+      "https://i.ibb.co/bgRq1QSr/vanizaaaaa-1649690434-2814129785746183682-38348874052.webp",
+      "https://i.ibb.co/kgYSjd8H/vanizaaaaa-1649690434-2814129785771281370-38348874052.webp",
+      "https://i.ibb.co/vv3sxmY2/vanizaaaaa-1649763896-2814746031487385698-38348874052.webp",
+      "https://i.ibb.co/pvN767sJ/vanizaaaaa-1649763896-2814746031495720223-38348874052.webp",
+      "https://i.ibb.co/0RjdZGRH/vanizaaaaa-1649763896-2814746031504006019-38348874052.webp",
+      "https://i.ibb.co/cKvth2Vy/vanizaaaaa-1649763896-2814746031688529736-38348874052.webp",
+      "https://i.ibb.co/5hm94Kw0/vanizaaaaa-1652884030-2840919615381206377-38348874052.webp",
+      "https://i.ibb.co/KgNvw0M/vanizaaaaa-1652884030-2840919615381208312-38348874052.webp",
+      "https://i.ibb.co/qYgG4tjF/vanizaaaaa-1652884030-2840919615381208478-38348874052.webp",
+      "https://i.ibb.co/BH0X7KvZ/vanizaaaaa-1652884030-2840919615381377831-38348874052.webp",
+      "https://i.ibb.co/J8TJpb1/vanizaaaaa-1652884030-2840919615540716579-38348874052.webp",
+      "https://i.ibb.co/LX034Lr5/vanizaaaaa-1652884030-2840919615591094603-38348874052.webp",
+      "https://i.ibb.co/FbxzCwZq/vanizaaaaa-1682084970-3085874849928292423-38348874052.webp",
+      "https://i.ibb.co/jv2y4drx/vanizaaaaa-1682084970-3085874850096113894-38348874052.webp",
+      "https://i.ibb.co/LD1rZckx/vanizaaaaa-1682735561-3091332401268004265-38348874052.jpg",
+      "https://i.ibb.co/pjZ1r5f5/vanizaaaaa-1701561580-3249256495179209388-38348874052.webp",
+      "https://i.ibb.co/FbLk4QWM/vanizaaaaa-1701561580-3249256495187511103-38348874052.webp",
+      "https://i.ibb.co/VWW1G9Gz/vanizaaaaa-1701561580-3249256495187649181-38348874052.webp",
+      "https://i.ibb.co/PsyCm3zy/vanizaaaaa-1701561580-3249256495363668882-38348874052.webp",
+      "https://i.ibb.co/TM4KXQGB/vanizaaaaa-1736074881-3538775054337431451-38348874052.webp",
+      "https://i.ibb.co/hJtjyVmv/vanizaaaaa-1736074881-3538775054446382463-38348874052.webp",
+      "https://i.ibb.co/bM5k71Tm/vanizaaaaa-1741356771-3583082757486102738-38348874052.webp",
+      "https://i.ibb.co/nqhGPG1M/vanizaaaaa-1741356771-3583082757486254613-38348874052.webp",
+      "https://i.ibb.co/tTrk2p15/vanizaaaaa-1771194731-3833381543730194757-38348874052.webp",
+      "https://i.ibb.co/tPxDrRxz/vanizaaaaa-1771194731-3833381552336894432-38348874052.webp",
+      "https://i.ibb.co/ymhWYT4S/vanizaaaaa-1771194731-3833381567746781751-38348874052.webp",
+      "https://i.ibb.co/cKgKgt0V/vanizaaaaa-1771194731-3833381574482806105-38348874052.webp"
+    ];
+
+    const CAPTIONS = {
+      1: "The day my heart found a softer reason to smile 💖",
+      2: "You looked beautiful in a way my words still cannot fully explain 🌸",
+      3: "Another Picture, another reason to thank the universe for you ✨",
+      4: "Even from far away, you felt close to my heart 🌙",
+      5: "This is us: soft, silly, strong, and still choosing eachother 💕",
+      6: "Some pictures are not just pictures. They are tiny homes for feelings 🫶",
+      7: "You became my favorite notification, my favorite thought, my favorite person 💗",
+      8: "No distance can make my heart forget where it belongs 💞"
+    };
+
+    const OPENING_MESSAGE = "Every day with you becomes my favorite Person 💕";
+
+    const LOVE_LETTER = `
+Dear Vaniza,
+
+I know we are far from each other, but somehow you still feel close to the softest part of me.
+
+You are not just someone I talk to.
+You are someone I choose.
+Again and again.
+In calm moments, in confusing moments, in happy moments, and even in the moments where we have to fix things gently.
+
+I promise you this:
+
+We Talk.
+We Fix.
+We Stay.
+
+It is never me versus you.
+It is always us versus the world.
+
+And if the world ever says this is too hard, then we will smile quietly, hold on tighter, and accept that as a challenge, not a verdict.
+
+You are my favorite place, even when you are miles away.
+
+Always,
+Your Guy
+`;
+
+    const LOVE_CAPSULE_UNLOCK = "2026-12-31T00:00:00+05:00";
+
+    const LOVE_CAPSULE_MESSAGE = `
+My future Vaniza,
+
+If this capsule opened, it means time kept moving and my heart kept choosing you.
+
+I hope you are smiling right now.
+I hope you know how deeply loved you are.
+I hope you remember that no matter how many days pass, I am still here, still grateful, still proud of us.
+
+You are worth the wait.
+You are worth the effort.
+You are worth the promise.
+
+Forever choosing you,
+Your Guy
+`;
+
+    const MILESTONES = [
       {
-        emoji: "🍲",
-        name: "Beef Adobo"
+        icon: "💬",
+        title: "First Talk",
+        text: "The moment one simple conversation quietly became something special."
       },
       {
-        emoji: "🍜",
-        name: "Chicken Sinigang"
+        icon: "🌙",
+        title: "Late Night Messages",
+        text: "The hours where distance felt smaller because your words were there."
       },
       {
-        emoji: "🍛",
-        name: "Beef Caldereta"
+        icon: "📞",
+        title: "First Call",
+        text: "A milestone waiting to become one of our sweetest memories."
       },
       {
-        emoji: "🥘",
-        name: "Chicken Afritada"
+        icon: "💖",
+        title: "Our Promise",
+        text: "We Talk. We Fix. We Stay."
       },
       {
-        emoji: "🍖",
-        name: "Beef Mechado"
-      },
-      {
-        emoji: "🍗",
-        name: "Chicken Tinola"
-      },
-      {
-        emoji: "🥩",
-        name: "Beef Steak Tagalog"
-      },
-      {
-        emoji: "🍚",
-        name: "Chicken Arroz Caldo"
-      },
-      {
-        emoji: "🍝",
-        name: "Filipino Spaghetti"
-      },
-      {
-        emoji: "🥟",
-        name: "Lumpia"
-      },
-      {
-        emoji: "🍮",
-        name: "Leche Flan"
-      },
-      {
-        emoji: "🍧",
-        name: "Halo-Halo"
-      },
-      {
-        emoji: "🥥",
-        name: "Buko Pandan"
+        icon: "🫶",
+        title: "Always Choosing Eachother",
+        text: "Not only when it is easy, but especially when love asks us to be gentle."
       }
     ];
 
-    const FOOD_GAME_LOVE_MESSAGES = {
-      "Beef Adobo": "Beef Adobo won? Strong, comforting, and unforgettable — just like the love I have for you. 💕",
-      "Chicken Sinigang": "Chicken Sinigang won? Sour, warm, and cozy — like a hug when the world feels heavy. 🥺",
-      "Beef Caldereta": "Beef Caldereta won? Rich and special, exactly like every memory I keep with you. 💖",
-      "Chicken Afritada": "Chicken Afritada won? Soft, colorful, and sweet — it really sounds like you. 🌸",
-      "Beef Mechado": "Beef Mechado won? A classic favorite for my favorite person. 💗",
-      "Chicken Tinola": "Chicken Tinola won? Warm and gentle, like the way you make my heart feel safe. 🫶",
-      "Beef Steak Tagalog": "Beef Steak Tagalog won? Simple, perfect, and impossible not to love. 💘",
-      "Chicken Arroz Caldo": "Chicken Arroz Caldo won? Comfort food for the girl who feels like home. 🌙",
-      "Filipino Spaghetti": "Filipino Spaghetti won? Sweet, fun, and cute — exactly your kind of magic. 🍝💕",
-      "Lumpia": "Lumpia won? Tiny, crispy happiness — like little moments with you. 🥟💞",
-      "Leche Flan": "Leche Flan won? Sweet and soft, like your heart. 🍮💖",
-      "Halo-Halo": "Halo-Halo won? A beautiful mix of everything happy — just like us. 🍧💕",
-      "Buko Pandan": "Buko Pandan won? Soft, sweet, and refreshing — my pretty favorite chose well. 🥥💗"
+    const COMPLIMENTS = [
+      "I love the way your presence makes even ordinary days feel softer.",
+      "I love you because your heart feels like home, even from far away.",
+      "I love how you make me want to be more patient, more gentle, and more sure.",
+      "I love your smile because it stays in my mind longer than any distance can.",
+      "I love that with you, fixing things feels more important than winning.",
+      "I love you because you are my favorite person to miss and my favorite person to choose.",
+      "I love the way you became part of my prayers, my plans, and my peace.",
+      "I love you because even silence feels warmer when it belongs to us.",
+      "I love your softness, your strength, and the beautiful way you are simply you.",
+      "I love that our story feels like a challenge we are brave enough to keep accepting."
+    ];
+
+    const OPEN_WHEN_LETTERS = [
+      {
+        icon: "🌙",
+        title: "Open when you miss me",
+        preview: "For the moments distance feels loud.",
+        message: "My Vaniza, when you miss me, place your hand on your heart and remember this: somewhere in Lahore, Your Guy is carrying you in his heart too. We are under the same sky, loving through the same distance, waiting for the same hug."
+      },
+      {
+        icon: "☁️",
+        title: "Open when you feel sad",
+        preview: "For your heavy-heart days.",
+        message: "Sweetheart, you do not have to be strong every second. Some days are soft, some days are heavy, and some days only ask you to breathe. I am proud of you. I am with you. We Talk. We Fix. We Stay."
+      },
+      {
+        icon: "🤗",
+        title: "Open when you need a hug",
+        preview: "A tiny digital hug from me.",
+        message: "Come here, my love. Imagine me holding you gently and telling you that everything will be okay. Not because life is always easy, but because you will not have to face everything alone."
+      },
+      {
+        icon: "✨",
+        title: "Open when you can’t sleep",
+        preview: "A sleepy little love note.",
+        message: "Close your eyes, Vaniza. Let the day rest. Let your thoughts become quiet. I hope my love reaches you like a soft blanket. Sleep knowing you are loved, chosen, and missed."
+      }
+    ];
+
+    const ACHIEVEMENTS = [
+      { days: 7, icon: "🌱", title: "7 Days Together", text: "A tiny beginning with a big heartbeat." },
+      { days: 30, icon: "🌸", title: "30 Days Together", text: "A whole garden of conversations." },
+      { days: 100, icon: "💎", title: "100 Days Together", text: "Proof that we keep showing up." },
+      { days: 365, icon: "👑", title: "1 Year Together", text: "A full circle around the sun, still choosing eachother." }
+    ];
+
+    const SOFT_GAME_MESSAGES = {
+      "Vaniza": [
+        "Vaniza’s heart softs first because love looks too cute on her to stay mad. But My Guy is already typing sorry too 🥺",
+        "Vaniza softs first... maybe because her heart is made of flowers and tiny forgiveness petals 🌸",
+        "Vaniza’s heart whispered first: okay, let’s fix this. That is why she is precious 💗"
+      ],
+      "My Guy": [
+        "My Guy softs first because he cannot stay strong when the person is Vaniza. Pride loses instantly 🫶",
+        "My Guy melts first. One thought of Vaniza and the fight becomes smaller than love 💖",
+        "My Guy’s heart already ran back before his ego could even stand up properly 🥺"
+      ]
     };
+
+    const FLOWER_MESSAGES = [
+      "This flower bloomed because she touched it 🌸",
+      "A tiny flower for Vaniza’s soft heart 💗",
+      "Another bloom, another reason to choose eachother 🫶",
+      "This flower says: We Talk. We Fix. We Stay.",
+      "A little garden kiss from Your Guy 💕"
+    ];
+
+    const FOOD_GAME_FOODS = [
+      { name: "Beef Adobo", emoji: "🍖" },
+      { name: "Chicken Sinigang", emoji: "🍲" },
+      { name: "Chicken Sisig", emoji: "🥘" },
+      { name: "Beef Kare-Kare", emoji: "🫕" },
+      { name: "Jollibee", emoji: "🐝" },
+      { name: "Chicken Lumpia", emoji: "🌯" },
+      { name: "Seafood Pancit", emoji: "🍝" },
+      { name: "Halal Kwek Kwek", emoji: "🍡" },
+      { name: "Roasted Chicken", emoji: "🍗" },
+      { name: "Beef Siomai", emoji: "🥟" },
+      { name: "Chicken Menudo", emoji: "🍛" },
+      { name: "Chicken Bicol Express", emoji: "🌶️" },
+      { name: "Halal Halo-Halo", emoji: "🍨" }
+    ];
+
+    const FOOD_GAME_LOVE_MESSAGES = {
+      "Beef Adobo": "Masarap at malalim, tulad ng pagmamahal ko sa 'yo. You always know what your heart wants — and I love that about you. 🍖💕",
+      "Chicken Sinigang": "Matamis at maasim, tulad ng buhay na puno ng kilig. Just like our love story — warm, comforting, and always worth coming back to. 🍲❤️",
+      "Chicken Sisig": "Bold ka, aking mahal. You know exactly what you like — and I love every single thing about you. 🥘✨",
+      "Beef Kare-Kare": "Rich, warm, and full of layers — just like you. Every day I learn something new to love about you. 🫕💛",
+      "Jollibee": "Masaya, colorful, and loved by everyone — just like you. You're my number one, mahal ko, always and forever. 🐝💗",
+      "Chicken Lumpia": "Golden and full of surprises — like every day spent loving you. You're my favorite kind of adventure. 🌯💕",
+      "Seafood Pancit": "Long noodles for a long and happy life together. That's my wish for us, mahal ko. 🍝🌙",
+      "Halal Kwek Kwek": "Fun, colorful, and absolutely irresistible — just like you. You bring so much joy into my life. 🍡🌈",
+      "Roasted Chicken": "Timeless and tender, just like my love for you. Some things only get better with time. 🍗🤍",
+      "Beef Siomai": "Small but so full of flavor — every moment with you is worth savoring. Mahal kita nang sobra. 🥟💌",
+      "Chicken Menudo": "Warm, hearty, and made with so much love — exactly how I feel about you every single day. 🍛❤️",
+      "Chicken Bicol Express": "A little spicy, a little sweet — and totally unforgettable. You set my heart on fire, mahal ko. 🌶️🔥",
+      "Halal Halo-Halo": "Sweet, colorful, and one-of-a-kind — just like you. There's no one in this world quite like my girl. 🍨🌸"
+    };
+
+    const MAX_ANIMATED_PAGES = 26;
+    const MAX_FLOWERS_TO_DRAW = 90;
+
+    const startMoment = new Date(
+      START_YEAR,
+      START_MONTH_INDEX,
+      START_DAY,
+      START_HOUR,
+      START_MINUTE,
+      0,
+      0
+    );
+
+    const dom = {
+      paperStack: document.getElementById("paperStack"),
+      animationStatus: document.getElementById("animationStatus"),
+      relationshipTimer: document.getElementById("relationshipTimer"),
+      typingText: document.getElementById("typingText"),
+      loveLetterButton: document.getElementById("loveLetterButton"),
+      musicButton: document.getElementById("musicButton"),
+      bgMusic: document.getElementById("bgMusic"),
+      modal: document.getElementById("modal"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalBody: document.getElementById("modalBody"),
+      modalClose: document.getElementById("modalClose"),
+      toast: document.getElementById("toast"),
+      sparkleLayer: document.getElementById("sparkleLayer"),
+      heartLayer: document.getElementById("heartLayer"),
+      confettiLayer: document.getElementById("confettiLayer"),
+      timeline: document.getElementById("timeline"),
+      complimentButton: document.getElementById("complimentButton"),
+      complimentResult: document.getElementById("complimentResult"),
+      openWhenLetters: document.getElementById("openWhenLetters"),
+      capsuleDays: document.getElementById("capsuleDays"),
+      capsuleText: document.getElementById("capsuleText"),
+      capsuleButton: document.getElementById("capsuleButton"),
+      flowerGarden: document.getElementById("flowerGarden"),
+      gardenNote: document.getElementById("gardenNote"),
+      badgesGrid: document.getElementById("badgesGrid"),
+      philippinesFlag: document.getElementById("philippinesFlag"),
+      pakistanFlag: document.getElementById("pakistanFlag"),
+      philippinesFlagTop: document.getElementById("philippinesFlagTop"),
+      pakistanFlagTop: document.getElementById("pakistanFlagTop"),
+      softHeartBig: document.getElementById("softHeartBig"),
+      softResult: document.getElementById("softResult"),
+      vanizaScoreText: document.getElementById("vanizaScoreText"),
+      myGuyScoreText: document.getElementById("myGuyScoreText"),
+      vanizaScoreFill: document.getElementById("vanizaScoreFill"),
+      myGuyScoreFill: document.getElementById("myGuyScoreFill"),
+      resetSoftGame: document.getElementById("resetSoftGame")
+    };
+
+    function clamp(number, min, max) {
+      return Math.max(min, Math.min(number, max));
+    }
+
+    function plural(value, word) {
+      return `${value} ${word}${value === 1 ? "" : "s"}`;
+    }
+
+    function getElapsedParts() {
+      const now = new Date();
+      let diff = Math.max(0, now.getTime() - startMoment.getTime());
+
+      const dayMs = 1000 * 60 * 60 * 24;
+      const hourMs = 1000 * 60 * 60;
+      const minuteMs = 1000 * 60;
+
+      const days = Math.floor(diff / dayMs);
+      diff -= days * dayMs;
+
+      const hours = Math.floor(diff / hourMs);
+      diff -= hours * hourMs;
+
+      const minutes = Math.floor(diff / minuteMs);
+      diff -= minutes * minuteMs;
+
+      const seconds = Math.floor(diff / 1000);
+
+      return { days, hours, minutes, seconds };
+    }
+
+    function updateRelationshipTimer() {
+      const { days, hours, minutes, seconds } = getElapsedParts();
+
+      dom.relationshipTimer.textContent =
+        `We have been together for ${plural(days, "day")}, ` +
+        `${plural(hours, "hour")}, ` +
+        `${plural(minutes, "minute")}, ` +
+        `${plural(seconds, "second")} 💕`;
+    }
+
+    
+  function getCurrentMemoryNumber() {
+  return Math.max(1, getElapsedParts().days);
+}
+
+function getPhotoIndex(memoryNumber) {
+  if (!REMOTE_PHOTOS.length) return 0;
+
+  const number = Number(memoryNumber) || 1;
+
+  // This makes photos loop instead of getting stuck on the last image.
+  return ((number - 1) % REMOTE_PHOTOS.length + REMOTE_PHOTOS.length) % REMOTE_PHOTOS.length;
+}
+
+function getImageSource(memoryNumber) {
+  return REMOTE_PHOTOS[getPhotoIndex(memoryNumber)] || REMOTE_PHOTOS[0];
+}
+
+function getNextImageNumber(currentNumber) {
+  return (Number(currentNumber) || 1) + 1;
+}
+
+function getCaption(memoryNumber) {
+  const photoNumber = getPhotoIndex(memoryNumber) + 1;
+
+  return CAPTIONS[photoNumber] ||
+    "Another beautiful memory of Vaniza that made my heart softer 💕";
+}
+
+    function typeOpeningMessage() {
+      let index = 0;
+      dom.typingText.textContent = "";
+
+      const interval = setInterval(() => {
+        dom.typingText.textContent += OPENING_MESSAGE.charAt(index);
+        index += 1;
+
+        if (index >= OPENING_MESSAGE.length) {
+          clearInterval(interval);
+        }
+      }, 48);
+    }
+
+    function createMemoryPage(memoryNumber, visualIndex, totalVisualPages) {
+      const page = document.createElement("article");
+      page.className = "memory-page";
+      page.setAttribute("role", "button");
+      page.setAttribute("tabindex", "0");
+      page.setAttribute("aria-label", "Tap to shuffle this memory photo");
+      page.dataset.memoryNumber = String(memoryNumber);
+
+      const rotation = (visualIndex - totalVisualPages / 2) * 0.45;
+      const offset = visualIndex * 2.1;
+
+      page.style.zIndex = String(totalVisualPages - visualIndex);
+      page.style.transform = `translate(${offset}px, ${offset}px) rotate(${rotation}deg)`;
+
+      const hint = document.createElement("div");
+      hint.className = "tap-hint";
+      hint.textContent = "tap photo to shuffle 💞";
+
+      const photoWrap = document.createElement("div");
+      photoWrap.className = "page-photo-wrap";
+
+      const img = document.createElement("img");
+      img.alt = "A beautiful memory of Vaniza";
+      img.src = getImageSource(memoryNumber);
+      img.loading = "eager";
+
+      const fallback = document.createElement("div");
+      fallback.className = "fallback-photo";
+      fallback.innerHTML = "This memory is still safe in my heart 💖<br />The image will appear if the link loads.";
+
+      img.onerror = () => {
+        img.style.display = "none";
+        fallback.style.display = "flex";
+      };
+
+      const tag = document.createElement("div");
+      tag.className = "page-tag";
+      tag.textContent = "Memory";
+
+      const caption = document.createElement("div");
+      caption.className = "page-caption";
+      caption.textContent = getCaption(memoryNumber);
+
+      photoWrap.appendChild(img);
+      photoWrap.appendChild(fallback);
+
+      page.appendChild(tag);
+      page.appendChild(hint);
+      page.appendChild(photoWrap);
+      page.appendChild(caption);
+
+      page.addEventListener("click", () => shuffleMemoryPhoto(page));
+      page.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          shuffleMemoryPhoto(page);
+        }
+      });
+
+      return page;
+    }
+
+    function shuffleMemoryPhoto(page) {
+      if (!page || page.classList.contains("torn")) return;
+
+      const img = page.querySelector("img");
+      const fallback = page.querySelector(".fallback-photo");
+      const caption = page.querySelector(".page-caption");
+      const currentNumber = Number(page.dataset.memoryNumber || "1");
+      const newNumber = getNextImageNumber(currentNumber);
+
+      page.dataset.memoryNumber = String(newNumber);
+      page.classList.add("shuffle-pop");
+
+      if (img) {
+        img.style.opacity = "0";
+
+        setTimeout(() => {
+          img.src = getImageSource(newNumber);
+          img.style.display = "block";
+          img.style.opacity = "1";
+
+          if (fallback) fallback.style.display = "none";
+          if (caption) caption.textContent = getCaption(newNumber);
+
+          showToast("A new Vaniza memory appeared 💖");
+          createMiniHeartsAroundElement(page);
+        }, 190);
+      }
+
+      setTimeout(() => page.classList.remove("shuffle-pop"), 680);
+    }
+
+    function buildPaperStack() {
+      const currentMemory = getCurrentMemoryNumber();
+      const visualCount = clamp(currentMemory, 1, MAX_ANIMATED_PAGES);
+      const firstMemory = Math.max(1, currentMemory - visualCount + 1);
+
+      dom.paperStack.innerHTML = "";
+
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < visualCount; i += 1) {
+        fragment.appendChild(createMemoryPage(firstMemory + i, i, visualCount));
+      }
+
+      dom.paperStack.appendChild(fragment);
+
+      return {
+        pages: Array.from(dom.paperStack.querySelectorAll(".memory-page")),
+        currentMemory,
+        visualCount,
+        skipped: Math.max(0, currentMemory - visualCount)
+      };
+    }
+
+    function animatePaperStack() {
+      const { pages, visualCount, skipped } = buildPaperStack();
+
+      dom.animationStatus.textContent =
+        skipped > 0
+          ? `${skipped} earlier memories are tucked safely inside. Opening the newest ones...`
+          : "Opening our memories...";
+
+      if (pages.length <= 1) {
+        finishOpeningAnimation();
+        return;
+      }
+
+      let index = 0;
+      const pagesToTear = pages.slice(0, -1);
+
+      const tearNext = () => {
+        if (index >= pagesToTear.length) {
+          finishOpeningAnimation();
+          return;
+        }
+
+        const page = pagesToTear[index];
+        page.classList.add("torn");
+
+        const remaining = pagesToTear.length - index;
+        dom.animationStatus.textContent =
+          remaining > 1
+            ? `Turning another memory page... ${remaining - 1} more 💞`
+            : "One last page before today’s memory 💖";
+
+        index += 1;
+        setTimeout(tearNext, visualCount > 18 ? 155 : 230);
+      };
+
+      setTimeout(tearNext, 650);
+    }
+
+    function finishOpeningAnimation() {
+      dom.animationStatus.textContent =
+        `This is our current memory after ${plural(getElapsedParts().days, "day")} together 💖`;
+
+      dom.loveLetterButton.classList.remove("hidden");
+
+      setTimeout(() => {
+        showToast("Tap the photo to shuffle our memories 💞");
+      }, 650);
+
+      handleAnniversaryMode();
+    }
+
+    function setupFlags() {
+      dom.philippinesFlag.src = FLAGS.philippines;
+      dom.pakistanFlag.src = FLAGS.pakistan;
+      dom.philippinesFlagTop.src = FLAGS.philippines;
+      dom.pakistanFlagTop.src = FLAGS.pakistan;
+    }
+
+    function openModal(title, body) {
+      dom.modalTitle.textContent = title;
+      dom.modalBody.textContent = body;
+      dom.modal.classList.add("show");
+    }
+
+    function closeModal() {
+      dom.modal.classList.remove("show");
+    }
+
+    function showToast(message) {
+      dom.toast.textContent = message;
+      dom.toast.classList.add("show");
+
+      clearTimeout(showToast.timeout);
+      showToast.timeout = setTimeout(() => {
+        dom.toast.classList.remove("show");
+      }, 2600);
+    }
+
+    function setupLoveLetter() {
+      dom.loveLetterButton.addEventListener("click", () => {
+        openModal("For Vaniza 💌", LOVE_LETTER);
+        burstConfetti(34);
+      });
+    }
+
+    function setupModal() {
+      dom.modalClose.addEventListener("click", closeModal);
+
+      dom.modal.addEventListener("click", (event) => {
+        if (event.target === dom.modal) closeModal();
+      });
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeModal();
+      });
+    }
+
+    function setupMusic() {
+      if (MUSIC_FILE.trim()) {
+        dom.bgMusic.src = MUSIC_FILE;
+      }
+
+      let playing = false;
+
+      dom.musicButton.addEventListener("click", async () => {
+        if (!MUSIC_FILE.trim()) {
+          showToast("Add your music file path in MUSIC_FILE first 🎵");
+          return;
+        }
+
+        try {
+          if (!playing) {
+            await dom.bgMusic.play();
+            playing = true;
+            dom.musicButton.textContent = "🔇 Pause music";
+            showToast("Music started softly 🎵");
+          } else {
+            dom.bgMusic.pause();
+            playing = false;
+            dom.musicButton.textContent = "🎵 Music";
+            showToast("Music paused 💕");
+          }
+        } catch (error) {
+          showToast("Tap again if your browser blocked autoplay 💗");
+        }
+      });
+    }
+
+    function createSparkle() {
+      const sparkle = document.createElement("span");
+      sparkle.className = "sparkle";
+
+      const size = Math.random() * 5 + 3;
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.bottom = `-${Math.random() * 20 + 10}px`;
+      sparkle.style.animationDuration = `${Math.random() * 6 + 5}s`;
+
+      dom.sparkleLayer.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 12000);
+    }
+
+    function setupSparkles() {
+      for (let i = 0; i < 35; i += 1) {
+        setTimeout(createSparkle, i * 120);
+      }
+
+      setInterval(createSparkle, 420);
+    }
+
+    const HEART_MESSAGES = [
+      "Vaniza, Your Guy loves you 💖",
+      "You are my favorite place 🌙",
+      "We Talk. We Fix. We Stay.",
+      "Distance loses. Love wins.",
+      "I choose you again 💕",
+      "Same side. Same heart.",
+      "Us versus the world 🫶"
+    ];
+
+    function createFloatingHeart() {
+      const heart = document.createElement("button");
+      heart.className = "floating-heart";
+      heart.type = "button";
+      heart.textContent = Math.random() > 0.5 ? "💗" : "💖";
+      heart.style.left = `${Math.random() * 96 + 1}%`;
+      heart.style.bottom = "-40px";
+      heart.style.fontSize = `${Math.random() * 16 + 17}px`;
+      heart.style.animationDuration = `${Math.random() * 7 + 8}s`;
+
+      heart.addEventListener("click", () => {
+        const message = HEART_MESSAGES[Math.floor(Math.random() * HEART_MESSAGES.length)];
+        showToast(message);
+        heart.remove();
+      });
+
+      dom.heartLayer.appendChild(heart);
+      setTimeout(() => heart.remove(), 16000);
+    }
+
+    function setupFloatingHearts() {
+      for (let i = 0; i < 10; i += 1) {
+        setTimeout(createFloatingHeart, i * 500);
+      }
+
+      setInterval(createFloatingHeart, 1650);
+    }
+
+    function createMiniHeartsAroundElement(element) {
+      const rect = element.getBoundingClientRect();
+
+      for (let i = 0; i < 10; i += 1) {
+        const burst = document.createElement("span");
+        burst.className = "flower-burst";
+        burst.textContent = Math.random() > 0.5 ? "💗" : "✨";
+        burst.style.left = `${rect.left + rect.width / 2}px`;
+        burst.style.top = `${rect.top + rect.height / 2}px`;
+        burst.style.setProperty("--x", `${(Math.random() - 0.5) * 180}px`);
+        burst.style.setProperty("--y", `${(Math.random() - 0.5) * 180}px`);
+        document.body.appendChild(burst);
+        setTimeout(() => burst.remove(), 950);
+      }
+    }
+
+    function burstConfetti(amount = 40) {
+      for (let i = 0; i < amount; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+
+        const huePick = Math.random();
+        if (huePick < 0.33) piece.style.background = "#ff6fae";
+        else if (huePick < 0.66) piece.style.background = "#b77cff";
+        else piece.style.background = "#ffd166";
+
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.top = `${Math.random() * -18}px`;
+        piece.style.animationDuration = `${Math.random() * 1.5 + 2.1}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+
+        dom.confettiLayer.appendChild(piece);
+        setTimeout(() => piece.remove(), 4200);
+      }
+    }
+
+    function renderTimeline() {
+      dom.timeline.innerHTML = MILESTONES.map((item) => `
+        <div class="timeline-item">
+          <div class="timeline-dot">${item.icon}</div>
+          <div class="timeline-box">
+            <h3>${item.title}</h3>
+            <p>${item.text}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function setupCompliments() {
+      dom.complimentButton.addEventListener("click", () => {
+        const message = COMPLIMENTS[Math.floor(Math.random() * COMPLIMENTS.length)];
+        dom.complimentResult.textContent = message;
+        dom.complimentResult.animate(
+          [
+            { transform: "scale(0.98)", opacity: 0.6 },
+            { transform: "scale(1)", opacity: 1 }
+          ],
+          { duration: 280, easing: "ease-out" }
+        );
+        showToast("A new reason appeared 💗");
+      });
+    }
+
+    function renderOpenWhenLetters() {
+      dom.openWhenLetters.innerHTML = "";
+
+      OPEN_WHEN_LETTERS.forEach((letter) => {
+        const button = document.createElement("button");
+        button.className = "letter-card";
+        button.type = "button";
+        button.innerHTML = `
+          <span class="letter-icon">${letter.icon}</span>
+          <h3>${letter.title}</h3>
+          <p>${letter.preview}</p>
+        `;
+
+        button.addEventListener("click", () => openModal(letter.title, letter.message));
+        dom.openWhenLetters.appendChild(button);
+      });
+    }
+
+    function daysUntil(targetString) {
+      const target = new Date(targetString);
+      const now = new Date();
+      const diff = target.getTime() - now.getTime();
+      return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function updateCapsule() {
+      const capsule = daysUntil(LOVE_CAPSULE_UNLOCK);
+
+      if (capsule > 0) {
+        dom.capsuleDays.textContent = capsule;
+        dom.capsuleText.textContent = `The love capsule unlocks in ${plural(capsule, "day")} 🔒`;
+        dom.capsuleButton.textContent = "Locked for now";
+      } else {
+        dom.capsuleDays.textContent = "💌";
+        dom.capsuleText.textContent = "The love capsule is unlocked now.";
+        dom.capsuleButton.textContent = "Open Love Capsule";
+      }
+    }
+
+    function setupCapsule() {
+      dom.capsuleButton.addEventListener("click", () => {
+        const capsule = daysUntil(LOVE_CAPSULE_UNLOCK);
+
+        if (capsule > 0) {
+          showToast(`Not yet, my love. ${plural(capsule, "day")} left 🔒`);
+          return;
+        }
+
+        openModal("Love Capsule 💌", LOVE_CAPSULE_MESSAGE);
+        burstConfetti(45);
+      });
+    }
+
+    function createFlowerElement(index) {
+      const flower = document.createElement("button");
+      flower.className = "flower";
+      flower.type = "button";
+      flower.setAttribute("aria-label", "Touch to bloom this flower");
+
+      if (index === 7 || index === 30 || index === 100 || index % 50 === 0) {
+        flower.classList.add("special");
+      }
+
+      if (index % 25 === 0) {
+        flower.classList.add("super");
+      }
+
+      flower.innerHTML = `
+        <span class="stem"></span>
+        <span class="leaf left"></span>
+        <span class="leaf right"></span>
+        <span class="bloom">
+          <span class="petal"></span>
+          <span class="petal"></span>
+          <span class="petal"></span>
+          <span class="petal"></span>
+          <span class="petal"></span>
+          <span class="petal"></span>
+          <span class="center"></span>
+        </span>
+      `;
+
+      flower.style.animationDelay = `${Math.min(index * 0.025, 1.6)}s`;
+      flower.addEventListener("click", () => bloomFlower(flower));
+
+      return flower;
+    }
+
+    function bloomFlower(flower) {
+      flower.classList.add("bloomed");
+      createMiniHeartsAroundElement(flower);
+
+      const message = FLOWER_MESSAGES[Math.floor(Math.random() * FLOWER_MESSAGES.length)];
+      showToast(message);
+    }
+
+    function renderFlowerGarden() {
+      const { days } = getElapsedParts();
+      const flowersToDraw = clamp(days, 1, MAX_FLOWERS_TO_DRAW);
+
+      dom.flowerGarden.innerHTML = "";
+
+      for (let i = 1; i <= flowersToDraw; i += 1) {
+        dom.flowerGarden.appendChild(createFlowerElement(i));
+      }
+
+      if (days > MAX_FLOWERS_TO_DRAW) {
+        dom.gardenNote.textContent =
+          `${MAX_FLOWERS_TO_DRAW} flowers are visible here, and ${days - MAX_FLOWERS_TO_DRAW} more are blooming quietly in our invisible garden 💕`;
+      } else {
+        dom.gardenNote.textContent =
+          `${plural(days, "flower")} waiting to bloom for ${plural(days, "day")} together 🌸`;
+      }
+    }
+
+    function renderAchievements() {
+      const { days } = getElapsedParts();
+
+      dom.badgesGrid.innerHTML = "";
+
+      ACHIEVEMENTS.forEach((achievement) => {
+        const unlocked = days >= achievement.days;
+
+        const badge = document.createElement("div");
+        badge.className = `badge ${unlocked ? "unlocked" : ""}`;
+        badge.innerHTML = `
+          <span class="badge-icon">${unlocked ? achievement.icon : "🔒"}</span>
+          <h3>${achievement.title}</h3>
+          <p>${unlocked ? achievement.text : "Locked for now, but love is still growing."}</p>
+        `;
+
+        dom.badgesGrid.appendChild(badge);
+      });
+    }
+
+    function getSoftGameScores() {
+      try {
+        return JSON.parse(localStorage.getItem("softHeartScores")) || {
+          Vaniza: 0,
+          "My Guy": 0
+        };
+      } catch (error) {
+        return {
+          Vaniza: 0,
+          "My Guy": 0
+        };
+      }
+    }
+
+    function saveSoftGameScores(scores) {
+      localStorage.setItem("softHeartScores", JSON.stringify(scores));
+    }
+
+    function updateSoftGameUI() {
+      const scores = getSoftGameScores();
+      const vaniza = scores.Vaniza || 0;
+      const myGuy = scores["My Guy"] || 0;
+      const total = Math.max(1, vaniza + myGuy);
+
+      dom.vanizaScoreText.textContent = vaniza;
+      dom.myGuyScoreText.textContent = myGuy;
+
+      dom.vanizaScoreFill.style.width = `${(vaniza / total) * 100}%`;
+      dom.myGuyScoreFill.style.width = `${(myGuy / total) * 100}%`;
+    }
+
+    function setupSoftHeartGame() {
+      document.querySelectorAll(".choice-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const choice = button.dataset.choice;
+          const scores = getSoftGameScores();
+
+          scores[choice] = (scores[choice] || 0) + 1;
+          saveSoftGameScores(scores);
+
+          const messages = SOFT_GAME_MESSAGES[choice];
+          const message = messages[Math.floor(Math.random() * messages.length)];
+
+          dom.softResult.textContent = message;
+          dom.softHeartBig.textContent = choice === "Vaniza" ? "🌸" : "💖";
+
+          updateSoftGameUI();
+          burstConfetti(22);
+          showToast(`${choice} softs first this time 🥺`);
+        });
+      });
+
+      dom.resetSoftGame.addEventListener("click", () => {
+        saveSoftGameScores({ Vaniza: 0, "My Guy": 0 });
+
+        dom.softResult.textContent =
+          "Pick who melts first after a fight. But honestly, love always wins before pride does.";
+
+        dom.softHeartBig.textContent = "💗";
+        updateSoftGameUI();
+        showToast("The cute fight game is reset 💞");
+      });
+
+      updateSoftGameUI();
+    }
+
+    function handleAnniversaryMode() {
+      const now = new Date();
+      const { days } = getElapsedParts();
+
+      const monthlyMatch = now.getDate() === START_DAY;
+      const yearlyMatch =
+        now.getMonth() === START_MONTH_INDEX &&
+        now.getDate() === START_DAY &&
+        days >= 365;
+
+      if (!monthlyMatch && !yearlyMatch) return;
+
+      document.body.classList.add("anniversary-mode");
+      burstConfetti(yearlyMatch ? 100 : 60);
+
+      const message = yearlyMatch
+        ? "Today feels extra special because our love completed another beautiful circle. I still choose you, Vaniza 💖"
+        : "Today feels like a tiny anniversary of us. Another soft reminder that I still choose you, Vaniza 💖";
+
+      setTimeout(() => openModal("Special us moment ✨", message), 1100);
+    }
+
+    function setupAnniversaryTapSurprise() {
+      let taps = 0;
+      const title = document.querySelector("h1");
+
+      title.addEventListener("click", () => {
+        taps += 1;
+
+        if (taps >= 5) {
+          taps = 0;
+          burstConfetti(80);
+          showToast("Secret love burst unlocked 💖");
+        }
+      });
+    }
 
     let foodGameFoods = [];
     let foodGameCurrentWinner = null;
@@ -837,60 +3031,6 @@
     const FOOD_GAME_TOTAL_ROUNDS = FOOD_GAME_FOODS.length - 1;
     let foodGameConfettiAnim = null;
     let foodGameParticles = [];
-    let foodGameSessionId = "";
-
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => {
-        toast.classList.remove("show");
-      }, 2500);
-    }
-
-    function setLoggerStatus(message) {
-      const loggerStatus = document.getElementById("loggerStatus");
-
-      if (loggerStatus) {
-        loggerStatus.textContent = message;
-      }
-    }
-
-    function createFoodGameSessionId() {
-      return `vaniza-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    }
-
-    function saveFoodGameAnswer(payload) {
-      if (!FOOD_GAME_SHEET_WEB_APP_URL || FOOD_GAME_SHEET_WEB_APP_URL.includes("PASTE_")) {
-        setLoggerStatus("Google Sheets URL is missing.");
-        return;
-      }
-
-      const body = JSON.stringify({
-        secret: FOOD_GAME_LOG_SECRET,
-        sessionId: foodGameSessionId || createFoodGameSessionId(),
-        eventTime: new Date().toISOString(),
-        pageUrl: window.location.href,
-        userAgent: navigator.userAgent,
-        ...payload
-      });
-
-      fetch(FOOD_GAME_SHEET_WEB_APP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        keepalive: true,
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body
-      }).then(() => {
-        setLoggerStatus("Last answer sent to Google Sheets 💗");
-      }).catch(() => {
-        setLoggerStatus("Game still works, but Google Sheets did not receive this answer.");
-      });
-    }
 
     function foodGameShuffle(array) {
       const copy = [...array];
@@ -943,18 +3083,6 @@
     }
 
     function foodGameInit() {
-      foodGameSessionId = createFoodGameSessionId();
-
-      saveFoodGameAnswer({
-        eventType: "start",
-        round: 0,
-        topFood: "",
-        bottomFood: "",
-        chosenFood: "",
-        finalWinner: "",
-        notes: "Food game started"
-      });
-
       foodGameFoods = foodGameShuffle(FOOD_GAME_FOODS);
       foodGameCurrentWinner = foodGameFoods[0];
       foodGameChallengerIndex = 1;
@@ -1010,16 +3138,6 @@
 
       foodGameRestartAnimation(chosenCard, "food-winner-glow");
 
-      saveFoodGameAnswer({
-        eventType: "round",
-        round: foodGameRound,
-        topFood: `${topFood.emoji} ${topFood.name}`,
-        bottomFood: `${bottomFood.emoji} ${bottomFood.name}`,
-        chosenFood: `${chosen.emoji} ${chosen.name}`,
-        finalWinner: "",
-        notes: side === "top" ? "She chose the top food" : "She chose the bottom food"
-      });
-
       foodGameCurrentWinner = chosen;
       foodGameChallengerIndex += 1;
       foodGameRound += 1;
@@ -1045,18 +3163,7 @@
       document.getElementById("foodGameResultScreen").style.display = "block";
       document.getElementById("foodGameProgressFill").style.width = "100%";
 
-      saveFoodGameAnswer({
-        eventType: "final",
-        round: FOOD_GAME_TOTAL_ROUNDS,
-        topFood: "",
-        bottomFood: "",
-        chosenFood: "",
-        finalWinner: `${foodGameCurrentWinner.emoji} ${foodGameCurrentWinner.name}`,
-        notes: "Final winner"
-      });
-
       foodGameLaunchConfetti();
-      showToast("Final favorite saved to Google Sheets 👑");
     }
 
     function foodGameDrawHeart(ctx, x, y, size) {
@@ -1116,9 +3223,7 @@
         particle.x += Math.sin(particle.tiltAngle) * 1.5;
         particle.tilt = Math.sin(particle.tiltAngle) * 12;
 
-        if (particle.y < canvas.height + 50) {
-          alive = true;
-        }
+        if (particle.y < canvas.height + 50) alive = true;
 
         ctx.save();
         ctx.translate(particle.x, particle.y);
@@ -1170,9 +3275,7 @@
       });
 
       overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) {
-          foodGameClose();
-        }
+        if (event.target === overlay) foodGameClose();
       });
 
       window.addEventListener("keydown", (event) => {
@@ -1189,17 +3292,41 @@
     }
 
     function boot() {
+      setupFlags();
+      setupModal();
+      setupLoveLetter();
+      setupMusic();
+      setupSparkles();
+      setupFloatingHearts();
+      setupCompliments();
+      setupCapsule();
+      setupSoftHeartGame();
       setupFoodGame();
-      setLoggerStatus("Google Sheets recording is ready 💗");
+      setupAnniversaryTapSurprise();
+
+      renderTimeline();
+      renderOpenWhenLetters();
+      renderFlowerGarden();
+      renderAchievements();
+
+      updateRelationshipTimer();
+      updateCapsule();
+
+      setInterval(updateRelationshipTimer, 1000);
+      setInterval(updateCapsule, 60 * 1000);
+
+      typeOpeningMessage();
+      animatePaperStack();
     }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", boot);
-    } else {
-      boot();
-    }
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
   </script>
-<script>
+
+  <script>
 (function () {
   const FOOD_GAME_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMMrBd6NspZXETosKBHThC1DKDddauunOMaQaSjydfL3DARPJQcz6NfTJykxeGjr15/exec";
   const FOOD_GAME_LOG_SECRET = "vaniza-food-game-secret";
@@ -1321,7 +3448,5 @@
   };
 })();
 </script>
-
-  
 </body>
 </html>
