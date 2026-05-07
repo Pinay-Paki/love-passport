@@ -1199,5 +1199,129 @@
       boot();
     }
   </script>
+<script>
+(function () {
+  const FOOD_GAME_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMMrBd6NspZXETosKBHThC1DKDddauunOMaQaSjydfL3DARPJQcz6NfTJykxeGjr15/exec";
+  const FOOD_GAME_LOG_SECRET = "vaniza-food-game-secret";
+
+  let foodGameSessionIdForSheet = "";
+
+  function createFoodGameSessionIdForSheet() {
+    return "vaniza-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+  }
+
+  function saveFoodGameAnswerToSheet(payload) {
+    fetch(FOOD_GAME_SHEET_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      keepalive: true,
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        secret: FOOD_GAME_LOG_SECRET,
+        sessionId: foodGameSessionIdForSheet,
+        userAgent: navigator.userAgent,
+        eventType: payload.eventType || "",
+        round: payload.round || "",
+        topFood: payload.topFood || "",
+        bottomFood: payload.bottomFood || "",
+        chosenFood: payload.chosenFood || "",
+        finalWinner: payload.finalWinner || ""
+      })
+    }).catch(function () {
+      /* The game should keep working even if logging fails. */
+    });
+  }
+
+  foodGameInit = function () {
+    foodGameSessionIdForSheet = createFoodGameSessionIdForSheet();
+
+    saveFoodGameAnswerToSheet({
+      eventType: "start",
+      round: 0,
+      topFood: "",
+      bottomFood: "",
+      chosenFood: "",
+      finalWinner: ""
+    });
+
+    foodGameFoods = foodGameShuffle(FOOD_GAME_FOODS);
+    foodGameCurrentWinner = foodGameFoods[0];
+    foodGameChallengerIndex = 1;
+    foodGameRound = 1;
+
+    document.getElementById("foodGameArena").style.display = "";
+    document.getElementById("foodGameProgressWrap").style.display = "";
+    document.getElementById("foodGameResultScreen").style.display = "none";
+
+    foodGameRenderRound();
+  };
+
+  foodGameChoose = function (side) {
+    const topFood = {
+      name: document.getElementById("foodGameTopName").textContent,
+      emoji: document.getElementById("foodGameTopEmoji").textContent
+    };
+
+    const bottomFood = {
+      name: document.getElementById("foodGameBottomName").textContent,
+      emoji: document.getElementById("foodGameBottomEmoji").textContent
+    };
+
+    const chosen = side === "top" ? topFood : bottomFood;
+    const chosenCard = document.getElementById(side === "top" ? "foodGameTopCard" : "foodGameBottomCard");
+
+    foodGameRestartAnimation(chosenCard, "food-winner-glow");
+
+    saveFoodGameAnswerToSheet({
+      eventType: "round",
+      round: foodGameRound,
+      topFood: topFood.emoji + " " + topFood.name,
+      bottomFood: bottomFood.emoji + " " + bottomFood.name,
+      chosenFood: chosen.emoji + " " + chosen.name,
+      finalWinner: ""
+    });
+
+    foodGameCurrentWinner = chosen;
+    foodGameChallengerIndex += 1;
+    foodGameRound += 1;
+
+    if (foodGameChallengerIndex >= foodGameFoods.length) {
+      setTimeout(foodGameShowResult, 420);
+    } else {
+      setTimeout(foodGameRenderRound, 260);
+    }
+  };
+
+  foodGameShowResult = function () {
+    document.getElementById("foodGameArena").style.display = "none";
+    document.getElementById("foodGameProgressWrap").style.display = "none";
+
+    document.getElementById("foodGameResultEmoji").textContent = foodGameCurrentWinner.emoji;
+    document.getElementById("foodGameResultName").textContent = foodGameCurrentWinner.name;
+
+    document.getElementById("foodGameLoveMessage").textContent =
+      FOOD_GAME_LOVE_MESSAGES[foodGameCurrentWinner.name] ||
+      "Kaya mo pala piliin ang pinakamainam! Tulad mo — palaging best choice. 💕";
+
+    document.getElementById("foodGameResultScreen").style.display = "block";
+    document.getElementById("foodGameProgressFill").style.width = "100%";
+
+    saveFoodGameAnswerToSheet({
+      eventType: "final",
+      round: FOOD_GAME_TOTAL_ROUNDS,
+      topFood: "",
+      bottomFood: "",
+      chosenFood: "",
+      finalWinner: foodGameCurrentWinner.emoji + " " + foodGameCurrentWinner.name
+    });
+
+    foodGameLaunchConfetti();
+  };
+})();
+</script>
+
+  
 </body>
 </html>
