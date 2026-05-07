@@ -119,10 +119,18 @@
       z-index: 2;
     }
 
-    .heart-layer {
-      pointer-events: auto;
-      z-index: 5;
-    }
+  .heart-layer {
+  pointer-events: none !important;
+  z-index: 5;
+}
+
+.floating-heart {
+  pointer-events: auto !important;
+}
+
+.floating-heart {
+  pointer-events: auto;
+}
 
     .sparkle {
       position: absolute;
@@ -2091,7 +2099,7 @@
     const CAPTIONS = {
       1: "The day my heart found a softer reason to smile 💖",
       2: "You looked beautiful in a way my words still cannot fully explain 🌸",
-      3: "Another memory, another reason to thank the universe for you ✨",
+      3: "Another Picture, another reason to thank the universe for you ✨",
       4: "Even from far away, you felt close to my heart 🌙",
       5: "This is us: soft, silly, strong, and still choosing eachother 💕",
       6: "Some pictures are not just pictures. They are tiny homes for feelings 🫶",
@@ -2099,7 +2107,7 @@
       8: "No distance can make my heart forget where it belongs 💞"
     };
 
-    const OPENING_MESSAGE = "Every day with you becomes my favorite memory 💕";
+    const OPENING_MESSAGE = "Every day with you becomes my favorite Person 💕";
 
     const LOVE_LETTER = `
 Dear Vaniza,
@@ -2367,31 +2375,34 @@ Your Guy
         `${plural(seconds, "second")} 💕`;
     }
 
-    function getCurrentMemoryNumber() {
-      return Math.max(1, getElapsedParts().days);
-    }
+    
+  function getCurrentMemoryNumber() {
+  return Math.max(1, getElapsedParts().days);
+}
 
-    function getImageSource(memoryNumber) {
-      const safeNumber = clamp(memoryNumber, 1, REMOTE_PHOTOS.length);
-      return REMOTE_PHOTOS[safeNumber - 1] || REMOTE_PHOTOS[0];
-    }
+function getPhotoIndex(memoryNumber) {
+  if (!REMOTE_PHOTOS.length) return 0;
 
-    function getRandomImageNumber(currentNumber) {
-      if (REMOTE_PHOTOS.length <= 1) return 1;
+  const number = Number(memoryNumber) || 1;
 
-      let randomNumber = currentNumber;
+  // This makes photos loop instead of getting stuck on the last image.
+  return ((number - 1) % REMOTE_PHOTOS.length + REMOTE_PHOTOS.length) % REMOTE_PHOTOS.length;
+}
 
-      while (randomNumber === currentNumber) {
-        randomNumber = Math.floor(Math.random() * REMOTE_PHOTOS.length) + 1;
-      }
+function getImageSource(memoryNumber) {
+  return REMOTE_PHOTOS[getPhotoIndex(memoryNumber)] || REMOTE_PHOTOS[0];
+}
 
-      return randomNumber;
-    }
+function getNextImageNumber(currentNumber) {
+  return (Number(currentNumber) || 1) + 1;
+}
 
-    function getCaption(memoryNumber) {
-      const safeNumber = clamp(memoryNumber, 1, REMOTE_PHOTOS.length);
-      return CAPTIONS[safeNumber] || "Another beautiful memory of Vaniza that made my heart softer 💕";
-    }
+function getCaption(memoryNumber) {
+  const photoNumber = getPhotoIndex(memoryNumber) + 1;
+
+  return CAPTIONS[photoNumber] ||
+    "Another beautiful memory of Vaniza that made my heart softer 💕";
+}
 
     function typeOpeningMessage() {
       let index = 0;
@@ -2476,7 +2487,7 @@ Your Guy
       const fallback = page.querySelector(".fallback-photo");
       const caption = page.querySelector(".page-caption");
       const currentNumber = Number(page.dataset.memoryNumber || "1");
-      const newNumber = getRandomImageNumber(currentNumber);
+      const newNumber = getNextImageNumber(currentNumber);
 
       page.dataset.memoryNumber = String(newNumber);
       page.classList.add("shuffle-pop");
@@ -3308,7 +3319,11 @@ Your Guy
       animatePaperStack();
     }
 
-    document.addEventListener("DOMContentLoaded", boot);
+    if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
   </script>
 </body>
 </html>
