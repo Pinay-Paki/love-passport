@@ -1719,6 +1719,51 @@
     body.logged-in .logout-button {
       display: inline-flex;
     }
+    .theme-toggle-button {
+  position: fixed;
+  top: 16px;
+  right: 150px;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 22px;
+  min-height: 22px;
+  cursor: pointer;
+  font: inherit;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  box-shadow: 0 12px 30px rgba(183, 127, 255, 0.25);
+}
+
+body.logged-in .theme-toggle-button {
+  display: inline-flex;
+}
+
+body.blue-theme {
+  --pink: #21ddff;
+  --soft-pink: #dff8ff;
+  --deep-pink: #079ec0;
+  --purple: #5fc7ff;
+  --lavender: #e9fbff;
+  --cream: #f5fdff;
+  --shadow: 0 28px 70px rgba(33, 221, 255, 0.22);
+}
+
+body.blue-theme .theme-toggle-button {
+  color: #06323a;
+  background: linear-gradient(135deg, #21ddff, #9eefff);
+}
+
+@media (max-width: 700px) {
+  .theme-toggle-button {
+    top: 68px;
+    right: 16px;
+  }
+}
+    
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1738,6 +1783,7 @@
   </div>
 
   <button id="logout-button" class="logout-button" type="button">Logout</button>
+  <button id="theme-toggle-button" class="theme-toggle-button" type="button">Blue Theme 💙</button>
   <div class="page-bg" aria-hidden="true">
     <div class="orb one"></div>
     <div class="orb two"></div>
@@ -3569,6 +3615,29 @@ function getCaption(memoryNumber) {
     const passwordInput = document.getElementById("login-password");
     const errorBox = document.getElementById("auth-error");
     const logoutButton = document.getElementById("logout-button");
+    const themeToggleButton = document.getElementById("theme-toggle-button");
+const THEME_STORAGE_KEY = "love-passport-theme";
+
+function setTheme(theme) {
+  const isBlue = theme === "blue";
+
+  body.classList.toggle("blue-theme", isBlue);
+
+  if (themeToggleButton) {
+    themeToggleButton.textContent = isBlue ? "Pink Theme 💗" : "Blue Theme 💙";
+  }
+
+  localStorage.setItem(THEME_STORAGE_KEY, isBlue ? "blue" : "pink");
+}
+
+setTheme(localStorage.getItem(THEME_STORAGE_KEY) === "blue" ? "blue" : "pink");
+
+if (themeToggleButton) {
+  themeToggleButton.addEventListener("click", () => {
+    const nextTheme = body.classList.contains("blue-theme") ? "pink" : "blue";
+    setTheme(nextTheme);
+  });
+}
 
     function showLogin(message = "") {
       body.classList.remove("auth-loading", "logged-in", "admin-user", "normal-user");
