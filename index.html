@@ -3582,11 +3582,19 @@ function getCaption(memoryNumber) {
         .eq("id", session.user.id)
         .single();
 
-      if (error || !profile) {
-        await supabaseClient.auth.signOut();
-        showLogin("Login worked, but profile role was not found. Please check Supabase profiles.");
-        return;
-      }
+if (error || !profile) {
+  console.log("Profile error:", error);
+  console.log("Profile data:", profile);
+
+  await supabaseClient.auth.signOut();
+
+  showLogin(
+    "Login worked, but profile role was not found. Supabase says: " +
+    (error ? error.message : "No profile row returned.")
+  );
+
+  return;
+}
 
       body.classList.remove("auth-loading");
       body.classList.add("logged-in");
