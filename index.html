@@ -1794,6 +1794,122 @@ body.blue-theme section {
     right: 16px;
   }
 }
+
+/* Strong full-site blue theme override */
+body.blue-theme {
+  --pink: #21ddff;
+  --soft-pink: #dff8ff;
+  --deep-pink: #079ec0;
+  --purple: #5fc7ff;
+  --lavender: #e9fbff;
+  --cream: #f5fdff;
+  --text: #07323a;
+  --muted: #3f6f78;
+  --white: #ffffff;
+  --glass: rgba(245, 253, 255, 0.72);
+  --shadow: 0 28px 70px rgba(33, 221, 255, 0.22);
+
+  background:
+    radial-gradient(circle at 15% 20%, rgba(33, 221, 255, 0.26), transparent 34%),
+    radial-gradient(circle at 85% 15%, rgba(95, 199, 255, 0.24), transparent 30%),
+    radial-gradient(circle at 50% 90%, rgba(33, 221, 255, 0.18), transparent 38%),
+    linear-gradient(135deg, #f5fdff 0%, #e9fbff 45%, #dff8ff 100%) !important;
+}
+
+body.blue-theme .page-bg {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(33, 221, 255, 0.24), transparent 32%),
+    radial-gradient(circle at 85% 25%, rgba(95, 199, 255, 0.22), transparent 34%),
+    linear-gradient(135deg, #f5fdff, #e9fbff, #dff8ff) !important;
+}
+
+body.blue-theme h1,
+body.blue-theme h2,
+body.blue-theme h3,
+body.blue-theme .title,
+body.blue-theme .hero-title,
+body.blue-theme .section-title {
+  color: #07323a !important;
+}
+
+body.blue-theme p,
+body.blue-theme span,
+body.blue-theme .subtitle,
+body.blue-theme .caption,
+body.blue-theme .memory-text {
+  color: #3f6f78;
+}
+
+body.blue-theme .accent,
+body.blue-theme .script,
+body.blue-theme .highlight,
+body.blue-theme .memory,
+body.blue-theme .tag,
+body.blue-theme .badge,
+body.blue-theme .chip,
+body.blue-theme .label {
+  color: #079ec0 !important;
+}
+
+body.blue-theme button,
+body.blue-theme .button,
+body.blue-theme .btn {
+  background: linear-gradient(135deg, #21ddff, #5fc7ff) !important;
+  color: #06323a !important;
+  box-shadow: 0 16px 36px rgba(33, 221, 255, 0.26) !important;
+}
+
+body.blue-theme .logout-button {
+  background: linear-gradient(135deg, #8bdfff, #5fc7ff) !important;
+  color: #06323a !important;
+}
+
+body.blue-theme .theme-toggle-button {
+  background: linear-gradient(135deg, #21ddff, #9eefff) !important;
+  color: #06323a !important;
+}
+
+body.blue-theme .hero,
+body.blue-theme .card,
+body.blue-theme .memory-card,
+body.blue-theme .photo-card,
+body.blue-theme .game-card,
+body.blue-theme .letter-card,
+body.blue-theme .timeline-card,
+body.blue-theme section {
+  background: rgba(245, 253, 255, 0.74) !important;
+  border-color: rgba(33, 221, 255, 0.24) !important;
+  box-shadow: 0 28px 70px rgba(33, 221, 255, 0.18) !important;
+}
+
+body.blue-theme input,
+body.blue-theme textarea,
+body.blue-theme select {
+  border-color: rgba(33, 221, 255, 0.38) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #07323a !important;
+}
+
+body.blue-theme .orb,
+body.blue-theme .heart,
+body.blue-theme .floating-heart,
+body.blue-theme .sparkle,
+body.blue-theme .confetti,
+body.blue-theme .heart-layer,
+body.blue-theme .sparkle-layer,
+body.blue-theme .confetti-layer {
+  filter: hue-rotate(145deg) saturate(1.45) brightness(1.04);
+}
+
+body.blue-theme .progress,
+body.blue-theme .progress-bar,
+body.blue-theme .timeline-line {
+  background: #21ddff !important;
+}
+
+body.blue-theme a {
+  color: #079ec0 !important;
+}
     
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
