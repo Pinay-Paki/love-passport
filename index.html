@@ -1629,10 +1629,115 @@
         height: 66px;
       }
     }
-  </style>
-</head>
+        body.auth-loading > :not(#auth-screen),
+    body:not(.logged-in) > :not(#auth-screen) {
+      display: none !important;
+    }
 
-<body>
+    body.logged-in #auth-screen {
+      display: none !important;
+    }
+
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 35%),
+        linear-gradient(135deg, #fff6fb, #ffe4ef, #f7e7ff);
+      color: #4a2540;
+      font-family: "Comfortaa", system-ui, sans-serif;
+    }
+
+    .auth-card {
+      width: min(420px, 100%);
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 70px rgba(151, 76, 132, 0.22);
+      text-align: center;
+    }
+
+    .auth-card h1 {
+      margin: 0 0 10px;
+      color: #d39d83;
+      font-family: "Playfair Display", serif;
+      font-size: clamp(32px, 8vw, 48px);
+    }
+
+    .auth-card p {
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+
+    .auth-card input {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 8px 0;
+      padding: 14px 16px;
+      border: 1px solid rgba(211, 157, 131, 0.35);
+      border-radius: 16px;
+      font: inherit;
+      outline: none;
+    }
+
+    .auth-card button,
+    .logout-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      font: inherit;
+      cursor: pointer;
+      background: linear-gradient(135deg, #d39d83, #b77cff);
+      color: white;
+      box-shadow: 0 10px 25px rgba(151, 76, 132, 0.22);
+    }
+
+    .auth-card button {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .auth-error {
+      min-height: 22px;
+      margin-top: 14px !important;
+      color: #b42318;
+      font-size: 14px;
+    }
+
+    .logout-button {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: none;
+    }
+
+    body.logged-in .logout-button {
+      display: inline-flex;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="auth-loading">
+    <div id="auth-screen">
+    <div class="auth-card">
+      <h1>Love Passport</h1>
+      <p>This page is private. Please log in to open our little world. 💗</p>
+
+      <form id="login-form">
+        <input id="login-email" type="email" placeholder="Email" autocomplete="username" required>
+        <input id="login-password" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit">Unlock</button>
+        <p id="auth-error" class="auth-error" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <button id="logout-button" class="logout-button" type="button">Logout</button>
   <div class="page-bg" aria-hidden="true">
     <div class="orb one"></div>
     <div class="orb two"></div>
@@ -3447,6 +3552,93 @@ function getCaption(memoryNumber) {
     foodGameLaunchConfetti();
   };
 })();
+</script>
+    <script>
+  (() => {
+    const SUPABASE_URL = "https://carzildeoobdkxopximu.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_JDAh3eAXyLQTxRPo7Mkd1A_Nw3znjRt";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const body = document.body;
+    const loginForm = document.getElementById("login-form");
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+    const errorBox = document.getElementById("auth-error");
+    const logoutButton = document.getElementById("logout-button");
+
+    function showLogin(message = "") {
+      body.classList.remove("auth-loading", "logged-in", "admin-user", "normal-user");
+      errorBox.textContent = message;
+    }
+
+    async function showWebsite(session) {
+      const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error || !profile) {
+        await supabaseClient.auth.signOut();
+        showLogin("Login worked, but profile role was not found. Please check Supabase profiles.");
+        return;
+      }
+
+      body.classList.remove("auth-loading");
+      body.classList.add("logged-in");
+
+      if (profile.role === "admin") {
+        body.classList.add("admin-user");
+        body.classList.remove("normal-user");
+      } else {
+        body.classList.add("normal-user");
+        body.classList.remove("admin-user");
+      }
+    }
+
+    async function checkSession() {
+      const { data } = await supabaseClient.auth.getSession();
+
+      if (data.session) {
+        await showWebsite(data.session);
+      } else {
+        showLogin();
+      }
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      errorBox.textContent = "Checking login...";
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        showLogin("Wrong email or password. Please try again.");
+        return;
+      }
+
+      await showWebsite(data.session);
+    });
+
+    logoutButton.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      passwordInput.value = "";
+      showLogin("You are logged out.");
+    });
+
+    checkSession();
+  })();
 </script>
 </body>
 </html>
