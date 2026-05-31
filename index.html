@@ -3807,6 +3807,85 @@ if (themeToggleButton) {
   });
 }
 
+
+    (function () {
+  const originalThemeTextNodes = new WeakMap();
+
+  function makeBlueThemeText(text) {
+    return text
+      .replaceAll("💗", "🩵")
+      .replaceAll("💖", "🩵")
+      .replaceAll("💕", "💙")
+      .replaceAll("💞", "💙")
+      .replaceAll("💓", "🩵")
+      .replaceAll("💘", "💙")
+      .replaceAll("💝", "🩵")
+      .replaceAll("💟", "💙")
+      .replaceAll("❤️", "💙")
+      .replaceAll("❤", "💙");
+  }
+
+  function applyThemeEmojiSwap() {
+    const isBlueTheme = document.body.classList.contains("blue-theme");
+
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT
+    );
+
+    let node;
+
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+
+      if (!parent) continue;
+
+      const tagName = parent.tagName;
+
+      if (
+        tagName === "SCRIPT" ||
+        tagName === "STYLE" ||
+        tagName === "TEXTAREA" ||
+        tagName === "INPUT"
+      ) {
+        continue;
+      }
+
+      if (!originalThemeTextNodes.has(node)) {
+        originalThemeTextNodes.set(node, node.nodeValue);
+      }
+
+      const originalText = originalThemeTextNodes.get(node);
+
+      node.nodeValue = isBlueTheme
+        ? makeBlueThemeText(originalText)
+        : originalText;
+    }
+  }
+
+  const themeTextObserver = new MutationObserver(() => {
+    requestAnimationFrame(applyThemeEmojiSwap);
+  });
+
+  themeTextObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener("click", () => {
+      setTimeout(applyThemeEmojiSwap, 0);
+    });
+  }
+
+  applyThemeEmojiSwap();
+})();
+
+
+    
     function showLogin(message = "") {
       body.classList.remove("auth-loading", "logged-in", "admin-user", "normal-user");
       errorBox.textContent = message;
