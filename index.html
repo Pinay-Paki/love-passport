@@ -3863,17 +3863,7 @@ if (themeToggleButton) {
     }
   }
 
-  const themeTextObserver = new MutationObserver(() => {
-    requestAnimationFrame(applyThemeEmojiSwap);
-  });
-
-  themeTextObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true,
-    attributes: true,
-    attributeFilter: ["class"]
-  });
+ 
 
   if (themeToggleButton) {
     themeToggleButton.addEventListener("click", () => {
