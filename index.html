@@ -1629,102 +1629,13 @@
         height: 66px;
       }
     }
-        body.auth-loading > :not(#auth-screen),
-    body:not(.logged-in) > :not(#auth-screen) {
-      display: none !important;
-    }
-
-    body.logged-in #auth-screen {
-      display: none !important;
-    }
-
-    #auth-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 35%),
-        linear-gradient(135deg, #fff6fb, #ffe4ef, #f7e7ff);
-      color: #4a2540;
-      font-family: "Comfortaa", system-ui, sans-serif;
-    }
-
-    .auth-card {
-      width: min(420px, 100%);
-      background: rgba(255, 255, 255, 0.86);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      border-radius: 28px;
-      padding: 28px;
-      box-shadow: 0 20px 70px rgba(151, 76, 132, 0.22);
-      text-align: center;
-    }
-
-    .auth-card h1 {
-      margin: 0 0 10px;
-      color: #d39d83;
-      font-family: "Playfair Display", serif;
-      font-size: clamp(32px, 8vw, 48px);
-    }
-
-    .auth-card p {
-      margin: 0 0 20px;
-      line-height: 1.6;
-    }
-
-    .auth-card input {
-      width: 100%;
-      box-sizing: border-box;
-      margin: 8px 0;
-      padding: 14px 16px;
-      border: 1px solid rgba(211, 157, 131, 0.35);
-      border-radius: 16px;
-      font: inherit;
-      outline: none;
-    }
-
-    .auth-card button,
-    .logout-button {
-      border: 0;
-      border-radius: 999px;
-      padding: 13px 20px;
-      font: inherit;
-      cursor: pointer;
-      background: linear-gradient(135deg, #d39d83, #b77cff);
-      color: white;
-      box-shadow: 0 10px 25px rgba(151, 76, 132, 0.22);
-    }
-
-    .auth-card button {
-      width: 100%;
-      margin-top: 12px;
-    }
-
-    .auth-error {
-      min-height: 22px;
-      margin-top: 14px !important;
-      color: #b42318;
-      font-size: 14px;
-    }
-
-    .logout-button {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 9999;
-      display: none;
-    }
-
-    body.logged-in .logout-button {
-      display: inline-flex;
-    }
+    /* Login removed: site is public now. */
     .theme-toggle-button {
   position: fixed;
   top: 16px;
   right: 150px;
   z-index: 9999;
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
@@ -1738,9 +1649,6 @@
   box-shadow: 0 12px 30px rgba(183, 127, 255, 0.25);
 }
 
-body.logged-in .theme-toggle-button {
-  display: inline-flex;
-}
 
 body.blue-theme {
   --pink: #21ddff;
@@ -1853,10 +1761,6 @@ body.blue-theme .btn {
   box-shadow: 0 16px 36px rgba(33, 221, 255, 0.26) !important;
 }
 
-body.blue-theme .logout-button {
-  background: linear-gradient(135deg, #8bdfff, #5fc7ff) !important;
-  color: #06323a !important;
-}
 
 body.blue-theme .theme-toggle-button {
   background: linear-gradient(135deg, #21ddff, #9eefff) !important;
@@ -1933,24 +1837,8 @@ body.blue-theme [class*="garden"] button {
 }
     
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="auth-loading">
-    <div id="auth-screen">
-    <div class="auth-card">
-      <h1>Love Passport</h1>
-      <p>This page is private. Please log in to open our little world. 💗</p>
-
-      <form id="login-form">
-        <input id="login-email" type="email" placeholder="Email" autocomplete="username" required>
-        <input id="login-password" type="password" placeholder="Password" autocomplete="current-password" required>
-        <button type="submit">Unlock</button>
-        <p id="auth-error" class="auth-error" aria-live="polite"></p>
-      </form>
-    </div>
-  </div>
-
-  <button id="logout-button" class="logout-button" type="button">Logout</button>
+<body>
   <button id="theme-toggle-button" class="theme-toggle-button" type="button">Blue Theme 💙</button>
   <div class="page-bg" aria-hidden="true">
     <div class="orb one"></div>
@@ -3769,189 +3657,87 @@ function getCaption(memoryNumber) {
 </script>
     <script>
   (() => {
-    const SUPABASE_URL = "https://carzildeoobdkxopximu.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_JDAh3eAXyLQTxRPo7Mkd1A_Nw3znjRt";
-
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
     const body = document.body;
-    const loginForm = document.getElementById("login-form");
-    const emailInput = document.getElementById("login-email");
-    const passwordInput = document.getElementById("login-password");
-    const errorBox = document.getElementById("auth-error");
-    const logoutButton = document.getElementById("logout-button");
     const themeToggleButton = document.getElementById("theme-toggle-button");
-const THEME_STORAGE_KEY = "love-passport-theme";
+    const THEME_STORAGE_KEY = "love-passport-theme";
 
-function setTheme(theme) {
-  const isBlue = theme === "blue";
+    function setTheme(theme) {
+      const isBlue = theme === "blue";
 
-  body.classList.toggle("blue-theme", isBlue);
+      body.classList.toggle("blue-theme", isBlue);
 
-  if (themeToggleButton) {
-    themeToggleButton.textContent = isBlue ? "Pink Theme 💗" : "Blue Theme 💙";
-  }
-
-  localStorage.setItem(THEME_STORAGE_KEY, isBlue ? "blue" : "pink");
-}
-
-setTheme(localStorage.getItem(THEME_STORAGE_KEY) === "blue" ? "blue" : "pink");
-
-if (themeToggleButton) {
-  themeToggleButton.addEventListener("click", () => {
-    const nextTheme = body.classList.contains("blue-theme") ? "pink" : "blue";
-    setTheme(nextTheme);
-  });
-}
-
-
-    (function () {
-  const originalThemeTextNodes = new WeakMap();
-
-  function makeBlueThemeText(text) {
-    return text
-      .replaceAll("💗", "🩵")
-      .replaceAll("💖", "🩵")
-      .replaceAll("💕", "💙")
-      .replaceAll("💞", "💙")
-      .replaceAll("💓", "🩵")
-      .replaceAll("💘", "💙")
-      .replaceAll("💝", "🩵")
-      .replaceAll("💟", "💙")
-      .replaceAll("❤️", "💙")
-      .replaceAll("❤", "💙");
-  }
-
-  function applyThemeEmojiSwap() {
-    const isBlueTheme = document.body.classList.contains("blue-theme");
-
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_TEXT
-    );
-
-    let node;
-
-    while ((node = walker.nextNode())) {
-      const parent = node.parentElement;
-
-      if (!parent) continue;
-
-      const tagName = parent.tagName;
-
-      if (
-        tagName === "SCRIPT" ||
-        tagName === "STYLE" ||
-        tagName === "TEXTAREA" ||
-        tagName === "INPUT"
-      ) {
-        continue;
+      if (themeToggleButton) {
+        themeToggleButton.textContent = isBlue ? "Pink Theme 💗" : "Blue Theme 💙";
       }
 
-      if (!originalThemeTextNodes.has(node)) {
-        originalThemeTextNodes.set(node, node.nodeValue);
-      }
-
-      const originalText = originalThemeTextNodes.get(node);
-
-      node.nodeValue = isBlueTheme
-        ? makeBlueThemeText(originalText)
-        : originalText;
-    }
-  }
-
- 
-
-  if (themeToggleButton) {
-    themeToggleButton.addEventListener("click", () => {
-      setTimeout(applyThemeEmojiSwap, 0);
-    });
-  }
-
-  applyThemeEmojiSwap();
-})();
-
-
-    
-    function showLogin(message = "") {
-      body.classList.remove("auth-loading", "logged-in", "admin-user", "normal-user");
-      errorBox.textContent = message;
+      localStorage.setItem(THEME_STORAGE_KEY, isBlue ? "blue" : "pink");
     }
 
-    async function showWebsite(session) {
-      const { data: profile, error } = await supabaseClient
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .single();
+    setTheme(localStorage.getItem(THEME_STORAGE_KEY) === "blue" ? "blue" : "pink");
 
-if (error || !profile) {
-  console.log("Profile error:", error);
-  console.log("Profile data:", profile);
-
-  await supabaseClient.auth.signOut();
-
-  showLogin(
-    "Login worked, but profile role was not found. Supabase says: " +
-    (error ? error.message : "No profile row returned.")
-  );
-
-  return;
-}
-
-      body.classList.remove("auth-loading");
-      body.classList.add("logged-in");
-
-      if (profile.role === "admin") {
-        body.classList.add("admin-user");
-        body.classList.remove("normal-user");
-      } else {
-        body.classList.add("normal-user");
-        body.classList.remove("admin-user");
-      }
-    }
-
-    async function checkSession() {
-      const { data } = await supabaseClient.auth.getSession();
-
-      if (data.session) {
-        await showWebsite(data.session);
-      } else {
-        showLogin();
-      }
-    }
-
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      errorBox.textContent = "Checking login...";
-
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
+    if (themeToggleButton) {
+      themeToggleButton.addEventListener("click", () => {
+        const nextTheme = body.classList.contains("blue-theme") ? "pink" : "blue";
+        setTheme(nextTheme);
+        setTimeout(applyThemeEmojiSwap, 0);
       });
+    }
 
-      if (error) {
-        showLogin("Wrong email or password. Please try again.");
-        return;
+    const originalThemeTextNodes = new WeakMap();
+
+    function makeBlueThemeText(text) {
+      return text
+        .replaceAll("💗", "🩵")
+        .replaceAll("💖", "🩵")
+        .replaceAll("💕", "💙")
+        .replaceAll("💞", "💙")
+        .replaceAll("💓", "🩵")
+        .replaceAll("💘", "💙")
+        .replaceAll("💝", "🩵")
+        .replaceAll("💟", "💙")
+        .replaceAll("❤️", "💙")
+        .replaceAll("❤", "💙");
+    }
+
+    function applyThemeEmojiSwap() {
+      const isBlueTheme = document.body.classList.contains("blue-theme");
+
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT
+      );
+
+      let node;
+
+      while ((node = walker.nextNode())) {
+        const parent = node.parentElement;
+
+        if (!parent) continue;
+
+        const tagName = parent.tagName;
+
+        if (
+          tagName === "SCRIPT" ||
+          tagName === "STYLE" ||
+          tagName === "TEXTAREA" ||
+          tagName === "INPUT"
+        ) {
+          continue;
+        }
+
+        if (!originalThemeTextNodes.has(node)) {
+          originalThemeTextNodes.set(node, node.nodeValue);
+        }
+
+        const originalText = originalThemeTextNodes.get(node);
+
+        node.nodeValue = isBlueTheme
+          ? makeBlueThemeText(originalText)
+          : originalText;
       }
+    }
 
-      await showWebsite(data.session);
-    });
-
-    logoutButton.addEventListener("click", async () => {
-      await supabaseClient.auth.signOut();
-      passwordInput.value = "";
-      showLogin("You are logged out.");
-    });
-
-    checkSession();
+    applyThemeEmojiSwap();
   })();
 </script>
 </body>
