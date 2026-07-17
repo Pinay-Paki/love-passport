@@ -6,6 +6,9 @@
 
   <title>For Vaniza 💖</title>
 
+  <!-- 3D model viewer for our little avatar -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
+
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Great+Vibes&family=Playfair+Display:wght@600;700;800&display=swap");
 
@@ -329,6 +332,116 @@
       background: rgba(255, 111, 174, 0.11);
       color: var(--deep-pink);
       font-weight: 900;
+    }
+
+    /* ===== 3D Avatar in hero ===== */
+    .avatar-zone {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      animation: fadeUp 1.1s ease 0.16s both;
+    }
+
+    .avatar-glow {
+      position: absolute;
+      width: min(430px, 90vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 111, 174, 0.28), transparent 62%);
+      filter: blur(14px);
+      z-index: 0;
+    }
+
+    .avatar-frame {
+      position: relative;
+      z-index: 1;
+      width: min(400px, 90vw);
+      border-radius: var(--radius);
+      background: linear-gradient(160deg, rgba(255,255,255,0.78), rgba(255,255,255,0.42));
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      padding: 16px 16px 12px;
+      overflow: hidden;
+    }
+
+    .avatar-frame::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 26px;
+      right: 26px;
+      height: 12px;
+      border-radius: 999px;
+      background: repeating-linear-gradient(90deg, rgba(217, 61, 131, 0.22) 0 9px, transparent 9px 18px);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .avatar-tag {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      z-index: 3;
+      background: rgba(255, 111, 174, 0.16);
+      color: var(--deep-pink);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-weight: 900;
+      font-size: 0.76rem;
+      pointer-events: none;
+    }
+
+    model-viewer#loveAvatar {
+      width: 100%;
+      height: min(520px, 74vh);
+      margin-top: 26px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,233,243,0.55), rgba(241,230,255,0.55));
+      --poster-color: transparent;
+      cursor: grab;
+    }
+
+    model-viewer#loveAvatar:active {
+      cursor: grabbing;
+    }
+
+    .avatar-hint {
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      transform: translateX(-50%);
+      z-index: 3;
+      width: max-content;
+      max-width: calc(100% - 30px);
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.78);
+      color: var(--deep-pink);
+      font-size: 0.74rem;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(151, 76, 132, 0.12);
+      backdrop-filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .avatar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .avatar-controls .btn {
+      padding: 11px 16px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 560px) {
+      model-viewer#loveAvatar {
+        height: min(440px, 66vh);
+      }
     }
 
     .calendar-zone {
@@ -1554,7 +1667,8 @@
         order: 2;
       }
 
-      .calendar-zone {
+      .calendar-zone,
+      .avatar-zone {
         order: 1;
       }
 
@@ -1835,6 +1949,17 @@ body.blue-theme [class*="garden"] button {
   box-shadow: none !important;
   border: 0 !important;
 }
+
+    /* Keep the avatar frame from being tinted flat by the blue theme buttons rule */
+    body.blue-theme .avatar-frame,
+    body.blue-theme model-viewer#loveAvatar {
+      background: rgba(245, 253, 255, 0.7) !important;
+      border-color: rgba(33, 221, 255, 0.24) !important;
+    }
+
+    body.blue-theme model-viewer#loveAvatar {
+      background: linear-gradient(180deg, rgba(223,248,255,0.6), rgba(233,251,255,0.6)) !important;
+    }
     
   </style>
 </head>
@@ -1887,17 +2012,36 @@ body.blue-theme [class*="garden"] button {
             </div>
           </div>
 
-          <div class="calendar-zone">
-            <div class="calendar-glow"></div>
+          <div class="avatar-zone">
+            <div class="avatar-glow"></div>
 
-            <div class="paper-stack" id="paperStack" aria-label="Romantic memory calendar"></div>
-
-            <div class="animation-status" id="animationStatus">
-              Opening our memories...
+            <div class="avatar-frame">
+              <div class="avatar-tag">Our avatar 💕</div>
+              <div class="avatar-hint">drag to move me · scroll to zoom</div>
+              <model-viewer
+                id="loveAvatar"
+                src="model.glb"
+                alt="A 3D avatar of Vaniza"
+                camera-controls
+                touch-action="pan-y"
+                auto-rotate
+                autoplay
+                shadow-intensity="1"
+                exposure="1.05"
+                interaction-prompt="none"
+                camera-orbit="0deg 82deg 105%"
+                min-camera-orbit="auto 45deg auto"
+                max-camera-orbit="auto 110deg auto">
+              </model-viewer>
             </div>
 
-            <div class="hero-actions">
-              <button class="btn hidden" id="loveLetterButton">💌 Open my letter</button>
+            <div class="animation-status" id="animationStatus">
+              Say hi to our little avatar 💖
+            </div>
+
+            <div class="avatar-controls">
+              <button class="btn" id="loveLetterButton">💌 Open my letter</button>
+              <button class="btn secondary" id="avatarSpinButton">⏸️ Stop spin</button>
               <button class="btn secondary" id="musicButton">🎵 Music</button>
             </div>
           </div>
@@ -2490,7 +2634,6 @@ Your Guy
       "Halal Halo-Halo": "Sweet, colorful, and one-of-a-kind — just like you. There's no one in this world quite like my girl. 🍨🌸"
     };
 
-    const MAX_ANIMATED_PAGES = 26;
     const MAX_FLOWERS_TO_DRAW = 90;
 
     const startMoment = new Date(
@@ -2504,11 +2647,12 @@ Your Guy
     );
 
     const dom = {
-      paperStack: document.getElementById("paperStack"),
       animationStatus: document.getElementById("animationStatus"),
       relationshipTimer: document.getElementById("relationshipTimer"),
       typingText: document.getElementById("typingText"),
       loveLetterButton: document.getElementById("loveLetterButton"),
+      avatarSpinButton: document.getElementById("avatarSpinButton"),
+      loveAvatar: document.getElementById("loveAvatar"),
       musicButton: document.getElementById("musicButton"),
       bgMusic: document.getElementById("bgMusic"),
       modal: document.getElementById("modal"),
@@ -2582,35 +2726,6 @@ Your Guy
         `${plural(seconds, "second")} 💕`;
     }
 
-    
-  function getCurrentMemoryNumber() {
-  return Math.max(1, getElapsedParts().days);
-}
-
-function getPhotoIndex(memoryNumber) {
-  if (!REMOTE_PHOTOS.length) return 0;
-
-  const number = Number(memoryNumber) || 1;
-
-  // This makes photos loop instead of getting stuck on the last image.
-  return ((number - 1) % REMOTE_PHOTOS.length + REMOTE_PHOTOS.length) % REMOTE_PHOTOS.length;
-}
-
-function getImageSource(memoryNumber) {
-  return REMOTE_PHOTOS[getPhotoIndex(memoryNumber)] || REMOTE_PHOTOS[0];
-}
-
-function getNextImageNumber(currentNumber) {
-  return (Number(currentNumber) || 1) + 1;
-}
-
-function getCaption(memoryNumber) {
-  const photoNumber = getPhotoIndex(memoryNumber) + 1;
-
-  return CAPTIONS[photoNumber] ||
-    "Another beautiful memory of Vaniza that made my heart softer 💕";
-}
-
     function typeOpeningMessage() {
       let index = 0;
       dom.typingText.textContent = "";
@@ -2623,173 +2738,6 @@ function getCaption(memoryNumber) {
           clearInterval(interval);
         }
       }, 48);
-    }
-
-    function createMemoryPage(memoryNumber, visualIndex, totalVisualPages) {
-      const page = document.createElement("article");
-      page.className = "memory-page";
-      page.setAttribute("role", "button");
-      page.setAttribute("tabindex", "0");
-      page.setAttribute("aria-label", "Tap to shuffle this memory photo");
-      page.dataset.memoryNumber = String(memoryNumber);
-
-      const rotation = (visualIndex - totalVisualPages / 2) * 0.45;
-      const offset = visualIndex * 2.1;
-
-      page.style.zIndex = String(totalVisualPages - visualIndex);
-      page.style.transform = `translate(${offset}px, ${offset}px) rotate(${rotation}deg)`;
-
-      const hint = document.createElement("div");
-      hint.className = "tap-hint";
-      hint.textContent = "tap photo to shuffle 💞";
-
-      const photoWrap = document.createElement("div");
-      photoWrap.className = "page-photo-wrap";
-
-      const img = document.createElement("img");
-      img.alt = "A beautiful memory of Vaniza";
-      img.src = getImageSource(memoryNumber);
-      img.loading = "eager";
-
-      const fallback = document.createElement("div");
-      fallback.className = "fallback-photo";
-      fallback.innerHTML = "This memory is still safe in my heart 💖<br />The image will appear if the link loads.";
-
-      img.onerror = () => {
-        img.style.display = "none";
-        fallback.style.display = "flex";
-      };
-
-      const tag = document.createElement("div");
-      tag.className = "page-tag";
-      tag.textContent = "Memory";
-
-      const caption = document.createElement("div");
-      caption.className = "page-caption";
-      caption.textContent = getCaption(memoryNumber);
-
-      photoWrap.appendChild(img);
-      photoWrap.appendChild(fallback);
-
-      page.appendChild(tag);
-      page.appendChild(hint);
-      page.appendChild(photoWrap);
-      page.appendChild(caption);
-
-      page.addEventListener("click", () => shuffleMemoryPhoto(page));
-      page.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          shuffleMemoryPhoto(page);
-        }
-      });
-
-      return page;
-    }
-
-    function shuffleMemoryPhoto(page) {
-      if (!page || page.classList.contains("torn")) return;
-
-      const img = page.querySelector("img");
-      const fallback = page.querySelector(".fallback-photo");
-      const caption = page.querySelector(".page-caption");
-      const currentNumber = Number(page.dataset.memoryNumber || "1");
-      const newNumber = getNextImageNumber(currentNumber);
-
-      page.dataset.memoryNumber = String(newNumber);
-      page.classList.add("shuffle-pop");
-
-      if (img) {
-        img.style.opacity = "0";
-
-        setTimeout(() => {
-          img.src = getImageSource(newNumber);
-          img.style.display = "block";
-          img.style.opacity = "1";
-
-          if (fallback) fallback.style.display = "none";
-          if (caption) caption.textContent = getCaption(newNumber);
-
-          showToast("A new Vaniza memory appeared 💖");
-          createMiniHeartsAroundElement(page);
-        }, 190);
-      }
-
-      setTimeout(() => page.classList.remove("shuffle-pop"), 680);
-    }
-
-    function buildPaperStack() {
-      const currentMemory = getCurrentMemoryNumber();
-      const visualCount = clamp(currentMemory, 1, MAX_ANIMATED_PAGES);
-      const firstMemory = Math.max(1, currentMemory - visualCount + 1);
-
-      dom.paperStack.innerHTML = "";
-
-      const fragment = document.createDocumentFragment();
-
-      for (let i = 0; i < visualCount; i += 1) {
-        fragment.appendChild(createMemoryPage(firstMemory + i, i, visualCount));
-      }
-
-      dom.paperStack.appendChild(fragment);
-
-      return {
-        pages: Array.from(dom.paperStack.querySelectorAll(".memory-page")),
-        currentMemory,
-        visualCount,
-        skipped: Math.max(0, currentMemory - visualCount)
-      };
-    }
-
-    function animatePaperStack() {
-      const { pages, visualCount, skipped } = buildPaperStack();
-
-      dom.animationStatus.textContent =
-        skipped > 0
-          ? `${skipped} earlier memories are tucked safely inside. Opening the newest ones...`
-          : "Opening our memories...";
-
-      if (pages.length <= 1) {
-        finishOpeningAnimation();
-        return;
-      }
-
-      let index = 0;
-      const pagesToTear = pages.slice(0, -1);
-
-      const tearNext = () => {
-        if (index >= pagesToTear.length) {
-          finishOpeningAnimation();
-          return;
-        }
-
-        const page = pagesToTear[index];
-        page.classList.add("torn");
-
-        const remaining = pagesToTear.length - index;
-        dom.animationStatus.textContent =
-          remaining > 1
-            ? `Turning another memory page... ${remaining - 1} more 💞`
-            : "One last page before today’s memory 💖";
-
-        index += 1;
-        setTimeout(tearNext, visualCount > 18 ? 155 : 230);
-      };
-
-      setTimeout(tearNext, 650);
-    }
-
-    function finishOpeningAnimation() {
-      dom.animationStatus.textContent =
-        `This is our current memory after ${plural(getElapsedParts().days, "day")} together 💖`;
-
-      dom.loveLetterButton.classList.remove("hidden");
-
-      setTimeout(() => {
-        showToast("Tap the photo to shuffle our memories 💞");
-      }, 650);
-
-      handleAnniversaryMode();
     }
 
     function setupFlags() {
@@ -2824,6 +2772,41 @@ function getCaption(memoryNumber) {
         openModal("For Vaniza 💌", LOVE_LETTER);
         burstConfetti(34);
       });
+    }
+
+    // ===== 3D avatar controls =====
+    function setupAvatarControls() {
+      const viewer = dom.loveAvatar;
+      const spinButton = dom.avatarSpinButton;
+
+      if (!viewer) return;
+
+      viewer.addEventListener("load", () => {
+        dom.animationStatus.textContent = "Drag the avatar to move it around 💖";
+        showToast("Drag the avatar to move it around 💖");
+        handleAnniversaryMode();
+      });
+
+      // If the model fails to load, show a soft message instead of a blank frame.
+      viewer.addEventListener("error", () => {
+        dom.animationStatus.textContent =
+          "The avatar is being shy right now — make sure model.glb is next to index.html 💗";
+      });
+
+      if (spinButton) {
+        spinButton.addEventListener("click", () => {
+          const spinning = viewer.hasAttribute("auto-rotate");
+          if (spinning) {
+            viewer.removeAttribute("auto-rotate");
+            spinButton.textContent = "🔄 Spin";
+            showToast("Spin paused 💕");
+          } else {
+            viewer.setAttribute("auto-rotate", "");
+            spinButton.textContent = "⏸️ Stop spin";
+            showToast("Spinning softly 🌸");
+          }
+        });
+      }
     }
 
     function setupModal() {
@@ -3502,6 +3485,7 @@ function getCaption(memoryNumber) {
       setupFlags();
       setupModal();
       setupLoveLetter();
+      setupAvatarControls();
       setupMusic();
       setupSparkles();
       setupFloatingHearts();
@@ -3523,7 +3507,6 @@ function getCaption(memoryNumber) {
       setInterval(updateCapsule, 60 * 1000);
 
       typeOpeningMessage();
-      animatePaperStack();
     }
 
     if (document.readyState === "loading") {
