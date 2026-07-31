@@ -3743,13 +3743,13 @@ Your Guy
 
 
   <!-- ================================================================
-       BINGO — Rohid & Vaniza (real-time, two players only)
+       BINGO v3 — Rohid & Vaniza (fast realtime, optimistic UI)
        ================================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  onSnapshot, runTransaction
+  getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot,
+  runTransaction, arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -3761,386 +3761,426 @@ const firebaseConfig = {
   appId: "1:297483791137:web:5d49e02bc10f2ccb9b2c60"
 };
 
-const app      = initializeApp(firebaseConfig);
-const db       = getFirestore(app);
-const GAME_REF = doc(db, "bingoGame", "rohid-vaniza");
-const NAMES    = ["Rohid", "Vaniza"];
-const STALE_MS = 120000;
-const BEAT_MS  = 20000;
+const bgApp    = initializeApp(firebaseConfig);
+const bgDb     = getFirestore(bgApp);
+const GAME_REF = doc(bgDb, "bingoGame", "rohid-vaniza");
+const STALE_MS = 65000;
+const BEAT_MS  = 15000;
 
 /* =====================  STYLES  ===================== */
-const bg2style = document.createElement("style");
-bg2style.textContent = `
-.bg2-wrap{ text-align:center; }
-.bg2-overlay{
+const bgStyle = document.createElement("style");
+bgStyle.textContent = `
+.bg3-wrap{ text-align:center; }
+.bg3-overlay{
   position:fixed; inset:0; z-index:160; display:none;
-  background:rgba(71,29,60,.5); backdrop-filter:blur(14px);
+  background:rgba(71,29,60,.5); backdrop-filter:blur(10px);
   overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
-.bg2-overlay.show{ display:block; animation:fadeIn .22s ease both; }
-.bg2-panel{
+.bg3-overlay.show{ display:block; }
+.bg3-panel{
   position:relative; min-height:100%; width:100%; max-width:520px; margin:0 auto;
   padding:20px 14px 40px;
   background:radial-gradient(circle at top,rgba(255,255,255,.97),rgba(255,248,248,.95)),
              linear-gradient(160deg,#fff8f8,#ffe0ec);
 }
-body.blue-theme .bg2-panel{
+body.blue-theme .bg3-panel{
   background:radial-gradient(circle at top,rgba(245,253,255,.97),rgba(233,251,255,.94)),
              linear-gradient(160deg,#f5fdff,#dff8ff)!important;
 }
-.bg2-close{
+.bg3-close{
   position:fixed; top:12px; right:max(12px,calc(50% - 248px)); z-index:9;
   width:44px; height:44px; border:0; border-radius:50%; cursor:pointer;
-  background:rgba(255,255,255,.9); color:var(--deep-pink);
+  background:rgba(255,255,255,.92); color:var(--deep-pink);
   font-size:1.5rem; font-weight:900; line-height:1;
   box-shadow:0 6px 18px rgba(53,24,47,.18); touch-action:manipulation;
 }
-body.blue-theme .bg2-close{
-  background:rgba(255,255,255,.9)!important; color:var(--deep-pink)!important;
-  box-shadow:0 6px 18px rgba(7,50,58,.16)!important;
+body.blue-theme .bg3-close{
+  background:rgba(255,255,255,.92)!important; color:var(--deep-pink)!important;
 }
-.bg2-head{ text-align:center; margin-bottom:16px; padding:0 46px; }
-.bg2-head h2{ font-family:var(--title-font); font-size:1.8rem; color:var(--deep-pink); margin-bottom:4px; line-height:1.15; }
-.bg2-head p{ color:var(--muted); font-weight:700; font-size:1rem; line-height:1.5; }
+.bg3-head{ text-align:center; margin-bottom:16px; padding:0 46px; }
+.bg3-head h2{ font-family:var(--title-font); font-size:1.8rem; color:var(--deep-pink); margin-bottom:4px; line-height:1.15; }
+.bg3-head p{ color:var(--muted); font-weight:700; font-size:.98rem; line-height:1.5; }
 
-.bg2-btn{
+.bg3-btn{
   display:block; width:100%; min-height:54px; margin:10px 0; padding:14px 18px;
   border:0; border-radius:18px; cursor:pointer; font:inherit; font-size:1.05rem; font-weight:900;
   color:#fff; background:linear-gradient(135deg,var(--pink),var(--purple));
   box-shadow:0 12px 26px rgba(217,61,131,.22); touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.bg2-btn.ghost{ color:var(--deep-pink); background:rgba(255,255,255,.82); box-shadow:none; }
-body.blue-theme .bg2-btn.ghost{ background:rgba(255,255,255,.82)!important; color:var(--deep-pink)!important; box-shadow:none!important; }
-.bg2-btn:disabled{ opacity:.4; cursor:not-allowed; filter:grayscale(.5); }
-.bg2-btn:active:not(:disabled){ transform:scale(.98); }
+.bg3-btn.ghost,
+body.blue-theme .bg3-btn.ghost{
+  color:var(--deep-pink)!important; background:rgba(255,255,255,.85)!important; box-shadow:none!important;
+}
+.bg3-btn:disabled{ opacity:.4; cursor:not-allowed; filter:grayscale(.5); }
+.bg3-btn:active:not(:disabled){ transform:scale(.98); }
 
-.bg2-who{
+.bg3-who{
   display:block; text-align:center; margin-bottom:10px; font-weight:900;
-  font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
 }
-.bg2-status{
-  text-align:center; padding:14px; margin:12px 0; border-radius:18px;
-  background:rgba(255,255,255,.7); color:var(--deep-pink);
-  font-weight:900; font-size:1.02rem; line-height:1.5;
+.bg3-status{
+  text-align:center; padding:13px; margin:10px 0; border-radius:18px;
+  background:rgba(255,255,255,.72); color:var(--deep-pink);
+  font-weight:900; font-size:1rem; line-height:1.5;
 }
-.bg2-status.wait{ color:var(--muted); }
+.bg3-status.wait{ color:var(--muted); }
+.bg3-status.turn{
+  background:linear-gradient(135deg,rgba(255,111,174,.16),rgba(183,124,255,.16));
+  animation:bg3pulse 1.6s ease-in-out infinite;
+}
+@keyframes bg3pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.015); } }
 
-.bg2-coin-stage{ display:grid; place-items:center; padding:22px 0; perspective:900px; }
-.bg2-coin{
-  width:120px; height:120px; border-radius:50%; display:grid; place-items:center;
+.bg3-coin-stage{ display:grid; place-items:center; padding:22px 0; perspective:900px; }
+.bg3-coin{
+  width:118px; height:118px; border-radius:50%; display:grid; place-items:center;
   font-size:2.7rem;
   background:radial-gradient(circle at 35% 30%,#ffe9a8,#f2c14e 62%,#d99b2e 100%);
   box-shadow:0 14px 34px rgba(180,130,20,.35), inset 0 -6px 14px rgba(0,0,0,.12);
 }
-.bg2-coin.spin{ animation:bg2flip 1.6s cubic-bezier(.3,.1,.3,1); }
-@keyframes bg2flip{
+.bg3-coin.spin{ animation:bg3flip 1.5s cubic-bezier(.3,.1,.3,1); }
+@keyframes bg3flip{
   0%{ transform:rotateY(0) translateY(0); }
-  50%{ transform:rotateY(1440deg) translateY(-70px); }
+  50%{ transform:rotateY(1440deg) translateY(-66px); }
   100%{ transform:rotateY(2880deg) translateY(0); }
 }
 
-.bg2-label{
-  text-align:center; font-size:.76rem; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--deep-pink); font-weight:900; margin:20px 0 8px;
+.bg3-label{
+  text-align:center; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--deep-pink); font-weight:900; margin:18px 0 8px;
 }
-.bg2-numbers{
+.bg3-numbers{
   display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:6px;
-  max-height:236px; overflow-y:auto; padding:6px;
+  max-height:238px; overflow-y:auto; padding:6px;
   border-radius:18px; background:rgba(255,255,255,.5);
+  transition:opacity .2s ease;
 }
-.bg2-num{
+.bg3-num{
   min-height:46px; display:grid; place-items:center; border:0; cursor:pointer;
   border-radius:12px; font:inherit; font-size:.95rem; font-weight:800;
-  color:var(--text); background:rgba(255,255,255,.92);
+  color:var(--text); background:rgba(255,255,255,.94);
   box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease;
 }
-body.blue-theme .bg2-num{
-  background:rgba(255,255,255,.92)!important; color:var(--text)!important;
+body.blue-theme .bg3-num{
+  background:rgba(255,255,255,.94)!important; color:var(--text)!important;
   box-shadow:inset 0 0 0 1.5px rgba(33,221,255,.3)!important;
 }
-.bg2-num:active:not(:disabled){ transform:scale(.94); }
-.bg2-num.called,
-body.blue-theme .bg2-num.called{
+.bg3-num:active:not(:disabled){ transform:scale(.92); }
+.bg3-num.called,
+body.blue-theme .bg3-num.called{
   background:linear-gradient(135deg,var(--pink),var(--purple))!important;
   color:#fff!important; box-shadow:none!important;
 }
-.bg2-numbers.locked{ opacity:.4; pointer-events:none; }
-.bg2-count{ text-align:center; font-size:.8rem; font-weight:800; color:var(--muted); margin-top:8px; }
+.bg3-numbers.locked{ opacity:.45; }
+.bg3-numbers.locked .bg3-num{ pointer-events:none; }
+.bg3-count{ text-align:center; font-size:.8rem; font-weight:800; color:var(--muted); margin-top:8px; }
 
-.bg2-last{
-  text-align:center; margin:14px 0; padding:14px; border-radius:20px;
-  background:rgba(255,255,255,.7);
+.bg3-last{
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  margin:12px 0; padding:12px; border-radius:20px; background:rgba(255,255,255,.72);
 }
-.bg2-last .n{ font-family:var(--title-font); font-size:2.9rem; font-weight:900; color:var(--deep-pink); line-height:1; }
-.bg2-last .l{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:900; }
+.bg3-last .n{ font-family:var(--title-font); font-size:2.6rem; font-weight:900; color:var(--deep-pink); line-height:1; min-width:70px; text-align:center; }
+.bg3-last .l{ font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:900; text-align:left; line-height:1.4; }
 
-.bg2-card-wrap{ position:relative; margin-top:8px; }
-.bg2-bingo-head{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:6px; }
-.bg2-bingo-head span,
-body.blue-theme .bg2-bingo-head span{
+.bg3-bingo-head{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:6px; }
+.bg3-bingo-head span,
+body.blue-theme .bg3-bingo-head span{
   position:relative; text-align:center; font-family:var(--title-font);
   font-size:1.6rem; font-weight:900; color:var(--deep-pink)!important;
 }
-.bg2-bingo-head span::after{
+.bg3-bingo-head span::after{
   content:""; position:absolute; left:14%; right:14%; top:52%; height:4px; border-radius:4px;
   background:var(--deep-pink); transform:scaleX(0); transform-origin:left;
   transition:transform .4s cubic-bezier(.4,0,.2,1);
 }
-.bg2-bingo-head span.cut::after{ transform:scaleX(1); }
-.bg2-grid{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-.bg2-cell{
+.bg3-bingo-head span.cut::after{ transform:scaleX(1); }
+.bg3-grid{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.bg3-cell{
   aspect-ratio:1; display:grid; place-items:center; border-radius:14px;
   font-weight:800; font-size:1.05rem; color:var(--text);
-  background:rgba(255,255,255,.88); box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
-  transition:background .3s ease, color .3s ease;
+  background:rgba(255,255,255,.9); box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
 }
-.bg2-cell.mark{
+.bg3-cell.mark{
   background:linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; box-shadow:none;
-  animation:bg2stamp .38s cubic-bezier(.3,1.4,.5,1);
+  animation:bg3stamp .35s cubic-bezier(.3,1.4,.5,1);
 }
-@keyframes bg2stamp{ 0%{ transform:scale(1.26); } 60%{ transform:scale(.94); } 100%{ transform:scale(1); } }
-.bg2-cell.free{ background:rgba(255,209,102,.55); color:var(--deep-pink); font-size:.7rem; box-shadow:none; }
-.bg2-lines{ position:absolute; inset:0; pointer-events:none; z-index:2; }
-.bg2-lines line{
+@keyframes bg3stamp{ 0%{ transform:scale(1.25); } 60%{ transform:scale(.94); } 100%{ transform:scale(1); } }
+.bg3-cell.free{ background:rgba(255,209,102,.55); color:var(--deep-pink); font-size:.68rem; box-shadow:none; }
+.bg3-lines{ position:absolute; inset:0; pointer-events:none; z-index:2; }
+.bg3-lines line{
   stroke:var(--deep-pink); stroke-width:5; stroke-linecap:round; opacity:.9;
-  stroke-dasharray:200; stroke-dashoffset:200; animation:bg2draw .45s ease forwards;
+  stroke-dasharray:200; stroke-dashoffset:200; animation:bg3draw .4s ease forwards;
 }
-@keyframes bg2draw{ to{ stroke-dashoffset:0; } }
+@keyframes bg3draw{ to{ stroke-dashoffset:0; } }
 
-.bg2-toast{
+.bg3-toast{
   position:fixed; left:50%; top:16px; transform:translateX(-50%) translateY(-26px);
-  z-index:400; width:min(420px,calc(100% - 28px)); padding:14px 16px; border-radius:18px;
+  z-index:400; width:min(420px,calc(100% - 28px)); padding:13px 16px; border-radius:18px;
   background:rgba(255,255,255,.96); box-shadow:0 18px 44px rgba(53,24,47,.24);
   color:var(--deep-pink); font-weight:900; text-align:center; line-height:1.45;
-  opacity:0; pointer-events:none; transition:.32s ease;
+  opacity:0; pointer-events:none; transition:.3s ease;
 }
-.bg2-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.bg3-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-.bg2-win{ text-align:center; padding:30px 8px; }
-.bg2-win .c{ font-size:3.6rem; }
-.bg2-win h3{ font-family:var(--title-font); font-size:2rem; color:var(--deep-pink); margin:10px 0; }
-.bg2-win p{ color:var(--muted); font-weight:750; line-height:1.6; margin-bottom:20px; }
+.bg3-win{ text-align:center; padding:30px 8px; }
+.bg3-win .c{ font-size:3.6rem; }
+.bg3-win h3{ font-family:var(--title-font); font-size:2rem; color:var(--deep-pink); margin:10px 0; }
+.bg3-win p{ color:var(--muted); font-weight:750; line-height:1.6; margin-bottom:20px; }
+
+.bg3-conn{
+  position:fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:170;
+  font-size:.72rem; font-weight:900; color:var(--muted); opacity:0; transition:.3s;
+  background:rgba(255,255,255,.85); padding:6px 12px; border-radius:999px;
+}
+.bg3-conn.show{ opacity:1; }
 `;
-document.head.appendChild(bg2style);
+document.head.appendChild(bgStyle);
 
 /* =====================  MARKUP  ===================== */
-const bg2launch = document.createElement("div");
-bg2launch.className = "bg2-wrap";
-bg2launch.innerHTML = `<button class="btn" id="bg2Launch">🎱 Play Bingo Together</button>`;
+const bg3launch = document.createElement("div");
+bg3launch.className = "bg3-wrap";
+bg3launch.innerHTML = `<button class="btn" id="bg3Launch">🎱 Play Bingo Together</button>`;
 
-const bg2FoodBtn = document.getElementById("foodGameStartButton");
-const bg2FoodSec = bg2FoodBtn ? bg2FoodBtn.closest("section") : null;
-if (bg2FoodSec && bg2FoodSec.parentNode) {
+const bg3FoodBtn = document.getElementById("foodGameStartButton");
+const bg3FoodSec = bg3FoodBtn ? bg3FoodBtn.closest("section") : null;
+if (bg3FoodSec && bg3FoodSec.parentNode) {
   const sec = document.createElement("section");
   sec.className = "section";
   sec.innerHTML = `<div class="shell"><div class="card">
     <h2 class="section-title">Bingo Night 🎉</h2>
     <p class="section-subtitle">Just the two of us — pick your name, flip the coin, and let's play from wherever we are.</p>
   </div></div>`;
-  sec.querySelector(".card").appendChild(bg2launch);
-  bg2FoodSec.parentNode.insertBefore(sec, bg2FoodSec.nextSibling);
+  sec.querySelector(".card").appendChild(bg3launch);
+  bg3FoodSec.parentNode.insertBefore(sec, bg3FoodSec.nextSibling);
 } else {
-  document.querySelector("main")?.appendChild(bg2launch);
+  document.querySelector("main")?.appendChild(bg3launch);
 }
 
-const bg2ov = document.createElement("div");
-bg2ov.className = "bg2-overlay";
-bg2ov.innerHTML = `
-<button class="bg2-close" id="bg2Close" aria-label="Close">×</button>
-<div class="bg2-panel">
+const bg3ov = document.createElement("div");
+bg3ov.className = "bg3-overlay";
+bg3ov.innerHTML = `
+<button class="bg3-close" id="bg3Close" aria-label="Close">×</button>
+<div class="bg3-panel">
 
-  <div id="bg2Identity">
-    <div class="bg2-head"><h2>Who's playing? 💕</h2><p>Tap your name to take your seat.</p></div>
-    <button class="bg2-btn" id="bg2PickRohid">Play as Rohid</button>
-    <button class="bg2-btn" id="bg2PickVaniza">Play as Vaniza</button>
-    <div class="bg2-status wait" id="bg2IdentityNote">Waiting for you to choose…</div>
+  <div id="bg3Identity">
+    <div class="bg3-head"><h2>Who's playing? 💕</h2><p>Tap your name to take your seat.</p></div>
+    <button class="bg3-btn" id="bg3PickRohid">Play as Rohid</button>
+    <button class="bg3-btn" id="bg3PickVaniza">Play as Vaniza</button>
+    <div class="bg3-status wait" id="bg3IdNote">Loading…</div>
   </div>
 
-  <div id="bg2Waiting" style="display:none;">
-    <div class="bg2-head"><h2 id="bg2WaitTitle">Hi 💗</h2><p id="bg2WaitMsg">Waiting…</p></div>
-    <div class="bg2-status wait">The game starts the moment you're both here.</div>
-    <button class="bg2-btn ghost" id="bg2Leave1">Leave my seat</button>
+  <div id="bg3Waiting" style="display:none;">
+    <div class="bg3-head"><h2 id="bg3WaitTitle">Hi 💗</h2><p id="bg3WaitMsg">Waiting…</p></div>
+    <div class="bg3-status wait">The game starts the moment you're both here.</div>
+    <button class="bg3-btn ghost" id="bg3Leave1">Leave my seat</button>
   </div>
 
-  <div id="bg2Toss" style="display:none;">
-    <span class="bg2-who" id="bg2Who1"></span>
-    <div class="bg2-head"><h2>Coin Toss 🪙</h2><p>Heads → Rohid calls first · Tails → Vaniza calls first</p></div>
-    <div class="bg2-coin-stage"><div class="bg2-coin" id="bg2Coin">🪙</div></div>
-    <div class="bg2-status" id="bg2TossStatus">Either of you can flip.</div>
-    <button class="bg2-btn" id="bg2FlipBtn">Flip Coin</button>
+  <div id="bg3Toss" style="display:none;">
+    <span class="bg3-who" id="bg3Who1"></span>
+    <div class="bg3-head"><h2>Coin Toss 🪙</h2><p>Heads → Rohid calls first · Tails → Vaniza calls first</p></div>
+    <div class="bg3-coin-stage"><div class="bg3-coin" id="bg3Coin">🪙</div></div>
+    <div class="bg3-status" id="bg3TossStatus">Either of you can flip.</div>
+    <button class="bg3-btn" id="bg3FlipBtn">Flip Coin</button>
   </div>
 
-  <div id="bg2Game" style="display:none;">
-    <span class="bg2-who" id="bg2Who2"></span>
-    <div class="bg2-status" id="bg2TurnBanner">…</div>
+  <div id="bg3Game" style="display:none;">
+    <span class="bg3-who" id="bg3Who2"></span>
+    <div class="bg3-status" id="bg3TurnBanner">…</div>
 
-    <div class="bg2-last">
-      <div class="l">Last Number Called</div>
-      <div class="n" id="bg2LastNum">–</div>
+    <div class="bg3-last">
+      <div class="n" id="bg3LastNum">–</div>
+      <div class="l">Last number<br>called</div>
     </div>
 
-    <div class="bg2-label">Your Card</div>
-    <div class="bg2-card-wrap">
-      <div class="bg2-bingo-head" id="bg2Letters">
-        <span data-c="0">B</span><span data-c="1">I</span><span data-c="2">N</span><span data-c="3">G</span><span data-c="4">O</span>
-      </div>
-      <div class="bg2-grid" id="bg2Grid">
-        <svg class="bg2-lines" id="bg2Lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-      </div>
+    <div class="bg3-label">Your Card</div>
+    <div class="bg3-bingo-head" id="bg3Letters">
+      <span data-c="0">B</span><span data-c="1">I</span><span data-c="2">N</span><span data-c="3">G</span><span data-c="4">O</span>
+    </div>
+    <div class="bg3-grid" id="bg3Grid">
+      <svg class="bg3-lines" id="bg3Lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
     </div>
 
-    <div class="bg2-label">Calling Board</div>
-    <div class="bg2-numbers" id="bg2Numbers"></div>
-    <div class="bg2-count" id="bg2Count"></div>
+    <div class="bg3-label">Calling Board</div>
+    <div class="bg3-numbers" id="bg3Numbers"></div>
+    <div class="bg3-count" id="bg3Count"></div>
 
-    <button class="bg2-btn ghost" id="bg2Leave2" style="margin-top:20px;">Leave my seat</button>
+    <button class="bg3-btn ghost" id="bg3Leave2" style="margin-top:20px;">Leave my seat</button>
   </div>
 
-  <div id="bg2Win" style="display:none;">
-    <div class="bg2-win">
-      <div class="c" id="bg2WinIcon">🎉</div>
-      <h3 id="bg2WinTitle">Bingo!</h3>
-      <p id="bg2WinMsg"></p>
-      <button class="bg2-btn" id="bg2Again">Play Again</button>
-      <button class="bg2-btn ghost" id="bg2Leave3">Leave my seat</button>
+  <div id="bg3Win" style="display:none;">
+    <div class="bg3-win">
+      <div class="c" id="bg3WinIcon">🎉</div>
+      <h3 id="bg3WinTitle">Bingo!</h3>
+      <p id="bg3WinMsg"></p>
+      <button class="bg3-btn" id="bg3Again">Play Again</button>
+      <button class="bg3-btn ghost" id="bg3Leave3">Leave my seat</button>
     </div>
   </div>
 </div>`;
-document.body.appendChild(bg2ov);
+document.body.appendChild(bg3ov);
 
-const bg2toastEl = document.createElement("div");
-bg2toastEl.className = "bg2-toast";
-document.body.appendChild(bg2toastEl);
+const bg3toastEl = document.createElement("div");
+bg3toastEl.className = "bg3-toast";
+document.body.appendChild(bg3toastEl);
+
+const bg3connEl = document.createElement("div");
+bg3connEl.className = "bg3-conn";
+bg3connEl.textContent = "syncing…";
+document.body.appendChild(bg3connEl);
 
 /* =====================  STATE  ===================== */
-let bg2me    = localStorage.getItem("bg2Identity") || null;
-let bg2state = null;
-let bg2unsub = null, bg2beat = null, bg2prev = null, bg2coinBusy = false;
+let me       = localStorage.getItem("bg3Identity") || null;
+let S        = null;            // server state
+let localCalled = new Set();    // optimistic overlay
+let pendingTurn = null;         // optimistic turn after my call
+let unsub    = null, beat = null, prev = null;
+let coinPlayed = 0;             // flippedAt we've animated
 
-const bg2$ = id => document.getElementById(id);
+const $ = id => document.getElementById(id);
+const other = n => n === "Rohid" ? "Vaniza" : "Rohid";
+const live  = p => !!(p && p.claimed && (Date.now() - (p.lastSeen||0) < STALE_MS));
 
-function bg2toast(msg){
-  bg2toastEl.textContent = msg;
-  bg2toastEl.classList.add("show");
-  clearTimeout(bg2toast.t);
-  bg2toast.t = setTimeout(()=>bg2toastEl.classList.remove("show"), 3200);
+function toast(msg){
+  bg3toastEl.textContent = msg;
+  bg3toastEl.classList.add("show");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(()=>bg3toastEl.classList.remove("show"), 3000);
 }
-const bg2other = n => n === "Rohid" ? "Vaniza" : "Rohid";
 
-function bg2newCard(){
-  const ranges = [[1,15],[16,30],[31,45],[46,60],[61,75]];
-  const flat = new Array(25);
-  ranges.forEach(([min,max], col)=>{
-    const used = new Set();
-    for(let row=0; row<5; row++){
-      if(col===2 && row===2){ flat[col*5+row] = 0; continue; }
-      let n;
-      do { n = Math.floor(Math.random()*(max-min+1))+min; } while(used.has(n));
-      used.add(n);
-      flat[col*5+row] = n;
+function newCard(){
+  const ranges=[[1,15],[16,30],[31,45],[46,60],[61,75]];
+  const flat=new Array(25);
+  ranges.forEach(([mn,mx],col)=>{
+    const used=new Set();
+    for(let row=0;row<5;row++){
+      if(col===2&&row===2){flat[col*5+row]=0;continue;}
+      let n; do{n=Math.floor(Math.random()*(mx-mn+1))+mn;}while(used.has(n));
+      used.add(n); flat[col*5+row]=n;
     }
   });
   return flat;
 }
 
-const bg2live = p => !!(p && p.claimed && (Date.now() - (p.lastSeen || 0) < STALE_MS));
-
-function bg2fresh(){
+function fresh(){
   return {
     phase:"lobby",
-    players:{ Rohid:{claimed:false,lastSeen:0,card:[]}, Vaniza:{claimed:false,lastSeen:0,card:[]} },
-    toss:{ result:null, firstTurn:null, flippedAt:0 },
-    calledNumbers:[], turn:null, winner:null, round:1
+    players:{Rohid:{claimed:false,lastSeen:0,card:[]},Vaniza:{claimed:false,lastSeen:0,card:[]}},
+    toss:{result:null,first:null,at:0},
+    called:[], turn:null, winner:null, round:1
   };
 }
 
-async function bg2ensure(){
-  const s = await getDoc(GAME_REF);
-  if(!s.exists()) await setDoc(GAME_REF, bg2fresh());
+/* effective called-set = server + optimistic */
+function calledSet(){
+  const s = new Set(S?.called || []);
+  localCalled.forEach(n=>s.add(n));
+  return s;
+}
+function effTurn(){ return pendingTurn ?? S?.turn ?? null; }
+
+/* =====================  NETWORK  ===================== */
+async function ensureDoc(){
+  try{
+    const s = await getDoc(GAME_REF);
+    if(!s.exists()) await setDoc(GAME_REF, fresh());
+  }catch(e){ toast("Connection problem — check your internet 💗"); }
 }
 
-/* =====================  SEATS  ===================== */
-async function bg2claim(name){
-  await bg2ensure();
-  try {
-    await runTransaction(db, async tx=>{
+async function claim(name){
+  bg3connEl.classList.add("show");
+  try{
+    await runTransaction(bgDb, async tx=>{
       const s = await tx.get(GAME_REF);
-      const d = s.data();
+      const d = s.exists() ? s.data() : fresh();
+      if(!s.exists()) tx.set(GAME_REF, d);
       const seat = d.players?.[name];
-      if(bg2live(seat) && bg2me !== name) throw new Error("taken");
+      if(live(seat) && me !== name) throw new Error("taken");
       const upd = {
         [`players.${name}.claimed`]: true,
         [`players.${name}.lastSeen`]: Date.now()
       };
-      if(!seat?.card?.length) upd[`players.${name}.card`] = bg2newCard();
-      if(bg2live(d.players?.[bg2other(name)]) && d.phase === "lobby"){
-        upd.phase = "toss";
-        upd.toss  = { result:null, firstTurn:null, flippedAt:0 };
-      }
+      if(!seat?.card?.length) upd[`players.${name}.card`] = newCard();
       tx.update(GAME_REF, upd);
     });
-  } catch(e){ bg2toast("That seat is already taken 💗"); return; }
-  bg2me = name;
-  localStorage.setItem("bg2Identity", name);
-  bg2startBeat();
+    me = name;
+    localStorage.setItem("bg3Identity", name);
+    startBeat();
+  }catch(e){
+    toast(e.message === "taken" ? "That seat is already taken 💗" : "Couldn't connect — try again 💗");
+  }
+  bg3connEl.classList.remove("show");
 }
 
-async function bg2leave(){
-  if(!bg2me) return;
-  const name = bg2me;
-  bg2me = null;
-  localStorage.removeItem("bg2Identity");
-  bg2stopBeat();
-  try {
-    await updateDoc(GAME_REF, {
-      [`players.${name}.claimed`]: false,
-      [`players.${name}.lastSeen`]: 0,
-      phase:"lobby", turn:null, winner:null, calledNumbers:[],
-      toss:{ result:null, firstTurn:null, flippedAt:0 }
-    });
-  } catch(e){}
-  bg2render();
+async function leaveSeat(){
+  if(!me) return;
+  const name = me;
+  me = null; localStorage.removeItem("bg3Identity");
+  localCalled.clear(); pendingTurn = null; stopBeat();
+  updateDoc(GAME_REF, {
+    [`players.${name}.claimed`]: false,
+    [`players.${name}.lastSeen`]: 0,
+    phase:"lobby", turn:null, winner:null, called:[],
+    toss:{result:null,first:null,at:0}
+  }).catch(()=>{});
+  render();
 }
 
-function bg2startBeat(){
-  bg2stopBeat();
-  const b = ()=>{ if(bg2me) updateDoc(GAME_REF,{[`players.${bg2me}.lastSeen`]:Date.now()}).catch(()=>{}); };
+function startBeat(){
+  stopBeat();
+  const b = ()=>{ if(me) updateDoc(GAME_REF,{[`players.${me}.lastSeen`]:Date.now()}).catch(()=>{}); };
   b();
-  bg2beat = setInterval(b, BEAT_MS);
+  beat = setInterval(b, BEAT_MS);
 }
-function bg2stopBeat(){ if(bg2beat) clearInterval(bg2beat); bg2beat = null; }
+function stopBeat(){ if(beat) clearInterval(beat); beat = null; }
 
-/* =====================  TOSS / TURNS  ===================== */
-async function bg2flip(){
-  await runTransaction(db, async tx=>{
-    const s = await tx.get(GAME_REF);
-    const d = s.data();
-    if(d.toss?.result) return;
-    const heads = Math.random() < 0.5;
-    tx.update(GAME_REF, { toss:{
-      result: heads ? "heads" : "tails",
-      firstTurn: heads ? "Rohid" : "Vaniza",
-      flippedAt: Date.now()
-    }});
-  }).catch(()=>{});
-}
-
-async function bg2call(n){
-  await runTransaction(db, async tx=>{
-    const s = await tx.get(GAME_REF);
-    const d = s.data();
-    if(d.phase !== "playing" || d.winner) return;
-    if(d.turn !== bg2me) return;
-    const called = d.calledNumbers || [];
-    if(called.includes(n)) return;
-    tx.update(GAME_REF, { calledNumbers:[...called, n], turn: bg2other(bg2me) });
-  }).catch(()=>{});
+/* Flip: ONE atomic write sets result + phase:"playing" + turn.
+   No follow-up write needed — the deadlock from v2 is gone. */
+async function flipCoin(){
+  $("bg3FlipBtn").disabled = true;
+  try{
+    await runTransaction(bgDb, async tx=>{
+      const s = await tx.get(GAME_REF);
+      const d = s.data();
+      if(d.phase === "playing" || d.toss?.result) return;
+      const heads = Math.random() < 0.5;
+      const first = heads ? "Rohid" : "Vaniza";
+      tx.update(GAME_REF, {
+        toss:{result:heads?"heads":"tails", first, at:Date.now()},
+        phase:"playing",
+        turn: first
+      });
+    });
+  }catch(e){ toast("Flip didn't go through — tap again 💗"); }
+  $("bg3FlipBtn").disabled = false;
 }
 
-function bg2lines(card, called){
-  const m = i => card[i] === 0 || called.includes(card[i]);
+/* Call: optimistic. UI updates INSTANTLY, network write happens in background.
+   Single updateDoc with arrayUnion — no read round-trip. */
+function callNumber(n){
+  if(!S || S.phase !== "playing" || S.winner) return;
+  if(effTurn() !== me) return;
+  if(calledSet().has(n)) return;
+
+  localCalled.add(n);
+  pendingTurn = other(me);
+  render();                       // instant feedback
+  checkMyWin();
+
+  updateDoc(GAME_REF, {
+    called: arrayUnion(n),
+    turn: other(me)
+  }).catch(()=>{
+    localCalled.delete(n);
+    pendingTurn = null;
+    render();
+    toast("That tap didn't sync — try again 💗");
+  });
+}
+
+function linesFor(card, cset){
+  const m = i => card[i] === 0 || cset.has(card[i]);
   const out = [];
   for(let r=0;r<5;r++) if([0,1,2,3,4].map(c=>c*5+r).every(m)) out.push({t:"row",i:r});
   for(let c=0;c<5;c++) if([0,1,2,3,4].map(r=>c*5+r).every(m)) out.push({t:"col",i:c});
@@ -4149,209 +4189,245 @@ function bg2lines(card, called){
   return out;
 }
 
-async function bg2checkWin(){
-  if(!bg2me || !bg2state || bg2state.winner || bg2state.phase !== "playing") return;
-  const card = bg2state.players?.[bg2me]?.card || [];
+function checkMyWin(){
+  if(!me || !S || S.winner || S.phase !== "playing") return;
+  const card = S.players?.[me]?.card || [];
   if(!card.length) return;
-  if(!bg2lines(card, bg2state.calledNumbers || []).length) return;
-  await runTransaction(db, async tx=>{
+  if(!linesFor(card, calledSet()).length) return;
+  runTransaction(bgDb, async tx=>{
     const s = await tx.get(GAME_REF);
     if(s.data().winner) return;
-    tx.update(GAME_REF, { winner: bg2me, phase:"won" });
+    tx.update(GAME_REF, {winner: me, phase:"won"});
   }).catch(()=>{});
 }
 
-async function bg2again(){
-  await runTransaction(db, async tx=>{
-    const s = await tx.get(GAME_REF);
-    const d = s.data();
-    tx.update(GAME_REF, {
-      phase:"toss", calledNumbers:[], turn:null, winner:null,
-      toss:{ result:null, firstTurn:null, flippedAt:0 },
-      round:(d.round || 1) + 1,
-      "players.Rohid.card": bg2newCard(),
-      "players.Vaniza.card": bg2newCard()
-    });
-  }).catch(()=>{});
+async function playAgain(){
+  localCalled.clear(); pendingTurn = null; coinPlayed = 0;
+  updateDoc(GAME_REF, {
+    phase:"toss", called:[], turn:null, winner:null,
+    toss:{result:null,first:null,at:0},
+    round:(S?.round||1)+1,
+    "players.Rohid.card": newCard(),
+    "players.Vaniza.card": newCard()
+  }).catch(()=>toast("Couldn't restart — try again 💗"));
 }
 
 /* =====================  RENDER  ===================== */
-function bg2show(which){
-  ["bg2Identity","bg2Waiting","bg2Toss","bg2Game","bg2Win"].forEach(id=>{
-    bg2$(id).style.display = (id === which) ? "block" : "none";
+function show(which){
+  ["bg3Identity","bg3Waiting","bg3Toss","bg3Game","bg3Win"].forEach(id=>{
+    $(id).style.display = (id===which) ? "block" : "none";
   });
 }
 
-function bg2buildNumbers(){
-  const box = bg2$("bg2Numbers");
-  if(box.childElementCount) return;
+let numbersBuilt = false;
+function buildNumbers(){
+  if(numbersBuilt) return;
+  numbersBuilt = true;
+  const frag = document.createDocumentFragment();
   for(let n=1;n<=75;n++){
     const b = document.createElement("button");
-    b.className = "bg2-num";
+    b.className = "bg3-num";
     b.type = "button";
     b.textContent = n;
     b.dataset.n = n;
-    b.addEventListener("click", ()=>bg2call(n));
-    box.appendChild(b);
+    frag.appendChild(b);
   }
+  const box = $("bg3Numbers");
+  box.appendChild(frag);
+  // one delegated listener — faster than 75 handlers
+  box.addEventListener("click", e=>{
+    const b = e.target.closest(".bg3-num");
+    if(b && !b.disabled) callNumber(+b.dataset.n);
+  });
 }
 
-function bg2renderCard(){
-  const card   = bg2state.players?.[bg2me]?.card || [];
-  const called = bg2state.calledNumbers || [];
-  const grid   = bg2$("bg2Grid");
-  const svg    = bg2$("bg2Lines");
+let cellsBuilt = false;
+function buildCells(){
+  if(cellsBuilt) return;
+  cellsBuilt = true;
+  const grid = $("bg3Grid");
+  for(let row=0;row<5;row++)
+    for(let col=0;col<5;col++){
+      const c = document.createElement("div");
+      c.className = "bg3-cell";
+      c.dataset.idx = col*5+row;
+      grid.appendChild(c);
+    }
+}
 
-  if(grid.querySelectorAll(".bg2-cell").length !== 25){
-    grid.querySelectorAll(".bg2-cell").forEach(c=>c.remove());
-    for(let row=0;row<5;row++)
-      for(let col=0;col<5;col++){
-        const cell = document.createElement("div");
-        cell.className = "bg2-cell";
-        cell.dataset.idx = col*5+row;
-        grid.appendChild(cell);
-      }
-  }
+function renderCard(){
+  buildCells();
+  const card = S.players?.[me]?.card || [];
+  const cset = calledSet();
+  const grid = $("bg3Grid"), svg = $("bg3Lines");
 
-  grid.querySelectorAll(".bg2-cell").forEach(cell=>{
+  grid.querySelectorAll(".bg3-cell").forEach(cell=>{
     const i = +cell.dataset.idx, v = card[i];
-    if(v === 0){ cell.textContent = "FREE"; cell.className = "bg2-cell free mark"; return; }
-    cell.textContent = v ?? "";
-    const on = called.includes(v);
-    cell.classList.toggle("free", false);
+    if(v === 0){
+      if(cell.textContent !== "FREE"){ cell.textContent = "FREE"; cell.className = "bg3-cell free mark"; }
+      return;
+    }
+    const txt = String(v ?? "");
+    if(cell.textContent !== txt) cell.textContent = txt;
+    cell.classList.remove("free");
+    const on = cset.has(v);
     if(on && !cell.classList.contains("mark")) cell.classList.add("mark");
-    if(!on) cell.classList.remove("mark");
+    else if(!on) cell.classList.remove("mark");
   });
 
-  const lines = bg2lines(card, called);
-  const p = (col,row)=>[ (col+0.5)*20, (row+0.5)*20 ];
-  svg.innerHTML = lines.map(L=>{
-    let a,b;
-    if(L.t==="row"){ a=p(0,L.i); b=p(4,L.i); }
-    else if(L.t==="col"){ a=p(L.i,0); b=p(L.i,4); }
-    else if(L.t==="d1"){ a=p(0,0); b=p(4,4); }
-    else { a=p(4,0); b=p(0,4); }
-    return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" />`;
-  }).join("");
+  const lines = linesFor(card, cset);
+  const key = lines.map(l=>l.t+(l.i??"")).join(",");
+  if(svg.dataset.key !== key){
+    svg.dataset.key = key;
+    const p = (col,row)=>[(col+0.5)*20,(row+0.5)*20];
+    svg.innerHTML = lines.map(L=>{
+      let a,b;
+      if(L.t==="row"){a=p(0,L.i);b=p(4,L.i);}
+      else if(L.t==="col"){a=p(L.i,0);b=p(L.i,4);}
+      else if(L.t==="d1"){a=p(0,0);b=p(4,4);}
+      else{a=p(4,0);b=p(0,4);}
+      return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+    }).join("");
+  }
 
   const doneCols = new Set(lines.filter(l=>l.t==="col").map(l=>l.i));
-  bg2$("bg2Letters").querySelectorAll("span").forEach(s=>{
+  $("bg3Letters").querySelectorAll("span").forEach(s=>{
     s.classList.toggle("cut", doneCols.has(+s.dataset.c));
   });
 }
 
-function bg2renderNumbers(){
-  const called = bg2state.calledNumbers || [];
-  const myTurn = bg2state.turn === bg2me && !bg2state.winner;
-  bg2$("bg2Numbers").classList.toggle("locked", !myTurn);
-  [...bg2$("bg2Numbers").children].forEach(b=>{
-    const n = +b.dataset.n, isC = called.includes(n);
-    b.classList.toggle("called", isC);
-    b.disabled = isC || !myTurn;
+function renderNumbers(){
+  buildNumbers();
+  const cset = calledSet();
+  const myTurn = effTurn() === me && !S.winner;
+  $("bg3Numbers").classList.toggle("locked", !myTurn);
+  [...$("bg3Numbers").children].forEach(b=>{
+    const n = +b.dataset.n, isC = cset.has(n);
+    if(b.classList.contains("called") !== isC) b.classList.toggle("called", isC);
+    b.disabled = isC;
   });
-  bg2$("bg2Count").textContent = `${called.length} of 75 numbers called`;
+  $("bg3Count").textContent = `${cset.size} of 75 numbers called`;
 }
 
-function bg2renderIdentity(){
-  const r = bg2live(bg2state?.players?.Rohid), v = bg2live(bg2state?.players?.Vaniza);
-  bg2$("bg2PickRohid").disabled  = r;
-  bg2$("bg2PickVaniza").disabled = v;
-  bg2$("bg2PickRohid").textContent  = r ? "Rohid (already playing)"  : "Play as Rohid";
-  bg2$("bg2PickVaniza").textContent = v ? "Vaniza (already playing)" : "Play as Vaniza";
-  bg2$("bg2IdentityNote").textContent =
-    (r || v) ? `${r ? "Rohid" : "Vaniza"} is already here — take the other seat 💕`
-             : "Waiting for you to choose…";
+function renderIdentity(){
+  const r = live(S?.players?.Rohid), v = live(S?.players?.Vaniza);
+  $("bg3PickRohid").disabled  = r && me !== "Rohid";
+  $("bg3PickVaniza").disabled = v && me !== "Vaniza";
+  $("bg3PickRohid").textContent  = r ? "Rohid (already playing)"  : "Play as Rohid";
+  $("bg3PickVaniza").textContent = v ? "Vaniza (already playing)" : "Play as Vaniza";
+  $("bg3IdNote").textContent =
+    (r||v) ? `${r?"Rohid":"Vaniza"} is already here — take the other seat 💕`
+           : "Tap a name to start 💕";
 }
 
-function bg2renderCoin(){
-  const t = bg2state.toss || {}, stat = bg2$("bg2TossStatus"), coin = bg2$("bg2Coin");
-  if(t.result){
-    bg2$("bg2FlipBtn").style.display = "none";
-    if(!bg2coinBusy && !coin.classList.contains("done")){
-      bg2coinBusy = true;
-      coin.classList.add("spin");
-      stat.textContent = "Flipping…";
-      setTimeout(()=>{
-        coin.classList.remove("spin");
-        coin.classList.add("done");
-        coin.textContent = t.result === "heads" ? "👑" : "🌸";
-        stat.textContent = `${t.result.toUpperCase()} — ${t.firstTurn} calls first! 🎉`;
-        bg2coinBusy = false;
-        setTimeout(bg2startPlay, 1200);
-      }, 1600);
-    }
-  } else {
-    coin.classList.remove("done","spin");
-    coin.textContent = "🪙";
-    bg2$("bg2FlipBtn").style.display = "block";
-    stat.textContent = "Either of you can flip.";
+function renderCoin(){
+  const t = S.toss || {};
+  $("bg3FlipBtn").style.display = t.result ? "none" : "block";
+  if(!t.result){
+    const c = $("bg3Coin");
+    c.classList.remove("spin"); c.textContent = "🪙";
+    $("bg3TossStatus").textContent = "Either of you can flip.";
   }
 }
 
-async function bg2startPlay(){
-  if(!bg2state?.toss?.firstTurn || bg2state.phase !== "toss") return;
-  await updateDoc(GAME_REF, { phase:"playing", turn: bg2state.toss.firstTurn }).catch(()=>{});
+/* When phase flips to playing, decide whether to animate the coin first. */
+function maybeCoinIntro(){
+  const t = S.toss || {};
+  if(!t.at || coinPlayed === t.at) return false;
+  coinPlayed = t.at;
+  const isFreshFlip = Date.now() - t.at < 6000;
+  if(!isFreshFlip) return false;
+
+  show("bg3Toss");
+  $("bg3Who1").textContent = `You are ${me}`;
+  $("bg3FlipBtn").style.display = "none";
+  const c = $("bg3Coin"), stat = $("bg3TossStatus");
+  c.classList.remove("spin");
+  void c.offsetWidth;
+  c.classList.add("spin");
+  stat.textContent = "Flipping…";
+  setTimeout(()=>{
+    c.classList.remove("spin");
+    c.textContent = t.result === "heads" ? "👑" : "🌸";
+    stat.textContent = `${(t.result||"").toUpperCase()} — ${t.first} calls first! 🎉`;
+    setTimeout(render, 1100);
+  }, 1500);
+  return true;
 }
 
-function bg2renderGame(){
-  bg2buildNumbers();
-  const myTurn = bg2state.turn === bg2me;
-  const banner = bg2$("bg2TurnBanner");
-  banner.textContent = myTurn ? "Your turn — tap a number 💕" : `Waiting for ${bg2state.turn}'s turn…`;
+function renderGame(){
+  const myTurn = effTurn() === me;
+  const banner = $("bg3TurnBanner");
+  banner.textContent = myTurn ? "Your turn — tap a number 💕" : `Waiting for ${effTurn()||"…"}'s turn…`;
   banner.classList.toggle("wait", !myTurn);
-  const called = bg2state.calledNumbers || [];
-  bg2$("bg2LastNum").textContent = called.length ? called[called.length-1] : "–";
-  bg2renderCard();
-  bg2renderNumbers();
+  banner.classList.toggle("turn", myTurn);
+  const cs = calledSet();
+  const arr = S.called || [];
+  const last = localCalled.size
+    ? [...localCalled].pop()
+    : (arr.length ? arr[arr.length-1] : null);
+  $("bg3LastNum").textContent = last ?? "–";
+  renderCard();
+  renderNumbers();
 }
 
-function bg2renderWin(){
-  const won = bg2state.winner === bg2me;
-  bg2$("bg2WinIcon").textContent  = won ? "👑" : "💗";
-  bg2$("bg2WinTitle").textContent = `${bg2state.winner} Wins! 🎉`;
-  bg2$("bg2WinMsg").textContent   = won
+function renderWin(){
+  const won = S.winner === me;
+  $("bg3WinIcon").textContent  = won ? "👑" : "💗";
+  $("bg3WinTitle").textContent = `${S.winner} Wins! 🎉`;
+  $("bg3WinMsg").textContent   = won
     ? "You got the line first, my love. Rematch? 💕"
-    : `${bg2state.winner} got there first this time — go again? 💕`;
-  if(won) bg2confetti();
+    : `${S.winner} got there first this time — go again? 💕`;
+  if(won && !renderWin.done){ renderWin.done = true; confetti(); }
 }
 
-function bg2render(){
-  if(!bg2state){ bg2show("bg2Identity"); return; }
+function render(){
+  if(!S){ show("bg3Identity"); $("bg3IdNote").textContent = "Loading…"; return; }
 
-  if(bg2me && bg2state.players?.[bg2me]?.claimed === false){
-    bg2me = null; localStorage.removeItem("bg2Identity"); bg2stopBeat();
+  if(me && S.players?.[me]?.claimed === false){
+    me = null; localStorage.removeItem("bg3Identity"); stopBeat();
+    localCalled.clear(); pendingTurn = null;
   }
-  if(!bg2me){ bg2renderIdentity(); bg2show("bg2Identity"); return; }
+  if(!me){ renderIdentity(); show("bg3Identity"); return; }
 
-  bg2$("bg2Who1").textContent = `You are ${bg2me}`;
-  bg2$("bg2Who2").textContent = `You are ${bg2me}`;
+  $("bg3Who1").textContent = `You are ${me}`;
+  $("bg3Who2").textContent = `You are ${me}`;
 
-  const otherHere = bg2live(bg2state.players?.[bg2other(bg2me)]);
+  if(S.phase === "won" && S.winner){ renderWin(); show("bg3Win"); return; }
+  renderWin.done = false;
 
-  if(bg2state.phase === "won" && bg2state.winner){ bg2renderWin(); bg2show("bg2Win"); return; }
+  const otherHere = live(S.players?.[other(me)]);
   if(!otherHere){
-    bg2$("bg2WaitTitle").textContent = `Hi ${bg2me} 💗`;
-    bg2$("bg2WaitMsg").textContent   = `Waiting for ${bg2other(bg2me)} to join…`;
-    bg2show("bg2Waiting"); return;
+    $("bg3WaitTitle").textContent = `Hi ${me} 💗`;
+    $("bg3WaitMsg").textContent   = `Waiting for ${other(me)} to join…`;
+    show("bg3Waiting"); return;
   }
-  if(bg2state.phase === "toss" || bg2state.phase === "lobby"){ bg2renderCoin(); bg2show("bg2Toss"); return; }
-  if(bg2state.phase === "playing"){ bg2renderGame(); bg2show("bg2Game"); return; }
+
+  if(S.phase === "playing"){
+    if(maybeCoinIntro()) return;   // fresh flip → play animation once
+    renderGame(); show("bg3Game"); return;
+  }
+
+  /* lobby or toss with both present → coin screen */
+  renderCoin(); show("bg3Toss");
 }
 
-function bg2notify(){
-  if(!bg2prev || !bg2me) return;
-  NAMES.forEach(n=>{
-    if(n === bg2me) return;
-    const was = bg2live(bg2prev.players?.[n]), now = bg2live(bg2state.players?.[n]);
-    if(!was && now) bg2toast(`${n} has joined the Bingo game 🎉`);
-    if(was && !now) bg2toast(`${n} left the game 💗`);
+function notifyDiff(){
+  if(!prev || !me) return;
+  ["Rohid","Vaniza"].forEach(n=>{
+    if(n === me) return;
+    const was = live(prev.players?.[n]), now = live(S.players?.[n]);
+    if(!was && now) toast(`${n} has joined the Bingo game 🎉`);
+    if(was && !now) toast(`${n} left the game 💗`);
   });
-  const pc = (bg2prev.calledNumbers||[]).length, nc = (bg2state.calledNumbers||[]).length;
-  if(nc > pc && bg2state.turn === bg2me)
-    bg2toast(`${bg2other(bg2me)} called ${bg2state.calledNumbers[nc-1]} — your turn!`);
+  const pc = (prev.called||[]).length, nc = (S.called||[]).length;
+  if(nc > pc && S.turn === me){
+    const newNums = (S.called||[]).slice(pc).filter(n=>!localCalled.has(n));
+    if(newNums.length) toast(`${other(me)} called ${newNums[newNums.length-1]} — your turn!`);
+  }
 }
 
-function bg2confetti(){
+function confetti(){
   for(let i=0;i<46;i++){
     const p = document.createElement("span");
     Object.assign(p.style,{
@@ -4369,40 +4445,61 @@ function bg2confetti(){
   }
 }
 
-/* =====================  BOOT  ===================== */
-async function bg2open(){
-  bg2ov.classList.add("show");
-  document.body.style.overflow = "hidden";
-  await bg2ensure();
-  if(bg2me) bg2startBeat();
-  if(bg2unsub) bg2unsub();
-  bg2unsub = onSnapshot(GAME_REF, snap=>{
-    if(!snap.exists()) return;
-    bg2state = snap.data();
-    bg2notify();
-    bg2render();
-    bg2checkWin();
-    bg2prev = JSON.parse(JSON.stringify(bg2state));
-  });
+/* =====================  SNAPSHOT  ===================== */
+function subscribe(){
+  if(unsub) return;
+  unsub = onSnapshot(GAME_REF,
+    snap=>{
+      if(!snap.exists()){ ensureDoc(); return; }
+      S = snap.data();
+      // reconcile optimistic overlay with confirmed server data
+      const serverCalled = new Set(S.called || []);
+      localCalled.forEach(n=>{ if(serverCalled.has(n)) localCalled.delete(n); });
+      if(pendingTurn !== null && S.turn === pendingTurn) pendingTurn = null;
+      // self-heal: playing with no turn should never brick the board
+      if(S.phase === "playing" && !S.turn && me){
+        updateDoc(GAME_REF, {turn: S.toss?.first || "Rohid"}).catch(()=>{});
+      }
+      notifyDiff();
+      render();
+      checkMyWin();
+      prev = S;
+    },
+    ()=>{ toast("Lost connection — reconnecting… 💗"); }
+  );
 }
 
-function bg2close(){
-  bg2ov.classList.remove("show");
+/* =====================  OPEN/CLOSE  ===================== */
+async function openGame(){
+  bg3ov.classList.add("show");
+  document.body.style.overflow = "hidden";
+  subscribe();
+  await ensureDoc();
+  if(me) startBeat();
+  render();
+}
+function closeGame(){
+  bg3ov.classList.remove("show");
   document.body.style.overflow = "";
 }
 
-bg2$("bg2Launch").addEventListener("click", bg2open);
-bg2$("bg2Close").addEventListener("click", bg2close);
-bg2$("bg2PickRohid").addEventListener("click", ()=>bg2claim("Rohid"));
-bg2$("bg2PickVaniza").addEventListener("click", ()=>bg2claim("Vaniza"));
-bg2$("bg2FlipBtn").addEventListener("click", bg2flip);
-bg2$("bg2Again").addEventListener("click", bg2again);
-["bg2Leave1","bg2Leave2","bg2Leave3"].forEach(id=>bg2$(id).addEventListener("click", bg2leave));
+/* Warm up the connection as soon as the page loads,
+   so the first open is instant instead of cold-starting Firestore. */
+ensureDoc();
+subscribe();
+
+$("bg3Launch").addEventListener("click", openGame);
+$("bg3Close").addEventListener("click", closeGame);
+$("bg3PickRohid").addEventListener("click", ()=>claim("Rohid"));
+$("bg3PickVaniza").addEventListener("click", ()=>claim("Vaniza"));
+$("bg3FlipBtn").addEventListener("click", flipCoin);
+$("bg3Again").addEventListener("click", playAgain);
+["bg3Leave1","bg3Leave2","bg3Leave3"].forEach(id=>$(id).addEventListener("click", leaveSeat));
 
 window.addEventListener("keydown", e=>{
-  if(e.key === "Escape" && bg2ov.classList.contains("show")) bg2close();
+  if(e.key === "Escape" && bg3ov.classList.contains("show")) closeGame();
 });
-window.addEventListener("beforeunload", bg2stopBeat);
+window.addEventListener("beforeunload", stopBeat);
 </script>
 
 
