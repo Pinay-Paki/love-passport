@@ -3743,7 +3743,10 @@ Your Guy
 
 
   <!-- ================================================================
-       BINGO v3 — Rohid & Vaniza (fast realtime, optimistic UI)
+       BINGO v4 — Rohid & Vaniza
+       Classic 1–25 bingo: one 5×5 grid each (same numbers, different
+       arrangement), tap directly on your grid, picks mark BOTH boards,
+       each completed line = 1 letter of B-I-N-G-O, first to 5 wins.
        ================================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -3763,322 +3766,316 @@ const firebaseConfig = {
 
 const bgApp    = initializeApp(firebaseConfig);
 const bgDb     = getFirestore(bgApp);
-const GAME_REF = doc(bgDb, "bingoGame", "rohid-vaniza");
+/* v4 doc name = fresh state, old stuck docs are simply ignored */
+const GAME_REF = doc(bgDb, "bingoGame", "rohid-vaniza-v4");
 const STALE_MS = 65000;
 const BEAT_MS  = 15000;
+const WIN_LINES = 5;
 
 /* =====================  STYLES  ===================== */
 const bgStyle = document.createElement("style");
 bgStyle.textContent = `
-.bg3-wrap{ text-align:center; }
-.bg3-overlay{
+.bg4-wrap{ text-align:center; }
+.bg4-overlay{
   position:fixed; inset:0; z-index:160; display:none;
   background:rgba(71,29,60,.5); backdrop-filter:blur(10px);
   overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
-.bg3-overlay.show{ display:block; }
-.bg3-panel{
+.bg4-overlay.show{ display:block; }
+.bg4-panel{
   position:relative; min-height:100%; width:100%; max-width:520px; margin:0 auto;
   padding:20px 14px 40px;
   background:radial-gradient(circle at top,rgba(255,255,255,.97),rgba(255,248,248,.95)),
              linear-gradient(160deg,#fff8f8,#ffe0ec);
 }
-body.blue-theme .bg3-panel{
+body.blue-theme .bg4-panel{
   background:radial-gradient(circle at top,rgba(245,253,255,.97),rgba(233,251,255,.94)),
              linear-gradient(160deg,#f5fdff,#dff8ff)!important;
 }
-.bg3-close{
+.bg4-close{
   position:fixed; top:12px; right:max(12px,calc(50% - 248px)); z-index:9;
   width:44px; height:44px; border:0; border-radius:50%; cursor:pointer;
   background:rgba(255,255,255,.92); color:var(--deep-pink);
   font-size:1.5rem; font-weight:900; line-height:1;
   box-shadow:0 6px 18px rgba(53,24,47,.18); touch-action:manipulation;
 }
-body.blue-theme .bg3-close{
+body.blue-theme .bg4-close{
   background:rgba(255,255,255,.92)!important; color:var(--deep-pink)!important;
 }
-.bg3-head{ text-align:center; margin-bottom:16px; padding:0 46px; }
-.bg3-head h2{ font-family:var(--title-font); font-size:1.8rem; color:var(--deep-pink); margin-bottom:4px; line-height:1.15; }
-.bg3-head p{ color:var(--muted); font-weight:700; font-size:.98rem; line-height:1.5; }
+.bg4-head{ text-align:center; margin-bottom:16px; padding:0 46px; }
+.bg4-head h2{ font-family:var(--title-font); font-size:1.8rem; color:var(--deep-pink); margin-bottom:4px; line-height:1.15; }
+.bg4-head p{ color:var(--muted); font-weight:700; font-size:.98rem; line-height:1.5; }
 
-.bg3-btn{
+.bg4-btn{
   display:block; width:100%; min-height:54px; margin:10px 0; padding:14px 18px;
   border:0; border-radius:18px; cursor:pointer; font:inherit; font-size:1.05rem; font-weight:900;
   color:#fff; background:linear-gradient(135deg,var(--pink),var(--purple));
   box-shadow:0 12px 26px rgba(217,61,131,.22); touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.bg3-btn.ghost,
-body.blue-theme .bg3-btn.ghost{
+.bg4-btn.ghost,
+body.blue-theme .bg4-btn.ghost{
   color:var(--deep-pink)!important; background:rgba(255,255,255,.85)!important; box-shadow:none!important;
 }
-.bg3-btn:disabled{ opacity:.4; cursor:not-allowed; filter:grayscale(.5); }
-.bg3-btn:active:not(:disabled){ transform:scale(.98); }
+.bg4-btn:disabled{ opacity:.4; cursor:not-allowed; filter:grayscale(.5); }
+.bg4-btn:active:not(:disabled){ transform:scale(.98); }
 
-.bg3-who{
+.bg4-who{
   display:block; text-align:center; margin-bottom:10px; font-weight:900;
   font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
 }
-.bg3-status{
+.bg4-status{
   text-align:center; padding:13px; margin:10px 0; border-radius:18px;
   background:rgba(255,255,255,.72); color:var(--deep-pink);
   font-weight:900; font-size:1rem; line-height:1.5;
 }
-.bg3-status.wait{ color:var(--muted); }
-.bg3-status.turn{
+.bg4-status.wait{ color:var(--muted); }
+.bg4-status.turn{
   background:linear-gradient(135deg,rgba(255,111,174,.16),rgba(183,124,255,.16));
-  animation:bg3pulse 1.6s ease-in-out infinite;
+  animation:bg4pulse 1.6s ease-in-out infinite;
 }
-@keyframes bg3pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.015); } }
+@keyframes bg4pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.015); } }
 
-.bg3-coin-stage{ display:grid; place-items:center; padding:22px 0; perspective:900px; }
-.bg3-coin{
+.bg4-coin-stage{ display:grid; place-items:center; padding:22px 0; perspective:900px; }
+.bg4-coin{
   width:118px; height:118px; border-radius:50%; display:grid; place-items:center;
   font-size:2.7rem;
   background:radial-gradient(circle at 35% 30%,#ffe9a8,#f2c14e 62%,#d99b2e 100%);
   box-shadow:0 14px 34px rgba(180,130,20,.35), inset 0 -6px 14px rgba(0,0,0,.12);
 }
-.bg3-coin.spin{ animation:bg3flip 1.5s cubic-bezier(.3,.1,.3,1); }
-@keyframes bg3flip{
+.bg4-coin.spin{ animation:bg4flip 1.5s cubic-bezier(.3,.1,.3,1); }
+@keyframes bg4flip{
   0%{ transform:rotateY(0) translateY(0); }
   50%{ transform:rotateY(1440deg) translateY(-66px); }
   100%{ transform:rotateY(2880deg) translateY(0); }
 }
 
-.bg3-label{
-  text-align:center; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--deep-pink); font-weight:900; margin:18px 0 8px;
+/* scoreboard */
+.bg4-score{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+  margin:10px 0; padding:12px 14px; border-radius:20px; background:rgba(255,255,255,.72);
 }
-.bg3-numbers{
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:6px;
-  max-height:238px; overflow-y:auto; padding:6px;
-  border-radius:18px; background:rgba(255,255,255,.5);
-  transition:opacity .2s ease;
+.bg4-score .side{ text-align:center; }
+.bg4-score .nm{ font-size:.78rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.bg4-score .ln{ font-family:var(--title-font); font-size:1.9rem; font-weight:900; color:var(--deep-pink); line-height:1.1; }
+.bg4-score .vs{ font-weight:900; color:var(--muted); font-size:.85rem; }
+.bg4-score .side.me .nm{ color:var(--deep-pink); }
+.bg4-score .side.leading .ln{ animation:bg4pulse 1.4s ease-in-out infinite; }
+
+/* BINGO letters */
+.bg4-letters{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:10px 0 6px; }
+.bg4-letters span,
+body.blue-theme .bg4-letters span{
+  position:relative; text-align:center; font-family:var(--title-font);
+  font-size:1.7rem; font-weight:900; color:var(--deep-pink)!important;
+  opacity:.42; transition:opacity .3s ease;
 }
-.bg3-num{
-  min-height:46px; display:grid; place-items:center; border:0; cursor:pointer;
-  border-radius:12px; font:inherit; font-size:.95rem; font-weight:800;
-  color:var(--text); background:rgba(255,255,255,.94);
-  box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
+.bg4-letters span.got{ opacity:1; }
+.bg4-letters span.got::after{
+  content:""; position:absolute; left:14%; right:14%; top:52%; height:4px; border-radius:4px;
+  background:var(--deep-pink); animation:bg4cut .4s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes bg4cut{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+/* the one and only grid */
+.bg4-grid{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:7px; transition:opacity .2s ease; }
+.bg4-grid.locked{ opacity:.5; }
+.bg4-grid.locked .bg4-cell{ pointer-events:none; }
+.bg4-cell{
+  aspect-ratio:1; display:grid; place-items:center; border:0; cursor:pointer;
+  border-radius:15px; font:inherit; font-weight:900; font-size:1.15rem; color:var(--text);
+  background:rgba(255,255,255,.94); box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
   transition:transform .12s ease;
 }
-body.blue-theme .bg3-num{
+body.blue-theme .bg4-cell{
   background:rgba(255,255,255,.94)!important; color:var(--text)!important;
   box-shadow:inset 0 0 0 1.5px rgba(33,221,255,.3)!important;
 }
-.bg3-num:active:not(:disabled){ transform:scale(.92); }
-.bg3-num.called,
-body.blue-theme .bg3-num.called{
+.bg4-cell:active:not(.mark){ transform:scale(.9); }
+.bg4-cell.mark,
+body.blue-theme .bg4-cell.mark{
   background:linear-gradient(135deg,var(--pink),var(--purple))!important;
-  color:#fff!important; box-shadow:none!important;
+  color:#fff!important; box-shadow:none!important; cursor:default; pointer-events:none;
+  animation:bg4stamp .35s cubic-bezier(.3,1.4,.5,1);
 }
-.bg3-numbers.locked{ opacity:.45; }
-.bg3-numbers.locked .bg3-num{ pointer-events:none; }
-.bg3-count{ text-align:center; font-size:.8rem; font-weight:800; color:var(--muted); margin-top:8px; }
-
-.bg3-last{
-  display:flex; align-items:center; justify-content:center; gap:14px;
-  margin:12px 0; padding:12px; border-radius:20px; background:rgba(255,255,255,.72);
-}
-.bg3-last .n{ font-family:var(--title-font); font-size:2.6rem; font-weight:900; color:var(--deep-pink); line-height:1; min-width:70px; text-align:center; }
-.bg3-last .l{ font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:900; text-align:left; line-height:1.4; }
-
-.bg3-bingo-head{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:6px; }
-.bg3-bingo-head span,
-body.blue-theme .bg3-bingo-head span{
-  position:relative; text-align:center; font-family:var(--title-font);
-  font-size:1.6rem; font-weight:900; color:var(--deep-pink)!important;
-}
-.bg3-bingo-head span::after{
-  content:""; position:absolute; left:14%; right:14%; top:52%; height:4px; border-radius:4px;
-  background:var(--deep-pink); transform:scaleX(0); transform-origin:left;
-  transition:transform .4s cubic-bezier(.4,0,.2,1);
-}
-.bg3-bingo-head span.cut::after{ transform:scaleX(1); }
-.bg3-grid{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-.bg3-cell{
-  aspect-ratio:1; display:grid; place-items:center; border-radius:14px;
-  font-weight:800; font-size:1.05rem; color:var(--text);
-  background:rgba(255,255,255,.9); box-shadow:inset 0 0 0 1.5px rgba(255,214,224,.9);
-}
-.bg3-cell.mark{
-  background:linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; box-shadow:none;
-  animation:bg3stamp .35s cubic-bezier(.3,1.4,.5,1);
-}
-@keyframes bg3stamp{ 0%{ transform:scale(1.25); } 60%{ transform:scale(.94); } 100%{ transform:scale(1); } }
-.bg3-cell.free{ background:rgba(255,209,102,.55); color:var(--deep-pink); font-size:.68rem; box-shadow:none; }
-.bg3-lines{ position:absolute; inset:0; pointer-events:none; z-index:2; }
-.bg3-lines line{
+@keyframes bg4stamp{ 0%{ transform:scale(1.25); } 60%{ transform:scale(.94); } 100%{ transform:scale(1); } }
+.bg4-lines{ position:absolute; inset:0; pointer-events:none; z-index:2; }
+.bg4-lines line{
   stroke:var(--deep-pink); stroke-width:5; stroke-linecap:round; opacity:.9;
-  stroke-dasharray:200; stroke-dashoffset:200; animation:bg3draw .4s ease forwards;
+  stroke-dasharray:200; stroke-dashoffset:200; animation:bg4draw .4s ease forwards;
 }
-@keyframes bg3draw{ to{ stroke-dashoffset:0; } }
+@keyframes bg4draw{ to{ stroke-dashoffset:0; } }
 
-.bg3-toast{
+.bg4-hint{ text-align:center; font-size:.8rem; font-weight:800; color:var(--muted); margin-top:10px; line-height:1.5; }
+
+.bg4-toast{
   position:fixed; left:50%; top:16px; transform:translateX(-50%) translateY(-26px);
   z-index:400; width:min(420px,calc(100% - 28px)); padding:13px 16px; border-radius:18px;
   background:rgba(255,255,255,.96); box-shadow:0 18px 44px rgba(53,24,47,.24);
   color:var(--deep-pink); font-weight:900; text-align:center; line-height:1.45;
   opacity:0; pointer-events:none; transition:.3s ease;
 }
-.bg3-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.bg4-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-.bg3-win{ text-align:center; padding:30px 8px; }
-.bg3-win .c{ font-size:3.6rem; }
-.bg3-win h3{ font-family:var(--title-font); font-size:2rem; color:var(--deep-pink); margin:10px 0; }
-.bg3-win p{ color:var(--muted); font-weight:750; line-height:1.6; margin-bottom:20px; }
-
-.bg3-conn{
-  position:fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:170;
-  font-size:.72rem; font-weight:900; color:var(--muted); opacity:0; transition:.3s;
-  background:rgba(255,255,255,.85); padding:6px 12px; border-radius:999px;
-}
-.bg3-conn.show{ opacity:1; }
+.bg4-win{ text-align:center; padding:30px 8px; }
+.bg4-win .c{ font-size:3.6rem; }
+.bg4-win h3{ font-family:var(--title-font); font-size:2rem; color:var(--deep-pink); margin:10px 0; }
+.bg4-win p{ color:var(--muted); font-weight:750; line-height:1.6; margin-bottom:20px; }
 `;
 document.head.appendChild(bgStyle);
 
 /* =====================  MARKUP  ===================== */
-const bg3launch = document.createElement("div");
-bg3launch.className = "bg3-wrap";
-bg3launch.innerHTML = `<button class="btn" id="bg3Launch">🎱 Play Bingo Together</button>`;
+const bg4launch = document.createElement("div");
+bg4launch.className = "bg4-wrap";
+bg4launch.innerHTML = `<button class="btn" id="bg4Launch">🎱 Play Bingo Together</button>`;
 
-const bg3FoodBtn = document.getElementById("foodGameStartButton");
-const bg3FoodSec = bg3FoodBtn ? bg3FoodBtn.closest("section") : null;
-if (bg3FoodSec && bg3FoodSec.parentNode) {
+const bg4FoodBtn = document.getElementById("foodGameStartButton");
+const bg4FoodSec = bg4FoodBtn ? bg4FoodBtn.closest("section") : null;
+if (bg4FoodSec && bg4FoodSec.parentNode) {
   const sec = document.createElement("section");
   sec.className = "section";
   sec.innerHTML = `<div class="shell"><div class="card">
     <h2 class="section-title">Bingo Night 🎉</h2>
-    <p class="section-subtitle">Just the two of us — pick your name, flip the coin, and let's play from wherever we are.</p>
+    <p class="section-subtitle">Same 25 numbers, different boards — every pick marks us both. First to five lines shouts BINGO 💕</p>
   </div></div>`;
-  sec.querySelector(".card").appendChild(bg3launch);
-  bg3FoodSec.parentNode.insertBefore(sec, bg3FoodSec.nextSibling);
+  sec.querySelector(".card").appendChild(bg4launch);
+  bg4FoodSec.parentNode.insertBefore(sec, bg4FoodSec.nextSibling);
 } else {
-  document.querySelector("main")?.appendChild(bg3launch);
+  document.querySelector("main")?.appendChild(bg4launch);
 }
 
-const bg3ov = document.createElement("div");
-bg3ov.className = "bg3-overlay";
-bg3ov.innerHTML = `
-<button class="bg3-close" id="bg3Close" aria-label="Close">×</button>
-<div class="bg3-panel">
+const bg4ov = document.createElement("div");
+bg4ov.className = "bg4-overlay";
+bg4ov.innerHTML = `
+<button class="bg4-close" id="bg4Close" aria-label="Close">×</button>
+<div class="bg4-panel">
 
-  <div id="bg3Identity">
-    <div class="bg3-head"><h2>Who's playing? 💕</h2><p>Tap your name to take your seat.</p></div>
-    <button class="bg3-btn" id="bg3PickRohid">Play as Rohid</button>
-    <button class="bg3-btn" id="bg3PickVaniza">Play as Vaniza</button>
-    <div class="bg3-status wait" id="bg3IdNote">Loading…</div>
+  <div id="bg4Identity">
+    <div class="bg4-head"><h2>Who's playing? 💕</h2><p>Tap your name to take your seat.</p></div>
+    <button class="bg4-btn" id="bg4PickRohid">Play as Rohid</button>
+    <button class="bg4-btn" id="bg4PickVaniza">Play as Vaniza</button>
+    <div class="bg4-status wait" id="bg4IdNote">Loading…</div>
   </div>
 
-  <div id="bg3Waiting" style="display:none;">
-    <div class="bg3-head"><h2 id="bg3WaitTitle">Hi 💗</h2><p id="bg3WaitMsg">Waiting…</p></div>
-    <div class="bg3-status wait">The game starts the moment you're both here.</div>
-    <button class="bg3-btn ghost" id="bg3Leave1">Leave my seat</button>
+  <div id="bg4Waiting" style="display:none;">
+    <div class="bg4-head"><h2 id="bg4WaitTitle">Hi 💗</h2><p id="bg4WaitMsg">Waiting…</p></div>
+    <div class="bg4-status wait">The game starts the moment you're both here.</div>
+    <button class="bg4-btn ghost" id="bg4Leave1">Leave my seat</button>
   </div>
 
-  <div id="bg3Toss" style="display:none;">
-    <span class="bg3-who" id="bg3Who1"></span>
-    <div class="bg3-head"><h2>Coin Toss 🪙</h2><p>Heads → Rohid calls first · Tails → Vaniza calls first</p></div>
-    <div class="bg3-coin-stage"><div class="bg3-coin" id="bg3Coin">🪙</div></div>
-    <div class="bg3-status" id="bg3TossStatus">Either of you can flip.</div>
-    <button class="bg3-btn" id="bg3FlipBtn">Flip Coin</button>
+  <div id="bg4Toss" style="display:none;">
+    <span class="bg4-who" id="bg4Who1"></span>
+    <div class="bg4-head"><h2>Coin Toss 🪙</h2><p>Heads → Rohid goes first · Tails → Vaniza goes first</p></div>
+    <div class="bg4-coin-stage"><div class="bg4-coin" id="bg4Coin">🪙</div></div>
+    <div class="bg4-status" id="bg4TossStatus">Either of you can flip.</div>
+    <button class="bg4-btn" id="bg4FlipBtn">Flip Coin</button>
   </div>
 
-  <div id="bg3Game" style="display:none;">
-    <span class="bg3-who" id="bg3Who2"></span>
-    <div class="bg3-status" id="bg3TurnBanner">…</div>
+  <div id="bg4Game" style="display:none;">
+    <span class="bg4-who" id="bg4Who2"></span>
 
-    <div class="bg3-last">
-      <div class="n" id="bg3LastNum">–</div>
-      <div class="l">Last number<br>called</div>
+    <div class="bg4-score">
+      <div class="side" id="bg4ScoreL">
+        <div class="nm" id="bg4NameL">Rohid</div>
+        <div class="ln" id="bg4LinesL">0</div>
+      </div>
+      <div class="vs">lines</div>
+      <div class="side" id="bg4ScoreR">
+        <div class="nm" id="bg4NameR">Vaniza</div>
+        <div class="ln" id="bg4LinesR">0</div>
+      </div>
     </div>
 
-    <div class="bg3-label">Your Card</div>
-    <div class="bg3-bingo-head" id="bg3Letters">
-      <span data-c="0">B</span><span data-c="1">I</span><span data-c="2">N</span><span data-c="3">G</span><span data-c="4">O</span>
-    </div>
-    <div class="bg3-grid" id="bg3Grid">
-      <svg class="bg3-lines" id="bg3Lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    <div class="bg4-status" id="bg4TurnBanner">…</div>
+
+    <div class="bg4-letters" id="bg4Letters">
+      <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
     </div>
 
-    <div class="bg3-label">Calling Board</div>
-    <div class="bg3-numbers" id="bg3Numbers"></div>
-    <div class="bg3-count" id="bg3Count"></div>
+    <div class="bg4-grid" id="bg4Grid">
+      <svg class="bg4-lines" id="bg4Lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    </div>
 
-    <button class="bg3-btn ghost" id="bg3Leave2" style="margin-top:20px;">Leave my seat</button>
+    <p class="bg4-hint">Tap a number on your turn — it marks both boards.<br>First to ${WIN_LINES} lines wins 💕</p>
+
+    <button class="bg4-btn ghost" id="bg4Leave2" style="margin-top:16px;">Leave my seat</button>
   </div>
 
-  <div id="bg3Win" style="display:none;">
-    <div class="bg3-win">
-      <div class="c" id="bg3WinIcon">🎉</div>
-      <h3 id="bg3WinTitle">Bingo!</h3>
-      <p id="bg3WinMsg"></p>
-      <button class="bg3-btn" id="bg3Again">Play Again</button>
-      <button class="bg3-btn ghost" id="bg3Leave3">Leave my seat</button>
+  <div id="bg4Win" style="display:none;">
+    <div class="bg4-win">
+      <div class="c" id="bg4WinIcon">🎉</div>
+      <h3 id="bg4WinTitle">Bingo!</h3>
+      <p id="bg4WinMsg"></p>
+      <button class="bg4-btn" id="bg4Again">Play Again</button>
+      <button class="bg4-btn ghost" id="bg4Leave3">Leave my seat</button>
     </div>
   </div>
 </div>`;
-document.body.appendChild(bg3ov);
+document.body.appendChild(bg4ov);
 
-const bg3toastEl = document.createElement("div");
-bg3toastEl.className = "bg3-toast";
-document.body.appendChild(bg3toastEl);
-
-const bg3connEl = document.createElement("div");
-bg3connEl.className = "bg3-conn";
-bg3connEl.textContent = "syncing…";
-document.body.appendChild(bg3connEl);
+const bg4toastEl = document.createElement("div");
+bg4toastEl.className = "bg4-toast";
+document.body.appendChild(bg4toastEl);
 
 /* =====================  STATE  ===================== */
-let me       = localStorage.getItem("bg3Identity") || null;
-let S        = null;            // server state
-let localCalled = new Set();    // optimistic overlay
-let pendingTurn = null;         // optimistic turn after my call
-let unsub    = null, beat = null, prev = null;
-let coinPlayed = 0;             // flippedAt we've animated
+let me   = localStorage.getItem("bg4Identity") || null;
+let S    = null;
+let localPicked = new Set();
+let pendingTurn = null;
+let unsub = null, beat = null, prev = null, coinPlayed = 0;
 
 const $ = id => document.getElementById(id);
 const other = n => n === "Rohid" ? "Vaniza" : "Rohid";
 const live  = p => !!(p && p.claimed && (Date.now() - (p.lastSeen||0) < STALE_MS));
 
 function toast(msg){
-  bg3toastEl.textContent = msg;
-  bg3toastEl.classList.add("show");
+  bg4toastEl.textContent = msg;
+  bg4toastEl.classList.add("show");
   clearTimeout(toast.t);
-  toast.t = setTimeout(()=>bg3toastEl.classList.remove("show"), 3000);
+  toast.t = setTimeout(()=>bg4toastEl.classList.remove("show"), 3000);
 }
 
-function newCard(){
-  const ranges=[[1,15],[16,30],[31,45],[46,60],[61,75]];
-  const flat=new Array(25);
-  ranges.forEach(([mn,mx],col)=>{
-    const used=new Set();
-    for(let row=0;row<5;row++){
-      if(col===2&&row===2){flat[col*5+row]=0;continue;}
-      let n; do{n=Math.floor(Math.random()*(mx-mn+1))+mn;}while(used.has(n));
-      used.add(n); flat[col*5+row]=n;
-    }
-  });
-  return flat;
+/* Board = numbers 1..25 shuffled (Fisher–Yates). Index = row*5+col. */
+function newBoard(){
+  const a = Array.from({length:25}, (_,i)=>i+1);
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
 }
 
 function fresh(){
   return {
     phase:"lobby",
-    players:{Rohid:{claimed:false,lastSeen:0,card:[]},Vaniza:{claimed:false,lastSeen:0,card:[]}},
+    players:{Rohid:{claimed:false,lastSeen:0,board:[]},Vaniza:{claimed:false,lastSeen:0,board:[]}},
     toss:{result:null,first:null,at:0},
-    called:[], turn:null, winner:null, round:1
+    picked:[], turn:null, winner:null, round:1
   };
 }
 
-/* effective called-set = server + optimistic */
-function calledSet(){
-  const s = new Set(S?.called || []);
-  localCalled.forEach(n=>s.add(n));
+function pickedSet(){
+  const s = new Set(S?.picked || []);
+  localPicked.forEach(n=>s.add(n));
   return s;
 }
 function effTurn(){ return pendingTurn ?? S?.turn ?? null; }
+
+/* All 12 lines of a 5x5 board, as index arrays (row-major: row*5+col). */
+const ALL_LINES = (()=>{
+  const L = [];
+  for(let r=0;r<5;r++) L.push([0,1,2,3,4].map(c=>r*5+c));
+  for(let c=0;c<5;c++) L.push([0,1,2,3,4].map(r=>r*5+c));
+  L.push([0,6,12,18,24]);
+  L.push([4,8,12,16,20]);
+  return L;
+})();
+
+function completedLines(board, pset){
+  if(!board || board.length !== 25) return [];
+  return ALL_LINES.filter(idx => idx.every(i => pset.has(board[i])));
+}
 
 /* =====================  NETWORK  ===================== */
 async function ensureDoc(){
@@ -4089,7 +4086,6 @@ async function ensureDoc(){
 }
 
 async function claim(name){
-  bg3connEl.classList.add("show");
   try{
     await runTransaction(bgDb, async tx=>{
       const s = await tx.get(GAME_REF);
@@ -4101,27 +4097,27 @@ async function claim(name){
         [`players.${name}.claimed`]: true,
         [`players.${name}.lastSeen`]: Date.now()
       };
-      if(!seat?.card?.length) upd[`players.${name}.card`] = newCard();
+      if(!seat?.board || seat.board.length !== 25) upd[`players.${name}.board`] = newBoard();
       tx.update(GAME_REF, upd);
     });
     me = name;
-    localStorage.setItem("bg3Identity", name);
+    localStorage.setItem("bg4Identity", name);
     startBeat();
   }catch(e){
     toast(e.message === "taken" ? "That seat is already taken 💗" : "Couldn't connect — try again 💗");
   }
-  bg3connEl.classList.remove("show");
 }
 
 async function leaveSeat(){
   if(!me) return;
   const name = me;
-  me = null; localStorage.removeItem("bg3Identity");
-  localCalled.clear(); pendingTurn = null; stopBeat();
+  me = null; localStorage.removeItem("bg4Identity");
+  localPicked.clear(); pendingTurn = null; stopBeat();
   updateDoc(GAME_REF, {
     [`players.${name}.claimed`]: false,
     [`players.${name}.lastSeen`]: 0,
-    phase:"lobby", turn:null, winner:null, called:[],
+    [`players.${name}.board`]: [],
+    phase:"lobby", turn:null, winner:null, picked:[],
     toss:{result:null,first:null,at:0}
   }).catch(()=>{});
   render();
@@ -4135,10 +4131,9 @@ function startBeat(){
 }
 function stopBeat(){ if(beat) clearInterval(beat); beat = null; }
 
-/* Flip: ONE atomic write sets result + phase:"playing" + turn.
-   No follow-up write needed — the deadlock from v2 is gone. */
+/* One atomic write: toss result + phase + first turn together. */
 async function flipCoin(){
-  $("bg3FlipBtn").disabled = true;
+  $("bg4FlipBtn").disabled = true;
   try{
     await runTransaction(bgDb, async tx=>{
       const s = await tx.get(GAME_REF);
@@ -4153,91 +4148,73 @@ async function flipCoin(){
       });
     });
   }catch(e){ toast("Flip didn't go through — tap again 💗"); }
-  $("bg3FlipBtn").disabled = false;
+  $("bg4FlipBtn").disabled = false;
 }
 
-/* Call: optimistic. UI updates INSTANTLY, network write happens in background.
-   Single updateDoc with arrayUnion — no read round-trip. */
-function callNumber(n){
+/* Tap a number on your grid: optimistic, single background write. */
+function pickNumber(n){
   if(!S || S.phase !== "playing" || S.winner) return;
   if(effTurn() !== me) return;
-  if(calledSet().has(n)) return;
+  if(pickedSet().has(n)) return;
 
-  localCalled.add(n);
+  localPicked.add(n);
   pendingTurn = other(me);
-  render();                       // instant feedback
-  checkMyWin();
+  render();
+  checkWin();
 
   updateDoc(GAME_REF, {
-    called: arrayUnion(n),
+    picked: arrayUnion(n),
     turn: other(me)
   }).catch(()=>{
-    localCalled.delete(n);
+    localPicked.delete(n);
     pendingTurn = null;
     render();
     toast("That tap didn't sync — try again 💗");
   });
 }
 
-function linesFor(card, cset){
-  const m = i => card[i] === 0 || cset.has(card[i]);
-  const out = [];
-  for(let r=0;r<5;r++) if([0,1,2,3,4].map(c=>c*5+r).every(m)) out.push({t:"row",i:r});
-  for(let c=0;c<5;c++) if([0,1,2,3,4].map(r=>c*5+r).every(m)) out.push({t:"col",i:c});
-  if([0,1,2,3,4].map(i=>i*5+i).every(m)) out.push({t:"d1"});
-  if([0,1,2,3,4].map(i=>i*5+(4-i)).every(m)) out.push({t:"d2"});
-  return out;
-}
-
-function checkMyWin(){
-  if(!me || !S || S.winner || S.phase !== "playing") return;
-  const card = S.players?.[me]?.card || [];
-  if(!card.length) return;
-  if(!linesFor(card, calledSet()).length) return;
+/* Win when either player reaches WIN_LINES. Winner named accordingly.
+   Any client that observes it can write it; transaction prevents doubles. */
+function checkWin(){
+  if(!S || S.winner || S.phase !== "playing") return;
+  const pset = pickedSet();
+  const mine  = completedLines(S.players?.[me]?.board, pset).length;
+  const theirs= completedLines(S.players?.[other(me)]?.board, pset).length;
+  let winner = null;
+  if(mine >= WIN_LINES || theirs >= WIN_LINES){
+    if(mine > theirs)      winner = me;
+    else if(theirs > mine) winner = other(me);
+    else {
+      /* Both crossed on the same pick with equal lines (very rare):
+         the player who made that last pick wins. After a pick the turn
+         passes to the other player, so picker = other(S.turn).
+         Deterministic — both clients compute the same result. */
+      winner = S.turn ? other(S.turn) : "Rohid";
+    }
+  }
+  if(!winner) return;
   runTransaction(bgDb, async tx=>{
     const s = await tx.get(GAME_REF);
     if(s.data().winner) return;
-    tx.update(GAME_REF, {winner: me, phase:"won"});
+    tx.update(GAME_REF, {winner, phase:"won"});
   }).catch(()=>{});
 }
 
 async function playAgain(){
-  localCalled.clear(); pendingTurn = null; coinPlayed = 0;
+  localPicked.clear(); pendingTurn = null; coinPlayed = 0;
   updateDoc(GAME_REF, {
-    phase:"toss", called:[], turn:null, winner:null,
+    phase:"toss", picked:[], turn:null, winner:null,
     toss:{result:null,first:null,at:0},
     round:(S?.round||1)+1,
-    "players.Rohid.card": newCard(),
-    "players.Vaniza.card": newCard()
+    "players.Rohid.board": newBoard(),
+    "players.Vaniza.board": newBoard()
   }).catch(()=>toast("Couldn't restart — try again 💗"));
 }
 
 /* =====================  RENDER  ===================== */
 function show(which){
-  ["bg3Identity","bg3Waiting","bg3Toss","bg3Game","bg3Win"].forEach(id=>{
+  ["bg4Identity","bg4Waiting","bg4Toss","bg4Game","bg4Win"].forEach(id=>{
     $(id).style.display = (id===which) ? "block" : "none";
-  });
-}
-
-let numbersBuilt = false;
-function buildNumbers(){
-  if(numbersBuilt) return;
-  numbersBuilt = true;
-  const frag = document.createDocumentFragment();
-  for(let n=1;n<=75;n++){
-    const b = document.createElement("button");
-    b.className = "bg3-num";
-    b.type = "button";
-    b.textContent = n;
-    b.dataset.n = n;
-    frag.appendChild(b);
-  }
-  const box = $("bg3Numbers");
-  box.appendChild(frag);
-  // one delegated listener — faster than 75 handlers
-  box.addEventListener("click", e=>{
-    const b = e.target.closest(".bg3-num");
-    if(b && !b.disabled) callNumber(+b.dataset.n);
   });
 }
 
@@ -4245,103 +4222,106 @@ let cellsBuilt = false;
 function buildCells(){
   if(cellsBuilt) return;
   cellsBuilt = true;
-  const grid = $("bg3Grid");
-  for(let row=0;row<5;row++)
-    for(let col=0;col<5;col++){
-      const c = document.createElement("div");
-      c.className = "bg3-cell";
-      c.dataset.idx = col*5+row;
-      grid.appendChild(c);
-    }
+  const grid = $("bg4Grid");
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<25;i++){
+    const c = document.createElement("button");
+    c.className = "bg4-cell";
+    c.type = "button";
+    c.dataset.idx = i;
+    frag.appendChild(c);
+  }
+  grid.appendChild(frag);
+  grid.addEventListener("click", e=>{
+    const c = e.target.closest(".bg4-cell");
+    if(c && !c.classList.contains("mark")) pickNumber(+c.textContent);
+  });
 }
 
-function renderCard(){
+function renderGrid(){
   buildCells();
-  const card = S.players?.[me]?.card || [];
-  const cset = calledSet();
-  const grid = $("bg3Grid"), svg = $("bg3Lines");
+  const board = S.players?.[me]?.board || [];
+  const pset  = pickedSet();
+  const grid  = $("bg4Grid");
+  const svg   = $("bg4Lines");
 
-  grid.querySelectorAll(".bg3-cell").forEach(cell=>{
-    const i = +cell.dataset.idx, v = card[i];
-    if(v === 0){
-      if(cell.textContent !== "FREE"){ cell.textContent = "FREE"; cell.className = "bg3-cell free mark"; }
-      return;
-    }
+  const myTurn = effTurn() === me && !S.winner;
+  grid.classList.toggle("locked", !myTurn);
+
+  grid.querySelectorAll(".bg4-cell").forEach(cell=>{
+    const i = +cell.dataset.idx, v = board[i];
     const txt = String(v ?? "");
     if(cell.textContent !== txt) cell.textContent = txt;
-    cell.classList.remove("free");
-    const on = cset.has(v);
+    const on = v != null && pset.has(v);
     if(on && !cell.classList.contains("mark")) cell.classList.add("mark");
     else if(!on) cell.classList.remove("mark");
   });
 
-  const lines = linesFor(card, cset);
-  const key = lines.map(l=>l.t+(l.i??"")).join(",");
+  const lines = completedLines(board, pset);
+  const key = lines.map(l=>l.join(".")).join("|");
   if(svg.dataset.key !== key){
     svg.dataset.key = key;
-    const p = (col,row)=>[(col+0.5)*20,(row+0.5)*20];
-    svg.innerHTML = lines.map(L=>{
-      let a,b;
-      if(L.t==="row"){a=p(0,L.i);b=p(4,L.i);}
-      else if(L.t==="col"){a=p(L.i,0);b=p(L.i,4);}
-      else if(L.t==="d1"){a=p(0,0);b=p(4,4);}
-      else{a=p(4,0);b=p(0,4);}
+    const pos = i => [ (i%5+0.5)*20, (Math.floor(i/5)+0.5)*20 ];
+    svg.innerHTML = lines.map(idx=>{
+      const a = pos(idx[0]), b = pos(idx[4]);
       return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
     }).join("");
   }
 
-  const doneCols = new Set(lines.filter(l=>l.t==="col").map(l=>l.i));
-  $("bg3Letters").querySelectorAll("span").forEach(s=>{
-    s.classList.toggle("cut", doneCols.has(+s.dataset.c));
+  /* BINGO letters: one per completed line, capped at 5 */
+  const got = Math.min(lines.length, 5);
+  $("bg4Letters").querySelectorAll("span").forEach((s,i)=>{
+    s.classList.toggle("got", i < got);
   });
+
+  return lines.length;
 }
 
-function renderNumbers(){
-  buildNumbers();
-  const cset = calledSet();
-  const myTurn = effTurn() === me && !S.winner;
-  $("bg3Numbers").classList.toggle("locked", !myTurn);
-  [...$("bg3Numbers").children].forEach(b=>{
-    const n = +b.dataset.n, isC = cset.has(n);
-    if(b.classList.contains("called") !== isC) b.classList.toggle("called", isC);
-    b.disabled = isC;
-  });
-  $("bg3Count").textContent = `${cset.size} of 75 numbers called`;
+function renderScore(myLines){
+  const pset = pickedSet();
+  const theirLines = completedLines(S.players?.[other(me)]?.board, pset).length;
+
+  /* left column is always ME for consistency */
+  $("bg4NameL").textContent  = me;
+  $("bg4NameR").textContent  = other(me);
+  $("bg4LinesL").textContent = Math.min(myLines,5);
+  $("bg4LinesR").textContent = Math.min(theirLines,5);
+  $("bg4ScoreL").classList.add("me");
+  $("bg4ScoreL").classList.toggle("leading", myLines > theirLines);
+  $("bg4ScoreR").classList.toggle("leading", theirLines > myLines);
 }
 
 function renderIdentity(){
   const r = live(S?.players?.Rohid), v = live(S?.players?.Vaniza);
-  $("bg3PickRohid").disabled  = r && me !== "Rohid";
-  $("bg3PickVaniza").disabled = v && me !== "Vaniza";
-  $("bg3PickRohid").textContent  = r ? "Rohid (already playing)"  : "Play as Rohid";
-  $("bg3PickVaniza").textContent = v ? "Vaniza (already playing)" : "Play as Vaniza";
-  $("bg3IdNote").textContent =
+  $("bg4PickRohid").disabled  = r && me !== "Rohid";
+  $("bg4PickVaniza").disabled = v && me !== "Vaniza";
+  $("bg4PickRohid").textContent  = r ? "Rohid (already playing)"  : "Play as Rohid";
+  $("bg4PickVaniza").textContent = v ? "Vaniza (already playing)" : "Play as Vaniza";
+  $("bg4IdNote").textContent =
     (r||v) ? `${r?"Rohid":"Vaniza"} is already here — take the other seat 💕`
            : "Tap a name to start 💕";
 }
 
 function renderCoin(){
   const t = S.toss || {};
-  $("bg3FlipBtn").style.display = t.result ? "none" : "block";
+  $("bg4FlipBtn").style.display = t.result ? "none" : "block";
   if(!t.result){
-    const c = $("bg3Coin");
+    const c = $("bg4Coin");
     c.classList.remove("spin"); c.textContent = "🪙";
-    $("bg3TossStatus").textContent = "Either of you can flip.";
+    $("bg4TossStatus").textContent = "Either of you can flip.";
   }
 }
 
-/* When phase flips to playing, decide whether to animate the coin first. */
 function maybeCoinIntro(){
   const t = S.toss || {};
   if(!t.at || coinPlayed === t.at) return false;
   coinPlayed = t.at;
-  const isFreshFlip = Date.now() - t.at < 6000;
-  if(!isFreshFlip) return false;
+  if(Date.now() - t.at >= 6000) return false;   // stale flip → skip anim
 
-  show("bg3Toss");
-  $("bg3Who1").textContent = `You are ${me}`;
-  $("bg3FlipBtn").style.display = "none";
-  const c = $("bg3Coin"), stat = $("bg3TossStatus");
+  show("bg4Toss");
+  $("bg4Who1").textContent = `You are ${me}`;
+  $("bg4FlipBtn").style.display = "none";
+  const c = $("bg4Coin"), stat = $("bg4TossStatus");
   c.classList.remove("spin");
   void c.offsetWidth;
   c.classList.add("spin");
@@ -4349,7 +4329,7 @@ function maybeCoinIntro(){
   setTimeout(()=>{
     c.classList.remove("spin");
     c.textContent = t.result === "heads" ? "👑" : "🌸";
-    stat.textContent = `${(t.result||"").toUpperCase()} — ${t.first} calls first! 🎉`;
+    stat.textContent = `${(t.result||"").toUpperCase()} — ${t.first} goes first! 🎉`;
     setTimeout(render, 1100);
   }, 1500);
   return true;
@@ -4357,59 +4337,52 @@ function maybeCoinIntro(){
 
 function renderGame(){
   const myTurn = effTurn() === me;
-  const banner = $("bg3TurnBanner");
-  banner.textContent = myTurn ? "Your turn — tap a number 💕" : `Waiting for ${effTurn()||"…"}'s turn…`;
+  const banner = $("bg4TurnBanner");
+  banner.textContent = myTurn ? "Your turn — tap a number 💕" : `Waiting for ${effTurn()||"…"}…`;
   banner.classList.toggle("wait", !myTurn);
   banner.classList.toggle("turn", myTurn);
-  const cs = calledSet();
-  const arr = S.called || [];
-  const last = localCalled.size
-    ? [...localCalled].pop()
-    : (arr.length ? arr[arr.length-1] : null);
-  $("bg3LastNum").textContent = last ?? "–";
-  renderCard();
-  renderNumbers();
+  const myLines = renderGrid();
+  renderScore(myLines);
 }
 
 function renderWin(){
   const won = S.winner === me;
-  $("bg3WinIcon").textContent  = won ? "👑" : "💗";
-  $("bg3WinTitle").textContent = `${S.winner} Wins! 🎉`;
-  $("bg3WinMsg").textContent   = won
-    ? "You got the line first, my love. Rematch? 💕"
-    : `${S.winner} got there first this time — go again? 💕`;
+  $("bg4WinIcon").textContent  = won ? "👑" : "💗";
+  $("bg4WinTitle").textContent = `${S.winner} Wins! 🎉`;
+  $("bg4WinMsg").textContent   = won
+    ? `You hit ${WIN_LINES} lines first, my love. Rematch? 💕`
+    : `${S.winner} hit ${WIN_LINES} lines first this time — go again? 💕`;
   if(won && !renderWin.done){ renderWin.done = true; confetti(); }
 }
 
 function render(){
-  if(!S){ show("bg3Identity"); $("bg3IdNote").textContent = "Loading…"; return; }
+  if(!S){ show("bg4Identity"); $("bg4IdNote").textContent = "Loading…"; return; }
 
   if(me && S.players?.[me]?.claimed === false){
-    me = null; localStorage.removeItem("bg3Identity"); stopBeat();
-    localCalled.clear(); pendingTurn = null;
+    me = null; localStorage.removeItem("bg4Identity"); stopBeat();
+    localPicked.clear(); pendingTurn = null;
   }
-  if(!me){ renderIdentity(); show("bg3Identity"); return; }
+  if(!me){ renderIdentity(); show("bg4Identity"); return; }
 
-  $("bg3Who1").textContent = `You are ${me}`;
-  $("bg3Who2").textContent = `You are ${me}`;
+  $("bg4Who1").textContent = `You are ${me}`;
+  $("bg4Who2").textContent = `You are ${me}`;
 
-  if(S.phase === "won" && S.winner){ renderWin(); show("bg3Win"); return; }
+  if(S.phase === "won" && S.winner){ renderWin(); show("bg4Win"); return; }
   renderWin.done = false;
 
   const otherHere = live(S.players?.[other(me)]);
   if(!otherHere){
-    $("bg3WaitTitle").textContent = `Hi ${me} 💗`;
-    $("bg3WaitMsg").textContent   = `Waiting for ${other(me)} to join…`;
-    show("bg3Waiting"); return;
+    $("bg4WaitTitle").textContent = `Hi ${me} 💗`;
+    $("bg4WaitMsg").textContent   = `Waiting for ${other(me)} to join…`;
+    show("bg4Waiting"); return;
   }
 
   if(S.phase === "playing"){
-    if(maybeCoinIntro()) return;   // fresh flip → play animation once
-    renderGame(); show("bg3Game"); return;
+    if(maybeCoinIntro()) return;
+    renderGame(); show("bg4Game"); return;
   }
 
-  /* lobby or toss with both present → coin screen */
-  renderCoin(); show("bg3Toss");
+  renderCoin(); show("bg4Toss");
 }
 
 function notifyDiff(){
@@ -4420,10 +4393,10 @@ function notifyDiff(){
     if(!was && now) toast(`${n} has joined the Bingo game 🎉`);
     if(was && !now) toast(`${n} left the game 💗`);
   });
-  const pc = (prev.called||[]).length, nc = (S.called||[]).length;
+  const pc = (prev.picked||[]).length, nc = (S.picked||[]).length;
   if(nc > pc && S.turn === me){
-    const newNums = (S.called||[]).slice(pc).filter(n=>!localCalled.has(n));
-    if(newNums.length) toast(`${other(me)} called ${newNums[newNums.length-1]} — your turn!`);
+    const news = (S.picked||[]).slice(pc).filter(n=>!localPicked.has(n));
+    if(news.length) toast(`${other(me)} picked ${news[news.length-1]} — your turn!`);
   }
 }
 
@@ -4452,17 +4425,15 @@ function subscribe(){
     snap=>{
       if(!snap.exists()){ ensureDoc(); return; }
       S = snap.data();
-      // reconcile optimistic overlay with confirmed server data
-      const serverCalled = new Set(S.called || []);
-      localCalled.forEach(n=>{ if(serverCalled.has(n)) localCalled.delete(n); });
+      const server = new Set(S.picked || []);
+      localPicked.forEach(n=>{ if(server.has(n)) localPicked.delete(n); });
       if(pendingTurn !== null && S.turn === pendingTurn) pendingTurn = null;
-      // self-heal: playing with no turn should never brick the board
       if(S.phase === "playing" && !S.turn && me){
         updateDoc(GAME_REF, {turn: S.toss?.first || "Rohid"}).catch(()=>{});
       }
       notifyDiff();
       render();
-      checkMyWin();
+      checkWin();
       prev = S;
     },
     ()=>{ toast("Lost connection — reconnecting… 💗"); }
@@ -4471,7 +4442,7 @@ function subscribe(){
 
 /* =====================  OPEN/CLOSE  ===================== */
 async function openGame(){
-  bg3ov.classList.add("show");
+  bg4ov.classList.add("show");
   document.body.style.overflow = "hidden";
   subscribe();
   await ensureDoc();
@@ -4479,25 +4450,24 @@ async function openGame(){
   render();
 }
 function closeGame(){
-  bg3ov.classList.remove("show");
+  bg4ov.classList.remove("show");
   document.body.style.overflow = "";
 }
 
-/* Warm up the connection as soon as the page loads,
-   so the first open is instant instead of cold-starting Firestore. */
+/* Warm up connection at page load for instant open. */
 ensureDoc();
 subscribe();
 
-$("bg3Launch").addEventListener("click", openGame);
-$("bg3Close").addEventListener("click", closeGame);
-$("bg3PickRohid").addEventListener("click", ()=>claim("Rohid"));
-$("bg3PickVaniza").addEventListener("click", ()=>claim("Vaniza"));
-$("bg3FlipBtn").addEventListener("click", flipCoin);
-$("bg3Again").addEventListener("click", playAgain);
-["bg3Leave1","bg3Leave2","bg3Leave3"].forEach(id=>$(id).addEventListener("click", leaveSeat));
+$("bg4Launch").addEventListener("click", openGame);
+$("bg4Close").addEventListener("click", closeGame);
+$("bg4PickRohid").addEventListener("click", ()=>claim("Rohid"));
+$("bg4PickVaniza").addEventListener("click", ()=>claim("Vaniza"));
+$("bg4FlipBtn").addEventListener("click", flipCoin);
+$("bg4Again").addEventListener("click", playAgain);
+["bg4Leave1","bg4Leave2","bg4Leave3"].forEach(id=>$(id).addEventListener("click", leaveSeat));
 
 window.addEventListener("keydown", e=>{
-  if(e.key === "Escape" && bg3ov.classList.contains("show")) closeGame();
+  if(e.key === "Escape" && bg4ov.classList.contains("show")) closeGame();
 });
 window.addEventListener("beforeunload", stopBeat);
 </script>
