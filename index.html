@@ -3740,6 +3740,441 @@ Your Guy
     });
   });
 </script>
-  
+
+<!-- ================================================================
+     BINGO ADD-ON for Vaniza's site
+     HOW TO INSTALL:
+     1. Open index.html on GitHub (Pinay-Paki/love-passport)
+     2. Click the pencil/edit icon
+     3. Paste this ENTIRE block right before the closing </body> tag
+     4. Commit changes — your site redeploys automatically
+     No other edits needed. This script injects its own button,
+     styles, and popup — it will not touch anything else on your page.
+     ================================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc,
+  onSnapshot, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ---------- Your Firebase project ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyAKxRoi9JTM1pgXfWnIUgvFnC9JWezyHEw",
+  authDomain: "bingo-a9837.firebaseapp.com",
+  projectId: "bingo-a9837",
+  storageBucket: "bingo-a9837.firebasestorage.app",
+  messagingSenderId: "297483791137",
+  appId: "1:297483791137:web:5d49e02bc10f2ccb9b2c60"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ---------- Styles (theme-aware, reuses your site's CSS vars) ---------- */
+const style = document.createElement("style");
+style.textContent = `
+.bng-launch-wrap{ text-align:center; }
+.bng-overlay{
+  position:fixed; inset:0; z-index:150; display:none; place-items:center; padding:18px;
+  background: rgba(71,29,60,0.42); backdrop-filter: blur(16px);
+}
+.bng-overlay.show{ display:grid; animation:fadeIn .25s ease both; }
+.bng-panel{
+  position:relative; width:min(480px,100%); max-height:min(92vh,860px); overflow:auto;
+  border-radius:34px; padding:26px 18px 28px;
+  background: radial-gradient(circle at top, rgba(255,255,255,0.96), rgba(255,248,248,0.92)),
+              linear-gradient(145deg, #fff8f8, #ffe0ec);
+  border:1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 34px 90px rgba(53,24,47,0.32);
+}
+body.blue-theme .bng-panel{
+  background: radial-gradient(circle at top, rgba(245,253,255,0.96), rgba(233,251,255,0.92)),
+              linear-gradient(145deg, #f5fdff, #dff8ff) !important;
+}
+.bng-close{
+  position:absolute; top:14px; right:14px; z-index:5; width:42px; height:42px; border:0;
+  border-radius:50%; cursor:pointer; background:rgba(255,255,255,0.78); color:var(--deep-pink);
+  font-size:1.4rem; font-weight:900;
+}
+.bng-header{ text-align:center; margin-bottom:18px; }
+.bng-header h2{
+  font-family: var(--title-font); font-size:clamp(1.5rem,6vw,2.1rem); color:var(--deep-pink);
+  margin-bottom:6px;
+}
+.bng-header p{ color:var(--muted); font-weight:700; }
+.bng-row{ display:flex; gap:10px; margin:10px 0; }
+.bng-input{
+  flex:1; padding:12px 14px; border-radius:14px; border:1.5px solid rgba(255,214,224,0.9);
+  font:inherit; font-weight:700; color:var(--text); background:rgba(255,255,255,0.85);
+}
+.bng-code-display{
+  text-align:center; font-family:var(--title-font); font-size:2.2rem; letter-spacing:4px;
+  color:var(--deep-pink); font-weight:800; margin:10px 0; user-select:all;
+}
+.bng-hint{ text-align:center; color:var(--muted); font-weight:700; font-size:0.9rem; margin-bottom:14px; }
+.bng-current{
+  text-align:center; margin:14px 0; padding:16px; border-radius:22px;
+  background:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.8);
+}
+.bng-current .num{ font-family:var(--title-font); font-size:3rem; color:var(--deep-pink); font-weight:900; line-height:1; }
+.bng-current .lbl{ color:var(--muted); font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:.1em; }
+.bng-called-list{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:10px 0 4px; max-height:64px; overflow:auto; }
+.bng-called-chip{
+  padding:4px 9px; border-radius:999px; background:rgba(255,111,174,0.14); color:var(--deep-pink);
+  font-weight:800; font-size:0.8rem;
+}
+.bng-headers{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:16px; }
+.bng-headers span{ text-align:center; font-family:var(--title-font); color:var(--deep-pink); font-weight:900; font-size:1.3rem; }
+.bng-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:6px; }
+.bng-cell{
+  aspect-ratio:1; display:grid; place-items:center; border-radius:14px;
+  background:rgba(255,255,255,0.65); border:1.5px solid rgba(255,214,224,0.9);
+  font-weight:800; color:var(--text); font-size:clamp(0.85rem,3.6vw,1.05rem); transition:.2s ease;
+}
+.bng-cell.called{ background:linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; transform:scale(1.03); border-color:transparent; }
+.bng-cell.free{ background:rgba(255,209,102,0.35); color:var(--deep-pink); font-size:0.75rem; }
+.bng-actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:18px; }
+.bng-winner{ text-align:center; padding:16px; }
+.bng-winner .crown{ font-size:3rem; }
+.bng-winner h3{ font-family:var(--title-font); color:var(--deep-pink); font-size:1.6rem; margin:6px 0; }
+`;
+document.head.appendChild(style);
+
+/* ---------- Launch button + overlay markup ---------- */
+const launchWrap = document.createElement("div");
+launchWrap.className = "bng-launch-wrap";
+launchWrap.innerHTML = `<button class="btn" id="bngLaunchBtn">🎱 Play Bingo Together</button>`;
+
+// Try to place it right after the Food Game section, else at end of <main>
+const foodBtn = document.getElementById("foodGameStartButton");
+const foodSection = foodBtn ? foodBtn.closest("section") : null;
+if (foodSection && foodSection.parentNode) {
+  const wrapperSection = document.createElement("section");
+  wrapperSection.className = "section";
+  const shell = document.createElement("div");
+  shell.className = "shell";
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <h2 class="section-title">Bingo Night 🎉</h2>
+    <p class="section-subtitle">Just for us — pick a room, share the code, and let's play from wherever we are.</p>
+  `;
+  card.appendChild(launchWrap);
+  shell.appendChild(card);
+  wrapperSection.appendChild(shell);
+  foodSection.parentNode.insertBefore(wrapperSection, foodSection.nextSibling);
+} else {
+  document.querySelector("main")?.appendChild(launchWrap);
+}
+
+const overlay = document.createElement("div");
+overlay.className = "bng-overlay";
+overlay.innerHTML = `
+  <div class="bng-panel">
+    <button class="bng-close" id="bngCloseBtn" aria-label="Close">×</button>
+
+    <div id="bngLobby">
+      <div class="bng-header">
+        <h2>Bingo Time 🎱💕</h2>
+        <p>Just us two, playing from wherever we are.</p>
+      </div>
+
+      <div class="bng-row">
+        <input class="bng-input" id="bngNameInput" placeholder="Your name" />
+      </div>
+
+      <button class="btn" id="bngCreateRoomBtn" style="width:100%;margin-bottom:10px;">✨ Create a New Room</button>
+
+      <div class="bng-row">
+        <input class="bng-input" id="bngJoinCodeInput" placeholder="Enter room code" style="text-transform:uppercase;" maxlength="6" />
+        <button class="btn secondary" id="bngJoinRoomBtn">Join</button>
+      </div>
+    </div>
+
+    <div id="bngGame" style="display:none;">
+      <div class="bng-header">
+        <h2 id="bngRoomTitle">Room</h2>
+      </div>
+      <div class="bng-code-display" id="bngCodeDisplay"></div>
+      <p class="bng-hint">Share this code with her so she can join 💌</p>
+
+      <div class="bng-current">
+        <div class="lbl">Last Number Called</div>
+        <div class="num" id="bngCurrentNumber">–</div>
+      </div>
+
+      <div class="bng-called-list" id="bngCalledList"></div>
+
+      <div class="bng-headers">
+        <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
+      </div>
+      <div class="bng-grid" id="bngGrid"></div>
+
+      <div class="bng-actions">
+        <button class="btn" id="bngCallBtn">🔔 Call Next Number</button>
+        <button class="btn secondary" id="bngNewCardBtn">🔄 New Card</button>
+        <button class="btn secondary" id="bngClaimBtn">🎉 BINGO!</button>
+      </div>
+
+      <div class="bng-winner" id="bngWinnerBox" style="display:none;"></div>
+
+      <div class="bng-actions">
+        <button class="btn secondary" id="bngResetBtn" style="display:none;">Play Again</button>
+      </div>
+    </div>
+  </div>
+`;
+document.body.appendChild(overlay);
+
+/* ---------- Elements ---------- */
+const els = {
+  launchBtn: document.getElementById("bngLaunchBtn"),
+  closeBtn: document.getElementById("bngCloseBtn"),
+  lobby: document.getElementById("bngLobby"),
+  game: document.getElementById("bngGame"),
+  nameInput: document.getElementById("bngNameInput"),
+  createBtn: document.getElementById("bngCreateRoomBtn"),
+  joinInput: document.getElementById("bngJoinCodeInput"),
+  joinBtn: document.getElementById("bngJoinRoomBtn"),
+  roomTitle: document.getElementById("bngRoomTitle"),
+  codeDisplay: document.getElementById("bngCodeDisplay"),
+  currentNumber: document.getElementById("bngCurrentNumber"),
+  calledList: document.getElementById("bngCalledList"),
+  grid: document.getElementById("bngGrid"),
+  callBtn: document.getElementById("bngCallBtn"),
+  newCardBtn: document.getElementById("bngNewCardBtn"),
+  claimBtn: document.getElementById("bngClaimBtn"),
+  winnerBox: document.getElementById("bngWinnerBox"),
+  resetBtn: document.getElementById("bngResetBtn")
+};
+
+let currentRoomCode = null;
+let currentCard = null; // 5x5 array of numbers, center = "FREE"
+let unsubscribe = null;
+let latestCalled = [];
+
+/* ---------- Helpers ---------- */
+function randCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+function randInRange(min, max, exclude) {
+  let n;
+  do { n = Math.floor(Math.random() * (max - min + 1)) + min; }
+  while (exclude.has(n));
+  return n;
+}
+
+function generateCard() {
+  const ranges = [[1,15],[16,30],[31,45],[46,60],[61,75]];
+  const card = [[],[],[],[],[]]; // columns B I N G O
+  ranges.forEach(([min,max], col) => {
+    const used = new Set();
+    for (let row = 0; row < 5; row++) {
+      if (col === 2 && row === 2) { card[col][row] = "FREE"; continue; }
+      const n = randInRange(min, max, used);
+      used.add(n);
+      card[col][row] = n;
+    }
+  });
+  return card;
+}
+
+function renderCard() {
+  els.grid.innerHTML = "";
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 5; col++) {
+      const val = currentCard[col][row];
+      const cell = document.createElement("div");
+      cell.className = "bng-cell";
+      if (val === "FREE") {
+        cell.classList.add("free", "called");
+        cell.textContent = "FREE";
+      } else {
+        cell.textContent = val;
+        if (latestCalled.includes(val)) cell.classList.add("called");
+      }
+      els.grid.appendChild(cell);
+    }
+  }
+}
+
+function renderCalledList() {
+  els.calledList.innerHTML = latestCalled
+    .slice()
+    .reverse()
+    .map(n => `<span class="bng-called-chip">${n}</span>`)
+    .join("");
+  els.currentNumber.textContent = latestCalled.length ? latestCalled[latestCalled.length - 1] : "–";
+}
+
+function checkBingo() {
+  const marked = (col,row) => currentCard[col][row] === "FREE" || latestCalled.includes(currentCard[col][row]);
+  // rows
+  for (let row = 0; row < 5; row++) {
+    if ([0,1,2,3,4].every(col => marked(col,row))) return true;
+  }
+  // cols
+  for (let col = 0; col < 5; col++) {
+    if ([0,1,2,3,4].every(row => marked(col,row))) return true;
+  }
+  // diagonals
+  if ([0,1,2,3,4].every(i => marked(i,i))) return true;
+  if ([0,1,2,3,4].every(i => marked(i,4-i))) return true;
+  return false;
+}
+
+function burstBngConfetti() {
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("span");
+    piece.style.position = "fixed";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.top = "-10px";
+    piece.style.width = "10px";
+    piece.style.height = "14px";
+    piece.style.borderRadius = "4px";
+    piece.style.background = ["#ff6fae","#b77cff","#ffd166"][Math.floor(Math.random()*3)];
+    piece.style.zIndex = 300;
+    piece.style.transition = "transform 2.4s ease-out, opacity 2.4s ease-out";
+    document.body.appendChild(piece);
+    requestAnimationFrame(() => {
+      piece.style.transform = `translateY(${window.innerHeight + 40}px) rotate(${Math.random()*720}deg)`;
+      piece.style.opacity = "0";
+    });
+    setTimeout(() => piece.remove(), 2500);
+  }
+}
+
+function getName() {
+  return els.nameInput.value.trim() || localStorage.getItem("bngName") || "Player";
+}
+
+/* ---------- Room lifecycle ---------- */
+async function createRoom() {
+  const name = getName();
+  localStorage.setItem("bngName", name);
+  const code = randCode();
+  await setDoc(doc(db, "bingoRooms", code), {
+    calledNumbers: [],
+    winner: null,
+    createdAt: Date.now(),
+    players: [name]
+  });
+  enterRoom(code, name);
+}
+
+async function joinRoom() {
+  const name = getName();
+  localStorage.setItem("bngName", name);
+  const code = els.joinInput.value.trim().toUpperCase();
+  if (!code) return;
+  const snap = await getDoc(doc(db, "bingoRooms", code));
+  if (!snap.exists()) {
+    alert("That room code wasn't found — double check with her 💕");
+    return;
+  }
+  const data = snap.data();
+  const players = data.players || [];
+  if (!players.includes(name)) {
+    await updateDoc(doc(db, "bingoRooms", code), { players: [...players, name] });
+  }
+  enterRoom(code, name);
+}
+
+function enterRoom(code, name) {
+  currentRoomCode = code;
+  currentCard = generateCard();
+  els.lobby.style.display = "none";
+  els.game.style.display = "block";
+  els.roomTitle.textContent = `Room for ${name} 💕`;
+  els.codeDisplay.textContent = code;
+  els.winnerBox.style.display = "none";
+  els.resetBtn.style.display = "none";
+
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onSnapshot(doc(db, "bingoRooms", code), (snap) => {
+    if (!snap.exists()) return;
+    const data = snap.data();
+    latestCalled = data.calledNumbers || [];
+    renderCalledList();
+    renderCard();
+
+    if (data.winner) {
+      els.winnerBox.style.display = "block";
+      els.winnerBox.innerHTML = `
+        <div class="crown">👑</div>
+        <h3>${data.winner} got BINGO!</h3>
+        <p>Two hearts, one win. Play again? 💕</p>
+      `;
+      els.resetBtn.style.display = "inline-block";
+      burstBngConfetti();
+    } else {
+      els.winnerBox.style.display = "none";
+      els.resetBtn.style.display = "none";
+    }
+  });
+}
+
+async function callNextNumber() {
+  if (!currentRoomCode) return;
+  const roomRef = doc(db, "bingoRooms", currentRoomCode);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(roomRef);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.winner) return;
+    const called = data.calledNumbers || [];
+    if (called.length >= 75) return;
+    const excludeSet = new Set(called);
+    const next = randInRange(1, 75, excludeSet);
+    tx.update(roomRef, { calledNumbers: [...called, next] });
+  });
+}
+
+async function claimBingo() {
+  if (!currentRoomCode) return;
+  if (!checkBingo()) {
+    alert("Not quite a full line yet — keep marking! 🌸");
+    return;
+  }
+  const name = getName();
+  const roomRef = doc(db, "bingoRooms", currentRoomCode);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(roomRef);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.winner) return; // someone already won
+    tx.update(roomRef, { winner: name });
+  });
+}
+
+async function resetGame() {
+  if (!currentRoomCode) return;
+  await updateDoc(doc(db, "bingoRooms", currentRoomCode), { calledNumbers: [], winner: null });
+  currentCard = generateCard();
+  renderCard();
+}
+
+/* ---------- Wire up UI ---------- */
+els.launchBtn.addEventListener("click", () => {
+  overlay.classList.add("show");
+  const savedName = localStorage.getItem("bngName");
+  if (savedName) els.nameInput.value = savedName;
+});
+els.closeBtn.addEventListener("click", () => overlay.classList.remove("show"));
+overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.remove("show"); });
+
+els.createBtn.addEventListener("click", createRoom);
+els.joinBtn.addEventListener("click", joinRoom);
+els.callBtn.addEventListener("click", callNextNumber);
+els.newCardBtn.addEventListener("click", () => { currentCard = generateCard(); renderCard(); });
+els.claimBtn.addEventListener("click", claimBingo);
+els.resetBtn.addEventListener("click", resetGame);
+</script>
+
 </body>
 </html>
